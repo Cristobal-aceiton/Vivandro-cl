@@ -1,0 +1,24 @@
+# robots.txt — Vivandro (https://vivandro.cl)
+#
+# Nota: esto solo controla el RASTREO de los buscadores, no es una medida
+# de seguridad. El panel admin igual debe estar protegido en el backend
+# (Supabase Auth + Row Level Security) y con `noindex` en el propio HTML,
+# porque un robots.txt público solo le dice a los buscadores "no entres",
+# pero no impide que alguien acceda directamente a la URL.
+
+User-agent: *
+Allow: /
+
+# Panel de administración y todo lo que no es contenido público
+Disallow: /admin-panel
+Disallow: /admin-panel.html
+Disallow: /admin-panel.js
+Disallow: /admin-panel.css
+
+# Archivos internos del proyecto (esquema de base de datos, migraciones,
+# documentación técnica): no deberían estar en un hosting público, pero
+# se bloquean igual por si acaso.
+Disallow: /*.sql$
+Disallow: /LEEME_PANEL_ADMIN.md
+
+Sitemap: https://vivandro.cl/sitemap.xml

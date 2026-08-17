@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle del Servidor de Minecraft | Vivandro</title>
+    <meta name="description" content="Ficha del servidor: IP, año de creación, jugadores promedio, modalidades y reseñas de otros jugadores.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" id="seo-canonical" href="https://vivandro-cl-i1x2.vercel.app/servidor-detalle">
+
+    <!-- Open Graph (se actualizan por JS con los datos reales del servidor) -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Vivandro">
+    <meta property="og:title" id="seo-og-title" content="Detalle del Servidor de Minecraft | Vivandro">
+    <meta property="og:description" id="seo-og-description" content="Ficha del servidor: IP, año de creación, jugadores promedio, modalidades y reseñas de otros jugadores.">
+    <meta property="og:url" id="seo-og-url" content="https://vivandro-cl-i1x2.vercel.app/servidor-detalle">
+    <meta property="og:image" id="seo-og-image" content="https://vivandro-cl-i1x2.vercel.app/imagenes/logo.png">
+    <meta property="og:locale" content="es_CL">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" id="seo-twitter-title" content="Detalle del Servidor de Minecraft | Vivandro">
+    <meta name="twitter:description" id="seo-twitter-description" content="Ficha del servidor: IP, jugadores promedio, modalidades y reseñas.">
+    <meta name="twitter:image" id="seo-twitter-image" content="https://vivandro-cl-i1x2.vercel.app/imagenes/logo.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="16x16" href="imagenes/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="imagenes/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="imagenes/favicon-192x192.png">
+<link rel="apple-touch-icon" href="imagenes/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#a708b6">
+    <link rel="stylesheet" href="css/navbar.css">
+    <style>
+
+        :root {
+            --bg: #a708b6;
+            --navbar-bg: #9801ac;
+            --card-bg: #ffffff;
+            --card-text: #333333;
+            --card-text-soft: #555555;
+            --titulo-color: #e6dada;
+            --acento: #a708b6;
+            --acento-fuerte: #9801ac;
+            --logo-box-bg1: #f4eef6;
+            --logo-box-bg2: #e9dcee;
+            --ip-row-bg: #f4eef6;
+            --input-bg: #ffffff;
+            --input-border: #d8bfe0;
+        }
+
+        html.dark-mode {
+            --bg: #17071c;
+            --navbar-bg: #250a2c;
+            --card-bg: #241129;
+            --card-text: #f0e8f3;
+            --card-text-soft: #c9b8ce;
+            --titulo-color: #f3e6f7;
+            --acento: #e07bff;
+            --acento-fuerte: #c94dff;
+            --logo-box-bg1: #2d1533;
+            --logo-box-bg2: #3a1b42;
+            --ip-row-bg: #2d1533;
+            --input-bg: #2d1533;
+            --input-border: #4a2652;
+        }
+
+        body, html {
+            margin: 0;
+            background-color: var(--bg);
+            font-family: "Poppins", sans-serif;
+            transition: background-color 0.3s ease;
+        }
+
+        .volver {
+            display: block;
+            max-width: 800px;
+            margin: 20px auto 0;
+            padding: 0 20px;
+            color: var(--titulo-color);
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .detalle-card {
+            max-width: 800px;
+            margin: 20px auto 60px;
+            padding: 0 20px;
+        }
+
+        .logo-header {
+            background: linear-gradient(135deg, var(--logo-box-bg1), var(--logo-box-bg2));
+            border-radius: 16px;
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .logo-header img {
+            max-width: 55%;
+            max-height: 60%;
+            object-fit: contain;
+        }
+
+        .info-box {
+            background-color: var(--card-bg);
+            border-radius: 14px;
+            padding: 26px;
+            color: var(--card-text);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .info-box h1 {
+            font-family: "Pixelify Sans", sans-serif;
+            color: var(--acento);
+            margin: 0 0 8px;
+        }
+
+        .info-box p.descripcion {
+            color: var(--card-text-soft);
+            line-height: 1.5;
+        }
+
+        .server-stats {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            margin: 18px 0;
+        }
+
+        .stat-item .stat-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            color: #999;
+            font-weight: 600;
+            display: block;
+        }
+
+        .stat-item .stat-value {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--card-text);
+        }
+
+        .ip-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            background-color: var(--ip-row-bg);
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin-bottom: 18px;
+        }
+
+        .ip-row .ip-texto {
+            font-weight: 700;
+            color: var(--acento);
+        }
+
+        .btn-copiar-ip {
+            background-color: var(--acento-fuerte);
+            color: #fff;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .modalidades {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .modalidad-tag {
+            background-color: var(--acento);
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 999px;
+        }
+
+        /* Reseñas */
+        .resenas-box {
+            max-width: 800px;
+            margin: 0 auto 60px;
+            padding: 0 20px;
+        }
+
+        .resenas-box h2 {
+            color: var(--titulo-color);
+            font-family: "Pixelify Sans", sans-serif;
+        }
+
+        .form-resena {
+            background-color: var(--card-bg);
+            border-radius: 14px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .form-resena input,
+        .form-resena textarea {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--input-border);
+            background-color: var(--input-bg);
+            color: var(--card-text);
+            font-family: "Poppins", sans-serif;
+        }
+
+        .estrellas-input {
+            display: flex;
+            gap: 4px;
+            font-size: 1.6rem;
+            cursor: pointer;
+        }
+
+        .estrellas-input span {
+            color: #ccc;
+            transition: color 0.15s ease;
+        }
+
+        .estrellas-input span.activa {
+            color: #ffb400;
+        }
+
+        .btn-enviar-resena {
+            align-self: flex-start;
+            background-color: var(--acento-fuerte);
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-enviar-resena:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .contador-caracteres {
+            align-self: flex-end;
+            font-size: 0.78rem;
+            color: var(--card-text-soft);
+        }
+
+        .contador-caracteres.limite {
+            color: #e03b3b;
+            font-weight: 700;
+        }
+
+        /* Bloque de login / usuario logueado */
+        .auth-box {
+            background-color: var(--card-bg);
+            border-radius: 14px;
+            padding: 18px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .auth-box p {
+            margin: 0;
+            color: var(--card-text-soft);
+            font-size: 0.9rem;
+        }
+
+        .btn-google {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: #fff;
+            color: #3c4043;
+            border: 1px solid var(--input-border);
+            padding: 9px 16px;
+            border-radius: 8px;
+            font-family: "Poppins", sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .btn-google svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        .usuario-actual {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .usuario-actual img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+
+        .usuario-actual span {
+            color: var(--card-text);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .btn-cerrar-sesion {
+            background: none;
+            border: 1px solid var(--input-border);
+            color: var(--card-text-soft);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .aviso-ya-reseñaste {
+            background-color: var(--card-bg);
+            border-radius: 14px;
+            padding: 18px 20px;
+            margin-bottom: 20px;
+            color: var(--card-text-soft);
+            font-size: 0.9rem;
+        }
+
+        .aviso-supabase {
+            font-size: 0.8rem;
+            color: var(--card-text-soft);
+            background-color: var(--ip-row-bg);
+            border-radius: 8px;
+            padding: 8px 12px;
+        }
+
+        .lista-resenas {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .resena-item {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 14px 18px;
+            color: var(--card-text);
+        }
+
+        .resena-item .resena-cabecera {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .resena-item .resena-estrellas {
+            color: #ffb400;
+        }
+
+        .resena-item p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--card-text-soft);
+        }
+
+        .sin-resenas, .cargando-resenas, .error-resenas {
+            color: var(--titulo-color);
+            text-align: center;
+            padding: 20px;
+        }
+
+        .btn-reintentar {
+            display: inline-block;
+            margin-top: 10px;
+            background-color: var(--acento);
+            color: #fff;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-family: "Poppins", sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .btn-reintentar:hover {
+            background-color: var(--acento-fuerte);
+        }
+
+        .btn-ver-mas-resenas {
+            align-self: center;
+            margin-top: 4px;
+            background-color: transparent;
+            color: var(--acento-fuerte);
+            border: 2px solid var(--acento-fuerte);
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-ver-mas-resenas:hover {
+            background-color: var(--acento-fuerte);
+            color: #fff;
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-links">
+            <a href="/">Inicio</a>
+            <a href="/mods">Mods</a>
+            <a href="/texturas">Texturas</a>
+            <a href="/servidores">Servidores</a>
+        </div>
+        <div class="navbar-right">
+            <div class="nav-auth" id="nav-auth"></div>
+            <button id="theme-toggle" title="Cambiar tema" aria-label="Cambiar tema claro/oscuro"></button>
+        </div>
+    </nav>
+
+    <a href="/servidores" class="volver">&larr; Volver a Servidores</a>
+
+    <div class="detalle-card" id="detalle-card">
+        <!-- Se rellena con JS -->
+    </div>
+
+    <div class="resenas-box">
+        <h2>Reseñas</h2>
+
+        <div class="aviso-supabase" id="aviso-supabase" style="display:none;">
+            Las reseñas de ejemplo se guardan solo en este navegador (localStorage) porque Supabase aún no está conectado.
+            Edita <code>supabase-client.js</code> con tus credenciales para activarlas de verdad.
+        </div>
+
+        <!-- No logueado: pide iniciar sesión con Google -->
+        <div class="auth-box" id="auth-box-login">
+            <p>Debes iniciar sesión con Google para dejar tu reseña.</p>
+            <button class="btn-google" id="btn-login-google">
+                <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 15.9 18.9 13 24 13c3.1 0 5.8 1.1 8 3l5.7-5.7C34.6 6.1 29.6 4 24 4c-7.6 0-14.1 4.3-17.4 10.6z"/><path fill="#4CAF50" d="M24 44c5.5 0 10.4-2.1 14.1-5.5l-6.5-5.5C29.6 34.8 26.9 36 24 36c-5.3 0-9.7-3.3-11.3-8l-6.6 5.1C9.8 39.6 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.2-4.3 5.6l6.5 5.5C40.8 36.4 44 30.8 44 24c0-1.3-.1-2.7-.4-3.5z"/></svg>
+                Continuar con Google
+            </button>
+        </div>
+
+        <!-- Logueado, sin reseña todavía: muestra el formulario -->
+        <form class="form-resena" id="form-resena" style="display:none;">
+            <div class="usuario-actual" id="usuario-actual"></div>
+            <div class="estrellas-input" id="estrellas-input">
+                <span data-valor="1">★</span>
+                <span data-valor="2">★</span>
+                <span data-valor="3">★</span>
+                <span data-valor="4">★</span>
+                <span data-valor="5">★</span>
+            </div>
+            <textarea id="resena-comentario" rows="3" placeholder="¿Qué te pareció el servidor?" maxlength="300"></textarea>
+            <span class="contador-caracteres" id="contador-caracteres">0 / 300</span>
+            <button type="submit" class="btn-enviar-resena" id="btn-enviar-resena">Publicar reseña</button>
+        </form>
+
+        <!-- Logueado y ya dejó reseña -->
+        <div class="aviso-ya-reseñaste" id="aviso-ya-resenaste" style="display:none;">
+            Ya dejaste tu reseña para este servidor. Solo se permite una por usuario.
+        </div>
+
+        <div class="lista-resenas" id="lista-resenas">
+            <!-- Se rellena con JS -->
+        </div>
+    </div>
+
+    <script src="seguridad.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2.112.3"></script>
+    <script src="supabase-client.js"></script>
+    <script src="datos.js"></script>
+    <script src="auth-nav.js"></script>
+    <script src="theme.js"></script>
+    <script>
+
+        const params = new URLSearchParams(window.location.search);
+        const idServidor = params.get("id");
+        const detalleCard = document.getElementById("detalle-card");
+
+        // El servidor ahora vive en Supabase (tabla "servidores"), así que
+        // se busca de forma asíncrona antes de pintar la tarjeta.
+        async function obtenerServidorPorId(id) {
+            if (!id) return null;
+            const filas = await Datos.listar("servidores");
+            const fila = filas.find((f) => String(f.id) === String(id));
+            if (!fila) return null;
+            return {
+                id: fila.id,
+                nombre: fila.nombre,
+                logo: fila.logo,
+                descripcion: fila.descripcion,
+                jugadoresPromedio: fila.jugadores_promedio,
+                anioCreacion: fila.anio_creacion,
+                ip: fila.ip,
+                modalidades: fila.modalidades || [],
+            };
+        }
+
+        // SEO: sincroniza title, meta description, canonical, Open Graph,
+        // Twitter Card y datos estructurados (JSON-LD) con el servidor que
+        // realmente se cargó, ya que el HTML estático de esta página es
+        // solo una plantilla genérica.
+        function actualizarSeoServidor(server) {
+            const url = `https://vivandro-cl-i1x2.vercel.app/servidor-detalle?id=${encodeURIComponent(server.id)}`;
+            const titulo = `${server.nombre} — Servidor de Minecraft | Vivandro`;
+            const descripcion = (server.descripcion || "").slice(0, 155);
+            const logo = sanitizeURL(server.logo) || "https://vivandro-cl-i1x2.vercel.app/imagenes/logo.png";
+
+            document.title = titulo;
+            document.getElementById("seo-canonical")?.setAttribute("href", url);
+            document.getElementById("seo-og-title")?.setAttribute("content", titulo);
+            document.getElementById("seo-og-description")?.setAttribute("content", descripcion);
+            document.getElementById("seo-og-url")?.setAttribute("content", url);
+            document.getElementById("seo-og-image")?.setAttribute("content", logo);
+            document.getElementById("seo-twitter-title")?.setAttribute("content", titulo);
+            document.getElementById("seo-twitter-description")?.setAttribute("content", descripcion);
+            document.getElementById("seo-twitter-image")?.setAttribute("content", logo);
+
+            let breadcrumb = document.getElementById("seo-breadcrumb");
+            if (!breadcrumb) {
+                breadcrumb = document.createElement("script");
+                breadcrumb.type = "application/ld+json";
+                breadcrumb.id = "seo-breadcrumb";
+                document.head.appendChild(breadcrumb);
+            }
+            breadcrumb.textContent = JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "BreadcrumbList",
+                "itemListElement": [
+                    { "@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://vivandro-cl-i1x2.vercel.app/" },
+                    { "@type": "ListItem", "position": 2, "name": "Servidores", "item": "https://vivandro-cl-i1x2.vercel.app/servidores" },
+                    { "@type": "ListItem", "position": 3, "name": server.nombre, "item": url },
+                ],
+            });
+        }
+
+        (async () => {
+
+        const server = await obtenerServidorPorId(idServidor);
+
+        if (!server) {
+            document.title = "Servidor no encontrado | Vivandro";
+            document.querySelector('meta[name="robots"]')?.setAttribute("content", "noindex, follow");
+            detalleCard.innerHTML = `
+                <div class="info-box">
+                    <h1>Servidor no encontrado</h1>
+                    <p class="descripcion">Revisa el enlace o vuelve a la lista de servidores.</p>
+                </div>
+            `;
+        } else {
+            actualizarSeoServidor(server);
+            // Renderizar la tarjeta del servidor va en su propio try/catch:
+            // si algo falla aquí (por ejemplo un dato inesperado que venga
+            // de Supabase), antes se cortaba TODA la función y las reseñas
+            // de más abajo nunca se cargaban, aunque no tuvieran nada que
+            // ver con el error. Ahora un fallo acá no bloquea las reseñas.
+            try {
+                // Estos datos vienen de Supabase (tabla "servidores"), así que
+                // se escapan siempre antes de insertarse con innerHTML, para
+                // quedar protegidos contra XSS.
+                const logoSeguro = sanitizeURL(server.logo) || LOGO_FALLBACK;
+                const modalidadesSeguras = Array.isArray(server.modalidades) ? server.modalidades : [];
+                detalleCard.innerHTML = `
+                    <div class="logo-header">
+                        <img src="${logoSeguro}" alt="Logo ${escapeHTML(server.nombre)}"
+                             onerror="this.onerror=null; this.src='${LOGO_FALLBACK}';">
+                    </div>
+                    <div class="info-box">
+                        <h1>${escapeHTML(server.nombre)}</h1>
+                        <p class="descripcion">${escapeHTML(server.descripcion)}</p>
+                        <div class="server-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Jugadores promedio</span>
+                                <span class="stat-value">${escapeHTML(server.jugadoresPromedio)}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Año de creación</span>
+                                <span class="stat-value">${escapeHTML(server.anioCreacion)}</span>
+                            </div>
+                        </div>
+                        <div class="ip-row">
+                            <span class="ip-texto">${escapeHTML(server.ip)}</span>
+                            <button class="btn-copiar-ip" id="btn-copiar-ip">Copiar IP</button>
+                        </div>
+                        <div class="modalidades">
+                            ${modalidadesSeguras.map((m) => `<span class="modalidad-tag">${escapeHTML(m)}</span>`).join("")}
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById("btn-copiar-ip").addEventListener("click", (e) => {
+                    navigator.clipboard.writeText(server.ip).then(() => {
+                        e.target.textContent = "¡Copiado!";
+                        setTimeout(() => (e.target.textContent = "Copiar IP"), 1500);
+                    });
+                });
+            } catch (err) {
+                console.error("[Detalle servidor] Error al pintar la tarjeta:", err);
+            }
+        }
+
+        // Van fuera del try/catch de arriba a propósito: las reseñas no
+        // dependen de que la tarjeta del servidor se haya pintado bien.
+        // Antes esta llamada estaba fuera de este bloque async y
+        // referenciaba "server" en un scope donde no existía: nunca
+        // se ejecutaba (error silencioso) y por eso las reseñas no
+        // se cargaban solas al entrar a la página.
+        if (server) {
+            revisarSesion();
+            cargarResenas();
+        }
+
+
+        })();
+
+        // ======= Reseñas (requiere login con Google) =======
+        // Usa Supabase si está conectado (ver supabase-client.js).
+        // Si no, cae a localStorage como modo demo para poder probar el flujo ya mismo
+        // (en ese modo demo no se exige login, solo para que se vea el diseño).
+
+        const LOCAL_KEY = `vivandro-resenas-${idServidor}`;
+        const LIMITE_CARACTERES = 300;
+
+        const estrellasInput = document.getElementById("estrellas-input");
+        const formResena = document.getElementById("form-resena");
+        const listaResenas = document.getElementById("lista-resenas");
+        const authBoxLogin = document.getElementById("auth-box-login");
+        const avisoYaResenaste = document.getElementById("aviso-ya-resenaste");
+        const usuarioActualEl = document.getElementById("usuario-actual");
+        const btnLoginGoogle = document.getElementById("btn-login-google");
+        const comentarioInput = document.getElementById("resena-comentario");
+        const contadorCaracteres = document.getElementById("contador-caracteres");
+        const btnEnviarResena = document.getElementById("btn-enviar-resena");
+
+        let estrellasSeleccionadas = 0;
+        let sesionActual = null;
+
+        // Estado para el "ver más / ver menos" de la lista de reseñas
+        const RESENAS_VISIBLES_INICIO = 7;
+        let resenasCompletas = [];
+        let mostrandoTodas = false;
+
+        estrellasInput.querySelectorAll("span").forEach((estrella) => {
+            estrella.addEventListener("click", () => {
+                estrellasSeleccionadas = Number(estrella.dataset.valor);
+                pintarEstrellas();
+            });
+        });
+
+        function pintarEstrellas() {
+            estrellasInput.querySelectorAll("span").forEach((estrella) => {
+                estrella.classList.toggle("activa", Number(estrella.dataset.valor) <= estrellasSeleccionadas);
+            });
+        }
+
+        comentarioInput.addEventListener("input", () => {
+            const largo = comentarioInput.value.length;
+            contadorCaracteres.textContent = `${largo} / ${LIMITE_CARACTERES}`;
+            contadorCaracteres.classList.toggle("limite", largo >= LIMITE_CARACTERES);
+        });
+
+        btnLoginGoogle.addEventListener("click", async () => {
+            if (!supabaseClient) {
+                alert("Conecta Supabase primero (ver supabase-client.js) para poder iniciar sesión con Google.");
+                return;
+            }
+            await supabaseClient.auth.signInWithOAuth({
+                provider: "google",
+                options: { redirectTo: window.location.href }
+            });
+        });
+
+        // ======= Estado de sesión =======
+        async function revisarSesion() {
+            if (!supabaseClient) {
+                // Modo demo sin Supabase: no se exige login
+                authBoxLogin.style.display = "none";
+                formResena.style.display = "flex";
+                usuarioActualEl.innerHTML = "";
+                document.getElementById("resena-autor-oculto") || (() => {
+                    const input = document.createElement("input");
+                    input.type = "text";
+                    input.id = "resena-autor-oculto";
+                    input.placeholder = "Tu nombre";
+                    input.maxLength = 40;
+                    input.required = true;
+                    formResena.insertBefore(input, formResena.firstChild);
+                })();
+                return;
+            }
+
+            const { data } = await supabaseClient.auth.getSession();
+            sesionActual = data.session;
+
+            if (!sesionActual) {
+                authBoxLogin.style.display = "flex";
+                formResena.style.display = "none";
+                avisoYaResenaste.style.display = "none";
+                return;
+            }
+
+            const usuario = sesionActual.user;
+            // Datos del login de Google: se escapan antes de insertarlos.
+            const nombre = escapeHTML(usuario.user_metadata?.full_name || usuario.email);
+            const foto = sanitizeURL(usuario.user_metadata?.avatar_url);
+
+            authBoxLogin.style.display = "none";
+            usuarioActualEl.innerHTML = `
+                ${foto ? `<img src="${foto}" alt="${nombre}">` : ""}
+                <span>${nombre}</span>
+                <button type="button" class="btn-cerrar-sesion" id="btn-cerrar-sesion">Cerrar sesión</button>
+            `;
+
+            document.getElementById("btn-cerrar-sesion").addEventListener("click", async () => {
+                await supabaseClient.auth.signOut();
+                revisarSesion();
+                cargarResenas();
+            });
+
+            // ¿Ya dejó reseña en este servidor?
+            const { data: propia } = await supabaseClient
+                .from("resenas")
+                .select("id")
+                .eq("servidor_id", idServidor)
+                .eq("user_id", usuario.id)
+                .maybeSingle();
+
+            if (propia) {
+                formResena.style.display = "none";
+                avisoYaResenaste.style.display = "block";
+            } else {
+                formResena.style.display = "flex";
+                avisoYaResenaste.style.display = "none";
+            }
+        }
+
+        if (supabaseClient) {
+            supabaseClient.auth.onAuthStateChange(() => {
+                revisarSesion();
+            });
+        }
+
+        async function cargarResenas() {
+            // Loading propio de la lista de reseñas: se ve "Cargando
+            // reseñas…" mientras se consulta, en vez de que la lista
+            // aparezca de golpe (o se quede vacía un instante) sin avisar.
+            listaResenas.innerHTML = '<p class="cargando-resenas">Cargando reseñas…</p>';
+            mostrandoTodas = false;
+
+            try {
+
+            if (supabaseClient) {
+                const { data, error } = await supabaseClient
+                    .from("resenas")
+                    .select("*")
+                    .eq("servidor_id", idServidor)
+                    .order("creado_en", { ascending: false });
+
+                if (!error) {
+                    resenasCompletas = data || [];
+                    pintarResenas();
+                    return;
+                }
+
+                // Si esto se ve vacío para usuarios no logueados pero SÍ
+                // aparecen las reseñas después de iniciar sesión, casi
+                // siempre es porque en Supabase (Authentication > Policies
+                // de la tabla "resenas") la política de SELECT quedó
+                // limitada a "authenticated" en vez de "public"/"anon".
+                // La política correcta es la de crear_tabla_resenas.sql:
+                //   create policy "Cualquiera puede leer resenas"
+                //     on resenas for select using (true);
+                // (sin restringir el "to", o con "to public").
+                console.error("[Reseñas] Error al leer de Supabase:", error);
+                listaResenas.innerHTML = '<p class="error-resenas">No se pudieron cargar las reseñas. Revisa tu conexión e intenta de nuevo.<br><button type="button" class="btn-reintentar" id="btn-reintentar-resenas">Reintentar</button></p>';
+                const btnReintentarResenas = document.getElementById("btn-reintentar-resenas");
+                if (btnReintentarResenas) btnReintentarResenas.addEventListener("click", cargarResenas);
+                return;
+            }
+
+            // Fallback local (modo demo sin Supabase)
+            document.getElementById("aviso-supabase").style.display = "block";
+            resenasCompletas = JSON.parse(localStorage.getItem(LOCAL_KEY)) || [];
+            pintarResenas();
+
+            } catch (err) {
+                // Cualquier error inesperado (no solo el de Supabase de
+                // arriba) queda registrado en la consola y se avisa en
+                // pantalla, en vez de dejar la lista pegada en "Cargando…".
+                console.error("[Reseñas] Error inesperado al cargar:", err);
+                listaResenas.innerHTML = '<p class="error-resenas">No se pudieron cargar las reseñas. Revisa tu conexión e intenta de nuevo.<br><button type="button" class="btn-reintentar" id="btn-reintentar-resenas">Reintentar</button></p>';
+                const btnReintentarResenas = document.getElementById("btn-reintentar-resenas");
+                if (btnReintentarResenas) btnReintentarResenas.addEventListener("click", cargarResenas);
+            }
+        }
+
+        function pintarResenas() {
+            const resenas = resenasCompletas;
+
+            if (!resenas || resenas.length === 0) {
+                listaResenas.innerHTML = '<p class="sin-resenas">Todavía no hay reseñas. ¡Sé el primero en opinar!</p>';
+                return;
+            }
+
+            const hayMasDeSiete = resenas.length > RESENAS_VISIBLES_INICIO;
+            const aMostrar = mostrandoTodas ? resenas : resenas.slice(0, RESENAS_VISIBLES_INICIO);
+
+            // ¡Punto crítico! r.autor y r.comentario los escribe cualquier
+            // usuario logueado y quedan guardados en la base de datos.
+            // Si se insertaran tal cual con innerHTML, alguien podría escribir
+            // una reseña con código (ej: <img src=x onerror="...">) y ese
+            // código se ejecutaría en el navegador de TODOS los que vean la
+            // página. Por eso siempre pasan por escapeHTML() antes de pintarse.
+            const html = aMostrar
+                .map((r) => {
+                    const estrellas = Math.min(5, Math.max(0, Number(r.estrellas) || 0));
+                    return `
+                    <div class="resena-item">
+                        <div class="resena-cabecera">
+                            <span>${escapeHTML(r.autor)}</span>
+                            <span class="resena-estrellas">${"★".repeat(estrellas)}${"☆".repeat(5 - estrellas)}</span>
+                        </div>
+                        <p>${r.comentario ? escapeHTML(r.comentario) : ""}</p>
+                    </div>
+                `;
+                })
+                .join("");
+
+            const botonHtml = hayMasDeSiete
+                ? `<button type="button" class="btn-ver-mas-resenas" id="btn-ver-mas-resenas">${mostrandoTodas ? "Ver menos" : "Ver más"}</button>`
+                : "";
+
+            listaResenas.innerHTML = html + botonHtml;
+
+            if (hayMasDeSiete) {
+                document.getElementById("btn-ver-mas-resenas").addEventListener("click", () => {
+                    mostrandoTodas = !mostrandoTodas;
+                    pintarResenas();
+
+                    // Si el usuario colapsa la lista ("Ver menos"), lo
+                    // devolvemos arriba de la caja de reseñas para que no
+                    // quede mirando el fondo de la página vacío.
+                    if (!mostrandoTodas) {
+                        document.querySelector(".resenas-box").scrollIntoView({ behavior: "smooth", block: "start" });
+                    }
+                });
+            }
+        }
+
+        formResena.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const comentario = comentarioInput.value.trim().slice(0, LIMITE_CARACTERES);
+
+            if (estrellasSeleccionadas === 0) {
+                alert("Selecciona una calificación en estrellas.");
+                return;
+            }
+
+            btnEnviarResena.disabled = true;
+
+            if (supabaseClient && sesionActual) {
+                const usuario = sesionActual.user;
+                const autor = usuario.user_metadata?.full_name || usuario.email;
+
+                const { error } = await supabaseClient.from("resenas").insert({
+                    servidor_id: idServidor,
+                    user_id: usuario.id,
+                    autor,
+                    estrellas: estrellasSeleccionadas,
+                    comentario
+                });
+
+                if (error) {
+                    alert(
+                        error.code === "23505"
+                            ? "Ya dejaste una reseña para este servidor."
+                            : "No se pudo guardar la reseña. Intenta de nuevo."
+                    );
+                    btnEnviarResena.disabled = false;
+                    return;
+                }
+            } else {
+                // Modo demo sin Supabase
+                const inputAutor = document.getElementById("resena-autor-oculto");
+                const autor = inputAutor ? inputAutor.value.trim() || "Anónimo" : "Anónimo";
+                const guardadas = JSON.parse(localStorage.getItem(LOCAL_KEY)) || [];
+                guardadas.unshift({
+                    servidor_id: idServidor,
+                    autor,
+                    estrellas: estrellasSeleccionadas,
+                    comentario,
+                    creado_en: new Date().toISOString()
+                });
+                localStorage.setItem(LOCAL_KEY, JSON.stringify(guardadas));
+            }
+
+            formResena.reset();
+            estrellasSeleccionadas = 0;
+            pintarEstrellas();
+            contadorCaracteres.textContent = `0 / ${LIMITE_CARACTERES}`;
+            contadorCaracteres.classList.remove("limite");
+            btnEnviarResena.disabled = false;
+            cargarResenas();
+            revisarSesion();
+        });
+
+    </script>
+
+</body>
+</html>

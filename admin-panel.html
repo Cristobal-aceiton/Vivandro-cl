@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vivandro · Panel de administración</title>
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="16x16" href="imagenes/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="imagenes/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="imagenes/favicon-192x192.png">
+<link rel="apple-touch-icon" href="imagenes/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#a708b6">
+<link rel="stylesheet" href="admin-panel.css">
+<script src="lucide.min.js"></script>
+</head>
+<body>
+
+<!-- Pantalla mientras se comprueba la sesión -->
+<div id="pantalla-cargando" class="pantalla-centrada">
+    <div class="spinner"></div>
+    <p>Comprobando tu sesión…</p>
+</div>
+
+<!-- Sin sesión / no autorizado -->
+<div id="pantalla-denegado" class="pantalla-centrada" style="display:none;">
+    <img src="imagenes/logo.png" alt="Vivandro" width="56" height="56" style="border-radius:12px;">
+    <h2 id="denegado-titulo">Acceso restringido</h2>
+    <p id="denegado-texto">Necesitas iniciar sesión con la cuenta de administrador para ver este panel.</p>
+    <button id="btn-login-google" class="btn-primario">Iniciar sesión con Google</button>
+    <a href="/">Volver al sitio</a>
+</div>
+
+<!-- Panel real -->
+<div id="admin-shell" class="admin-shell">
+
+    <!-- Barra superior solo visible en celular -->
+    <div class="admin-topbar-movil">
+        <button class="btn-menu" id="btn-abrir-drawer" aria-label="Abrir menu"><i data-lucide="menu"></i></button>
+        <div class="logo"><img src="imagenes/logo.png" alt="" width="32" height="32"> Vivandro Admin</div>
+        <button class="btn-avatar" id="btn-avatar-movil" aria-label="Cuenta"></button>
+    </div>
+    <div class="admin-drawer-backdrop" id="drawer-backdrop"></div>
+
+    <aside class="admin-sidebar" id="admin-sidebar">
+        <div class="logo"><img src="imagenes/logo.png" alt=""> <div>Vivandro<br><small>Panel de administracion</small></div></div>
+
+        <div class="admin-nav-label">General</div>
+        <nav class="admin-nav">
+            <button data-seccion="resumen" class="activo" title="Resumen"><span class="ico"><i data-lucide="layout-dashboard"></i></span> Resumen</button>
+            <button data-seccion="estadisticas" title="Estadísticas"><span class="ico"><i data-lucide="bar-chart-3"></i></span> Estadisticas</button>
+        </nav>
+
+        <div class="admin-nav-label">Contenido</div>
+        <nav class="admin-nav">
+            <button data-seccion="servidores" title="Servidores"><span class="ico"><i data-lucide="server"></i></span> Servidores</button>
+            <button data-seccion="mods" title="Mods"><span class="ico"><i data-lucide="puzzle"></i></span> Mods</button>
+            <button data-seccion="texturas" title="Texturas"><span class="ico"><i data-lucide="palette"></i></span> Texturas</button>
+        </nav>
+
+        <div class="admin-nav-label">Cuenta</div>
+        <nav class="admin-nav" style="flex-grow:0;">
+            <button data-seccion="seguridad" title="Seguridad"><span class="ico"><i data-lucide="shield"></i></span> Seguridad</button>
+            <button data-seccion="config" title="Configuración"><span class="ico"><i data-lucide="settings"></i></span> Configuracion</button>
+        </nav>
+
+        <div class="admin-sidebar-foot">
+            <div class="admin-sidebar-perfil" id="admin-sidebar-perfil"></div>
+            <button class="theme-toggle-admin" id="theme-toggle"><i data-lucide="moon" id="theme-toggle-ico"></i><span class="txt">Modo oscuro</span></button>
+            <button class="cerrar-sesion" id="btn-logout"><i data-lucide="log-out"></i><span class="txt">Cerrar sesion</span></button>
+        </div>
+    </aside>
+
+    <main class="admin-main">
+        <div class="admin-header">
+            <div>
+                <h1 id="titulo-seccion">Resumen</h1>
+                <p class="admin-subtitulo" id="subtitulo-seccion">Un vistazo rapido a todo tu sitio.</p>
+            </div>
+            <div class="admin-usuario" id="admin-usuario"></div>
+        </div>
+
+        <div id="vista-resumen" style="display:none;">
+            <div class="stats-grid" id="resumen-stats"></div>
+            <div class="accion-rapida-grid" id="resumen-acciones"></div>
+            <div class="dash-grid">
+                <div class="panel-bloque">
+                    <h2><i data-lucide="trending-up" class="h2-ico"></i> Descargas — ultimos 30 dias</h2>
+                    <p class="desc">Clicks en "Descargar en CurseForge" desde mods y texturas.</p>
+                    <canvas id="resumen-grafico" height="110"></canvas>
+                    <p class="vacio" id="resumen-grafico-vacio" style="display:none;"><span class="vacio-ico"><i data-lucide="inbox"></i></span>Todavia no hay descargas registradas.</p>
+                </div>
+                <div class="panel-bloque">
+                    <h2><i data-lucide="flame" class="h2-ico"></i> Mas descargados</h2>
+                    <p class="desc">Top de mods y texturas (ultimos 30 dias).</p>
+                    <ul class="top-lista" id="resumen-top-lista"></ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-grid" id="stats-grid"></div>
+
+        <div id="vista-estadisticas" style="display:none;">
+            <div class="admin-toolbar">
+                <select id="stats-tipo">
+                    <option value="">Mods y Texturas</option>
+                    <option value="mods">Solo Mods</option>
+                    <option value="texturas">Solo Texturas</option>
+                </select>
+
+                <div class="combo-buscable" id="stats-item-combo">
+                    <button type="button" class="combo-disparador" id="stats-item-disparador" aria-haspopup="listbox" aria-expanded="false">
+                        <i data-lucide="list-filter" class="combo-ico"></i>
+                        <span class="combo-etiqueta" id="stats-item-etiqueta">Todos los ítems</span>
+                        <i data-lucide="chevron-down" class="combo-chevron"></i>
+                    </button>
+                    <div class="combo-panel" id="stats-item-panel">
+                        <div class="buscar-wrap combo-buscar-wrap">
+                            <i data-lucide="search" class="buscar-ico"></i>
+                            <input type="text" id="stats-item-buscar" placeholder="Buscar mod o textura..." autocomplete="off">
+                        </div>
+                        <ul class="combo-lista" id="stats-item-lista" role="listbox"></ul>
+                    </div>
+                    <select id="stats-item" class="visualmente-oculto" tabindex="-1" aria-hidden="true">
+                        <option value="">Todos los ítems</option>
+                    </select>
+                </div>
+
+                <select id="stats-rango">
+                    <option value="7">Últimos 7 días</option>
+                    <option value="30" selected>Últimos 30 días</option>
+                    <option value="90">Últimos 90 días</option>
+                    <option value="0">Todo el tiempo</option>
+                </select>
+            </div>
+
+            <div class="stats-grid" id="stats-resumen"></div>
+
+            <div class="tabla-wrap" style="padding:20px;">
+                <canvas id="grafico-descargas" height="90"></canvas>
+                <p class="vacio" id="stats-vacio" style="display:none;"><span class="vacio-ico"><i data-lucide="inbox"></i></span>Todavía no hay descargas registradas para este filtro.</p>
+            </div>
+
+            <div class="tabla-wrap" style="margin-top:20px;">
+                <div class="tabla-cabecera">
+                    <div class="buscar-wrap">
+                        <i data-lucide="search" class="buscar-ico"></i>
+                        <input type="search" id="stats-tabla-buscar" placeholder="Buscar ítem en la tabla...">
+                    </div>
+                    <span class="tabla-contador" id="stats-tabla-contador"></span>
+                </div>
+                <table class="admin-tabla">
+                    <thead><tr><th>Ítem</th><th>Tipo</th><th>Descargas en el rango</th></tr></thead>
+                    <tbody id="stats-tabla-body"></tbody>
+                </table>
+                <p class="vacio" id="stats-tabla-sin-resultados" style="display:none;"><span class="vacio-ico"><i data-lucide="search-x"></i></span>No hay ítems que coincidan con "<span id="stats-tabla-sin-resultados-texto"></span>".</p>
+            </div>
+        </div>
+
+        <div id="vista-seguridad" style="display:none;">
+            <div class="stats-grid" id="seguridad-stats"></div>
+            <div class="dash-grid">
+                <div class="panel-bloque">
+                    <h2><i data-lucide="history" class="h2-ico"></i> Actividad reciente</h2>
+                    <p class="desc">Todo lo que se creó, editó o eliminó, guardado automáticamente por la base de datos.</p>
+                    <ul class="top-lista" id="seguridad-bitacora"></ul>
+                </div>
+                <div class="panel-bloque">
+                    <h2><i data-lucide="shield-alert" class="h2-ico"></i> Intentos de acceso rechazados</h2>
+                    <p class="desc">Cuentas de Google que iniciaron sesión pero no son la del administrador.</p>
+                    <ul class="top-lista" id="seguridad-intentos"></ul>
+                </div>
+            </div>
+        </div>
+
+        <div id="vista-config" style="display:none;">
+            <div class="panel-bloque" style="margin-bottom:16px;">
+                <h2><i data-lucide="key" class="h2-ico"></i> Acceso</h2>
+                <p class="desc" style="margin-bottom:8px;">Cuenta de administrador autorizada:</p>
+                <p class="desc" style="margin-bottom:0; display:flex; align-items:center; gap:10px;">
+                    <strong id="config-email">cristobal••••••••@gmail.com</strong>
+                    <button type="button" class="btn-icono" id="btn-mostrar-email" style="padding:4px 10px;"><i data-lucide="eye" id="btn-mostrar-email-ico"></i> <span class="txt">Mostrar</span></button>
+                </p>
+            </div>
+            <div class="panel-bloque">
+                <h2><i data-lucide="shield" class="h2-ico"></i> Cómo se protege este panel</h2>
+                <p class="desc">La autorización se valida en el servidor mediante las políticas de Row Level Security de Supabase (tabla por tabla), no confiando en el email que envía el navegador. Ver <code>db_schema_admin.sql</code> y <code>mejoras_seguridad_backend.sql</code>.</p>
+                <p class="desc">Cualquiera puede registrar una descarga (para las estadísticas) a través de una función validada en el servidor, pero solo esta cuenta puede leerlas, crear, editar o eliminar contenido.</p>
+                <p class="desc" style="margin-bottom:0;">Por seguridad, esta sesión se cierra sola después de 30 minutos sin actividad.</p>
+            </div>
+        </div>
+
+        <div id="vista-lista">
+            <div class="admin-toolbar">
+                <div class="buscar-wrap">
+                    <i data-lucide="search" class="buscar-ico"></i>
+                    <input type="search" id="buscar-input" placeholder="Buscar...">
+                </div>
+                <button class="btn-primario" id="btn-nuevo"><i data-lucide="plus"></i> Agregar</button>
+            </div>
+
+            <div class="tabla-wrap">
+                <table class="admin-tabla" id="tabla">
+                    <thead id="tabla-head"></thead>
+                    <tbody id="tabla-body"></tbody>
+                </table>
+                <div class="vacio" id="tabla-vacio" style="display:none;"><span class="vacio-ico"><i data-lucide="folder-open"></i></span>No hay elementos todavía. Agrega el primero con "Agregar".</div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Modal crear/editar -->
+<div class="modal-overlay" id="modal-form">
+    <div class="modal-box">
+        <button class="modal-cerrar" id="modal-form-cerrar">&times;</button>
+        <h2 id="modal-form-titulo">Agregar</h2>
+        <form id="form-item">
+            <div class="campo">
+                <label>Nombre / título</label>
+                <input type="text" id="campo-nombre" required maxlength="120">
+                <small class="campo-aviso" id="aviso-nombre-duplicado" style="display:none;"><i data-lucide="alert-triangle"></i> Ya existe un elemento con este nombre.</small>
+            </div>
+            <div class="campo" id="campo-ip-wrap">
+                <label>IP del servidor</label>
+                <input type="text" id="campo-ip" maxlength="120">
+            </div>
+            <div class="campo" id="campo-tipo-edicion-wrap">
+                <label>Edición de Minecraft</label>
+                <select id="campo-tipo-edicion">
+                    <option value="java">Java Edition</option>
+                    <option value="bedrock">Bedrock Edition</option>
+                </select>
+                <small>Define qué API se consulta para mostrar el online/offline y los jugadores en tiempo real.</small>
+            </div>
+            <div class="campo">
+                <label>Descripción</label>
+                <textarea id="campo-descripcion" rows="3" maxlength="600"></textarea>
+            </div>
+            <div class="campo">
+                <label>URL de imagen / portada</label>
+                <input type="url" id="campo-imagen" placeholder="https://...">
+            </div>
+            <div class="campo" id="campo-curseforge-wrap">
+                <label>Link a CurseForge</label>
+                <input type="url" id="campo-curseforge" placeholder="https://www.curseforge.com/...">
+            </div>
+            <div class="campo" id="campo-version-wrap">
+                <label>Versión de Minecraft compatible (opcional)</label>
+                <input type="text" id="campo-version" placeholder="Ej: 1.21.1" maxlength="60">
+            </div>
+            <div class="campo" id="campo-categoria-wrap">
+                <label>Categoría / info adicional (opcional)</label>
+                <input type="text" id="campo-categoria" maxlength="120">
+            </div>
+            <div class="campo" id="campo-cargadores-wrap">
+                <label>Cargadores compatibles (opcional)</label>
+                <div class="checkboxes-linea">
+                    <label class="checkbox-chip"><input type="checkbox" id="campo-cargador-forge" value="Forge"> Forge</label>
+                    <label class="checkbox-chip"><input type="checkbox" id="campo-cargador-neoforge" value="NeoForge"> NeoForge</label>
+                    <label class="checkbox-chip"><input type="checkbox" id="campo-cargador-fabric" value="Fabric"> Fabric</label>
+                </div>
+            </div>
+            <div class="campo" id="campo-jugadores-wrap">
+                <label>Jugadores promedio (opcional)</label>
+                <input type="text" id="campo-jugadores" placeholder="Ej: 300-500" maxlength="60">
+            </div>
+            <div class="campo" id="campo-anio-wrap">
+                <label>Año de creación (opcional)</label>
+                <input type="number" id="campo-anio" min="2009" max="2100">
+            </div>
+            <div class="campo" id="campo-modalidades-wrap">
+                <label>Modalidades (separadas por coma, opcional)</label>
+                <input type="text" id="campo-modalidades" placeholder="Survival, SkyWars, PvP">
+            </div>
+            <div class="campo" id="campo-requisitos-wrap">
+                <label>Requisitos / complementos necesarios (opcional, hasta 4)</label>
+                <small>Si este mod necesita otro mod instalado antes (una librería, un mod base, etc), agrégalo aquí. Aparecerá como un link celeste aparte del botón naranja de descarga.</small>
+                <div class="requisitos-lista" id="requisitos-lista">
+                    <div class="requisito-fila" data-req="1">
+                        <input type="text" class="req-nombre" placeholder="Nombre (ej: Fabric API)" maxlength="80">
+                        <input type="url" class="req-url" placeholder="https://www.curseforge.com/...">
+                    </div>
+                    <div class="requisito-fila" data-req="2">
+                        <input type="text" class="req-nombre" placeholder="Nombre (ej: Fabric API)" maxlength="80">
+                        <input type="url" class="req-url" placeholder="https://www.curseforge.com/...">
+                    </div>
+                    <div class="requisito-fila" data-req="3">
+                        <input type="text" class="req-nombre" placeholder="Nombre (ej: Fabric API)" maxlength="80">
+                        <input type="url" class="req-url" placeholder="https://www.curseforge.com/...">
+                    </div>
+                    <div class="requisito-fila" data-req="4">
+                        <input type="text" class="req-nombre" placeholder="Nombre (ej: Fabric API)" maxlength="80">
+                        <input type="url" class="req-url" placeholder="https://www.curseforge.com/...">
+                    </div>
+                </div>
+            </div>
+            <div class="form-botones">
+                <button type="button" class="btn-secundario" id="btn-cancelar-form">Cancelar</button>
+                <button type="submit" class="btn-primario" id="btn-guardar-form">Guardar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal confirmar eliminar -->
+<div class="modal-overlay" id="modal-confirmar">
+    <div class="modal-box confirmar">
+        <div class="modal-ico"><i data-lucide="trash-2"></i></div>
+        <h2>¿Eliminar este elemento?</h2>
+        <p id="confirmar-texto">Esta acción no se puede deshacer.</p>
+        <div class="form-botones">
+            <button class="btn-secundario" id="btn-confirmar-no">Cancelar</button>
+            <button class="btn-peligro" id="btn-confirmar-si">Eliminar</button>
+        </div>
+    </div>
+</div>
+
+<div id="toasts"></div>
+
+<script src="seguridad.js"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2.112.3"></script>
+<script src="https://unpkg.com/chart.js@4/dist/chart.umd.min.js"></script>
+<script src="supabase-client.js"></script>
+<script src="datos.js"></script>
+<script src="admin-panel.js"></script>
+</body>
+</html>

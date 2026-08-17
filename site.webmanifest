@@ -1,0 +1,13 @@
+{
+  "name": "Vivandro",
+  "short_name": "Vivandro",
+  "description": "Servidores, mods y texture packs de Minecraft.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#a708b6",
+  "theme_color": "#a708b6",
+  "icons": [
+    { "src": "/imagenes/favicon-192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/imagenes/favicon-512x512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

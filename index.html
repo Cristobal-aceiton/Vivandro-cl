@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vivandro | Mods, Texture Packs y Servidores de Minecraft</title>
+    <meta name="description" content="Descubre los mejores servidores, mods y texture packs de Minecraft en Vivandro. Contenido verificado, actualizado y listo para descargar gratis.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://vivandro-cl-i1x2.vercel.app/">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Vivandro">
+    <meta property="og:title" content="Vivandro | Mods, Texture Packs y Servidores de Minecraft">
+    <meta property="og:description" content="Descubre los mejores servidores, mods y texture packs de Minecraft en Vivandro. Contenido verificado, actualizado y listo para descargar gratis.">
+    <meta property="og:url" content="https://vivandro-cl-i1x2.vercel.app/">
+    <meta property="og:image" content="https://vivandro-cl-i1x2.vercel.app/imagenes/logo.png">
+    <meta property="og:locale" content="es_CL">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Vivandro | Mods, Texture Packs y Servidores de Minecraft">
+    <meta name="twitter:description" content="Descubre los mejores servidores, mods y texture packs de Minecraft en Vivandro. Contenido verificado y actualizado.">
+    <meta name="twitter:image" content="https://vivandro-cl-i1x2.vercel.app/imagenes/logo.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="16x16" href="imagenes/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="imagenes/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="imagenes/favicon-192x192.png">
+<link rel="apple-touch-icon" href="imagenes/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#a708b6">
+    <link rel="stylesheet" href="css/navbar.css">
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Vivandro",
+        "url": "https://vivandro-cl-i1x2.vercel.app/",
+        "description": "Servidores, mods y texture packs de Minecraft.",
+        "inLanguage": "es-CL"
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "Vivandro",
+        "url": "https://vivandro-cl-i1x2.vercel.app/",
+        "logo": "https://vivandro-cl-i1x2.vercel.app/imagenes/logo.png"
+    }
+    </script>
+    <style>
+
+        :root {
+            --bg: #a708b6;
+            --navbar-bg: #9801ac;
+            --card-bg: #ffffff;
+            --card-text: #1a1a1a;
+            --card-text-soft: #555555;
+            --titulo-color: #e6dada;
+            --acento: #a708b6;
+        }
+
+        html.dark-mode {
+            --bg: #17071c;
+            --navbar-bg: #250a2c;
+            --card-bg: #241129;
+            --card-text: #f0e8f3;
+            --card-text-soft: #c9b8ce;
+            --titulo-color: #f3e6f7;
+            --acento: #e07bff;
+        }
+
+        body, html {
+            margin: 0;
+            min-height: 100%;
+            background-color: var(--bg);
+            transition: background-color 0.3s ease;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .opciones {
+            flex: 1;
+        }
+
+        footer.site-footer {
+            font-family: "Poppins", sans-serif;
+            text-align: center;
+            padding: 24px 16px;
+            color: var(--titulo-color);
+            opacity: 0.85;
+            font-size: 0.9rem;
+        }
+
+        footer.site-footer a {
+            color: var(--titulo-color);
+            text-decoration: underline;
+            opacity: 0.9;
+        }
+
+        footer.site-footer .footer-links {
+            margin-bottom: 6px;
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .inicio {
+            text-align: center;
+            font-family: "Pixelify Sans", sans-serif;
+            font-size: 2rem;
+            color: var(--titulo-color);
+        }
+
+        .inicio h1 {
+            position: relative;
+            font-size: 4.5rem;
+            margin-bottom: 10px;
+        }
+
+        .inicio p {
+            position: relative;
+            font-size: 1.8rem;
+        }
+
+        .opciones {
+            text-align: center;
+            font-family: "Poppins", sans-serif;
+            color: var(--titulo-color);
+            padding: 40px 20px;
+        }
+
+        .opciones h2 {
+            font-family: "Pixelify Sans", sans-serif;
+            font-size: 2rem;
+            margin-bottom: 30px;
+        }
+
+        .cards-container {
+            display: flex;
+            justify-content: center;
+            align-items: stretch;
+            gap: 25px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            width: 280px;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+            padding: 25px 20px;
+            text-decoration: none;
+            color: var(--card-text);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .card h3 {
+            font-family: "Pixelify Sans", sans-serif;
+            font-size: 1.5rem;
+            margin: 0;
+            color: var(--acento);
+        }
+
+        .card p {
+            margin: 0;
+            font-size: 0.95rem;
+            color: var(--card-text-soft);
+        }
+
+        @media (max-width: 768px) {
+            .inicio h1 {
+                font-size: 2.5rem;
+            }
+
+            .inicio p {
+                font-size: 1.2rem;
+            }
+
+            .cards-container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .card {
+                width: 90%;
+                max-width: 350px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-links">
+            <a href="/">Inicio</a>
+            <a href="/mods">Mods</a>
+            <a href="/texturas">Texturas</a>
+            <a href="/servidores">Servidores</a>
+        </div>
+        <div class="navbar-right">
+            <div class="nav-auth" id="nav-auth"></div>
+            <button id="theme-toggle" title="Cambiar tema" aria-label="Cambiar tema claro/oscuro"></button>
+        </div>
+    </nav>
+
+    <div class="inicio">
+        <h1>Vivandro</h1>
+        <p>Mods, textura packs, servidores</p>
+    </div>
+
+    <div class="opciones">
+        <h2>¿Por dónde quieres empezar?</h2>
+
+        <div class="cards-container">
+
+            <a href="/servidores" class="card">
+                <h3>Servidores</h3>
+                <p>Encuentra los mejores servidores para jugar</p>
+            </a>
+
+            <a href="/texturas" class="card">
+                <h3>Texture Packs</h3>
+                <p>Cambia el look de tu Minecraft</p>
+            </a>
+
+            <a href="/mods" class="card">
+                <h3>Mods</h3>
+                <p>Agrega nuevas funciones y contenido</p>
+            </a>
+
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <div class="footer-links">
+            <a href="/politica-privacidad">Política de Privacidad</a>
+            <a href="/terminos-condiciones">Términos y Condiciones</a>
+        </div>
+        <p>&copy; <span id="anio-actual">2026</span> VivandroCL. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="seguridad.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2.112.3"></script>
+    <script src="supabase-client.js"></script>
+    <script src="auth-nav.js"></script>
+    <script src="theme.js"></script>
+    <script>
+        const elAnio = document.getElementById("anio-actual");
+        if (elAnio) elAnio.textContent = new Date().getFullYear();
+    </script>
+
+</body>
+</html>

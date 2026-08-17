@@ -1,0 +1,115 @@
+/*
+  css/legal.css
+  -----------------------------------------------------------
+  Estilos compartidos por las páginas legales (política de
+  privacidad y términos y condiciones). Antes cada una tenía
+  el mismo CSS pegado dos veces dentro de un <style>; se movió
+  aquí para no duplicarlo.
+  -----------------------------------------------------------
+*/
+
+:root {
+    --bg: #a708b6;
+    --navbar-bg: #9801ac;
+    --card-bg: #ffffff;
+    --card-text: #1a1a1a;
+    --card-text-soft: #555555;
+    --titulo-color: #e6dada;
+    --acento: #a708b6;
+  }
+  html.dark-mode {
+    --bg: #17071c;
+    --navbar-bg: #250a2c;
+    --card-bg: #241129;
+    --card-text: #f0e8f3;
+    --card-text-soft: #c9b8ce;
+    --titulo-color: #f3e6f7;
+    --acento: #e07bff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background-color: var(--bg);
+    font-family: "Poppins", sans-serif;
+    color: var(--card-text);
+    transition: background-color 0.3s ease;
+  }
+  .navbar {
+    background-color: var(--navbar-bg);
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .navbar a.brand {
+    color: #fff;
+    font-family: "Pixelify Sans", sans-serif;
+    font-size: 1.4rem;
+    text-decoration: none;
+  }
+  #theme-toggle {
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: #fff;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  main {
+    max-width: 820px;
+    margin: 40px auto 80px;
+    padding: 0 20px;
+  }
+  .doc-card {
+    background: var(--card-bg);
+    color: var(--card-text);
+    border-radius: 16px;
+    padding: 40px clamp(20px, 5vw, 48px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  }
+  h1 {
+    font-family: "Pixelify Sans", sans-serif;
+    color: var(--acento);
+    font-size: 2.1rem;
+    margin-top: 0;
+  }
+  .fecha {
+    color: var(--card-text-soft);
+    font-size: 0.9rem;
+    margin-bottom: 30px;
+  }
+  h2 {
+    color: var(--acento);
+    font-size: 1.25rem;
+    margin-top: 34px;
+    border-bottom: 2px solid var(--acento);
+    padding-bottom: 6px;
+  }
+  h3 { font-size: 1.05rem; margin-top: 20px; }
+  p, li { line-height: 1.65; color: var(--card-text); }
+  ul { padding-left: 22px; }
+  li { margin-bottom: 8px; }
+  a { color: var(--acento); }
+  .aviso {
+    background: rgba(167,8,182,0.08);
+    border-left: 4px solid var(--acento);
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 0.92rem;
+    margin: 16px 0;
+  }
+  .contacto-box {
+    background: rgba(167,8,182,0.08);
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-top: 20px;
+  }
+  footer {
+    text-align: center;
+    color: var(--titulo-color);
+    opacity: 0.8;
+    font-size: 0.85rem;
+    padding: 20px;
+  }

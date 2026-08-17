@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Índice de sitemaps. Agrupa:
+  - sitemap-paginas.xml: las páginas públicas fijas del sitio.
+  - sitemap-servidores.xml: una URL por cada servidor (ficha
+    servidor-detalle.html?id=X), generado con
+    generar-sitemap-servidores.js a partir de Supabase.
+
+  Si sitemap-servidores.xml todavía no existe (no se ha corrido el
+  script), Google simplemente ignora esa entrada hasta que aparezca:
+  no rompe el rastreo del resto del sitio.
+-->
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <sitemap>
+        <loc>https://vivandro-cl-i1x2.vercel.app/sitemap-paginas.xml</loc>
+    </sitemap>
+    <sitemap>
+        <loc>https://vivandro-cl-i1x2.vercel.app/sitemap-servidores.xml</loc>
+    </sitemap>
+</sitemapindex>

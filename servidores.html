@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servidores de Minecraft No Premium: Lista Actualizada | Vivandro</title>
+    <meta name="description" content="Explora servidores de Minecraft no premium activos, con IP, modalidades (SkyWars, BedWars, Survival, PvP) y cantidad de jugadores. Conéctate hoy mismo.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://vivandro-cl-i1x2.vercel.app/servidores">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Vivandro">
+    <meta property="og:title" content="Servidores de Minecraft No Premium: Lista Actualizada | Vivandro">
+    <meta property="og:description" content="Explora servidores de Minecraft no premium activos, con IP, modalidades y cantidad de jugadores.">
+    <meta property="og:url" content="https://vivandro-cl-i1x2.vercel.app/servidores">
+    <meta property="og:image" content="https://vivandro-cl-i1x2.vercel.app/imagenes/logo.png">
+    <meta property="og:locale" content="es_CL">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Servidores de Minecraft No Premium: Lista Actualizada | Vivandro">
+    <meta name="twitter:description" content="Explora servidores de Minecraft no premium activos, con IP, modalidades y cantidad de jugadores.">
+    <meta name="twitter:image" content="https://vivandro-cl-i1x2.vercel.app/imagenes/logo.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://api.mcstatus.io" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="16x16" href="imagenes/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="imagenes/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="imagenes/favicon-192x192.png">
+<link rel="apple-touch-icon" href="imagenes/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#a708b6">
+    <link rel="stylesheet" href="css/navbar.css">
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://vivandro-cl-i1x2.vercel.app/"},
+            {"@type": "ListItem", "position": 2, "name": "Servidores", "item": "https://vivandro-cl-i1x2.vercel.app/servidores"}
+        ]
+    }
+    </script>
+    <style>
+
+        :root {
+            --bg: #a708b6;
+            --navbar-bg: #9801ac;
+            --card-bg: #ffffff;
+            --card-text: #333333;
+            --card-text-soft: #555555;
+            --titulo-color: #e6dada;
+            --acento: #a708b6;
+            --acento-fuerte: #9801ac;
+            --logo-box-bg1: #f4eef6;
+            --logo-box-bg2: #e9dcee;
+            --ip-row-bg: #f4eef6;
+            --input-bg: #ffffff;
+            --input-border: #d8bfe0;
+            --skeleton-base: #e6dcea;
+            --skeleton-shine: #f5f0f7;
+        }
+
+        html.dark-mode {
+            --bg: #17071c;
+            --navbar-bg: #250a2c;
+            --card-bg: #241129;
+            --card-text: #f0e8f3;
+            --card-text-soft: #c9b8ce;
+            --titulo-color: #f3e6f7;
+            --acento: #e07bff;
+            --acento-fuerte: #c94dff;
+            --logo-box-bg1: #2d1533;
+            --logo-box-bg2: #3a1b42;
+            --ip-row-bg: #2d1533;
+            --input-bg: #2d1533;
+            --input-border: #4a2652;
+            --skeleton-base: #3a1f42;
+            --skeleton-shine: #4d2a57;
+        }
+
+        body, html {
+            margin: 0;
+            background-color: var(--bg);
+            transition: background-color 0.3s ease;
+        }
+
+        .titulo-seccion {
+            text-align: center;
+            font-family: "Pixelify Sans", sans-serif;
+            color: var(--titulo-color);
+            padding: 40px 20px 20px;
+        }
+
+        .titulo-seccion h1 {
+            font-size: 3rem;
+            margin: 0 0 10px;
+        }
+
+        .titulo-seccion p {
+            font-family: "Poppins", sans-serif;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        /* Buscador y filtros */
+        .controles {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .buscador input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--input-border);
+            background-color: var(--input-bg);
+            color: var(--card-text);
+            font-family: "Poppins", sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .filtros {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .filtro-chip {
+            background-color: var(--input-bg);
+            border: 1px solid var(--input-border);
+            color: var(--card-text);
+            font-family: "Poppins", sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .filtro-chip.activo {
+            background-color: var(--acento-fuerte);
+            border-color: var(--acento-fuerte);
+            color: #fff;
+        }
+
+        .sin-resultados {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: var(--titulo-color);
+            font-family: "Poppins", sans-serif;
+            padding: 40px 20px;
+        }
+
+        .btn-reintentar {
+            display: inline-block;
+            margin-top: 14px;
+            background-color: var(--acento);
+            color: #fff;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-family: "Poppins", sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .btn-reintentar:hover {
+            background-color: var(--acento-fuerte);
+        }
+
+        /* Skeleton (placeholder animado) mientras cargan los servidores */
+        @keyframes skeleton-pulso {
+            0% { background-position: -400px 0; }
+            100% { background-position: 400px 0; }
+        }
+
+        .skeleton-shimmer,
+        .skeleton-line {
+            background-image: linear-gradient(90deg, var(--skeleton-base) 25%, var(--skeleton-shine) 37%, var(--skeleton-base) 63%);
+            background-size: 400px 100%;
+            animation: skeleton-pulso 1.4s ease infinite;
+        }
+
+        .skeleton-card {
+            pointer-events: none;
+        }
+
+        .skeleton-card:hover {
+            transform: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .skeleton-line {
+            height: 12px;
+            border-radius: 6px;
+        }
+
+        .skeleton-titulo {
+            height: 18px;
+            width: 55%;
+        }
+
+        .skeleton-boton {
+            height: 34px;
+            border-radius: 6px;
+            margin-top: 4px;
+        }
+
+        /* Paginación */
+        .paginacion {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 10px 20px 60px;
+        }
+
+        .paginacion button {
+            background-color: var(--card-bg);
+            color: var(--card-text);
+            border: 1px solid var(--input-border);
+            min-width: 38px;
+            height: 38px;
+            padding: 0 8px;
+            border-radius: 8px;
+            font-family: "Poppins", sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .paginacion button:hover:not(:disabled) {
+            background-color: var(--acento-fuerte);
+            border-color: var(--acento-fuerte);
+            color: #fff;
+        }
+
+        .paginacion button.activo {
+            background-color: var(--acento-fuerte);
+            border-color: var(--acento-fuerte);
+            color: #fff;
+        }
+
+        .paginacion button:disabled {
+            opacity: 0.4;
+            cursor: default;
+        }
+
+        .paginacion-puntos {
+            color: var(--titulo-color);
+            font-family: "Poppins", sans-serif;
+            padding: 0 4px;
+        }
+
+        .servidores-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px 20px 60px;
+        }
+
+        .server-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
+        }
+
+        .server-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+        }
+
+        /* Logo del servidor (sin recorte, nunca se corta) */
+        .server-logo-box {
+            position: relative;
+            width: 100%;
+            height: 160px;
+            background: linear-gradient(135deg, var(--logo-box-bg1), var(--logo-box-bg2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .server-numero {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background-color: #9801ac;
+            color: #fff;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: "Poppins", sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            z-index: 2;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+        }
+
+        .estado-badge {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background-color: rgba(0, 0, 0, 0.55);
+            color: #fff;
+            font-family: "Poppins", sans-serif;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 4px 9px;
+            border-radius: 999px;
+            z-index: 2;
+        }
+
+        .estado-punto {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #888;
+        }
+
+        .estado-badge.online .estado-punto { background-color: #35d16b; }
+        .estado-badge.offline .estado-punto { background-color: #e14b4b; }
+
+        .server-logo-box img {
+            max-width: 65%;
+            max-height: 65%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            display: block;
+        }
+
+        .server-info {
+            padding: 18px 20px;
+            font-family: "Poppins", sans-serif;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex-grow: 1;
+        }
+
+        .server-info h2 {
+            font-family: "Pixelify Sans", sans-serif;
+            font-size: 1.4rem;
+            margin: 0;
+            color: var(--acento);
+        }
+
+        .server-info > p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--card-text-soft);
+            white-space: pre-line;
+        }
+
+        .server-stats {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .stat-item .stat-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            color: #999;
+            font-weight: 600;
+        }
+
+        .stat-item .stat-value {
+            font-size: 0.95rem;
+            color: var(--card-text);
+            font-weight: 600;
+        }
+
+        .ip-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            background-color: var(--ip-row-bg);
+            border-radius: 6px;
+            padding: 8px 12px;
+        }
+
+        .ip-row .ip-texto {
+            font-family: "Poppins", sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--acento);
+            word-break: break-all;
+        }
+
+        .btn-copiar-ip {
+            background-color: #9801ac;
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-family: "Poppins", sans-serif;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-copiar-ip:hover {
+            background-color: #7a018a;
+        }
+
+        .btn-copiar-ip.copiado {
+            background-color: #2e9e4f;
+        }
+
+        .modalidades {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .modalidad-tag {
+            background-color: #a708b6;
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 999px;
+        }
+
+        .btn-ver-mas {
+            margin-top: auto;
+            display: block;
+            text-align: center;
+            text-decoration: none;
+            background-color: transparent;
+            border: 1px solid var(--acento-fuerte);
+            color: var(--acento);
+            font-family: "Poppins", sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 9px 0;
+            border-radius: 8px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .btn-ver-mas:hover {
+            background-color: var(--acento-fuerte);
+            color: #fff;
+        }
+
+        @media (max-width: 768px) {
+            .titulo-seccion h1 {
+                font-size: 2rem;
+            }
+
+            .servidores-container {
+                grid-template-columns: 1fr;
+            }
+
+            .server-logo-box {
+                height: 140px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-links">
+            <a href="/">Inicio</a>
+            <a href="/mods">Mods</a>
+            <a href="/texturas">Texturas</a>
+            <a href="/servidores">Servidores</a>
+        </div>
+        <div class="navbar-right">
+            <div class="nav-auth" id="nav-auth"></div>
+            <button id="theme-toggle" title="Cambiar tema" aria-label="Cambiar tema claro/oscuro"></button>
+        </div>
+    </nav>
+
+    <div class="titulo-seccion">
+        <h1>Servidores</h1>
+        <p>Conéctate a los mejores servidores de Minecraft no premium</p>
+    </div>
+
+    <div class="controles">
+        <div class="buscador">
+            <input type="text" id="buscador-input" placeholder="Buscar servidor por nombre...">
+        </div>
+        <div class="filtros" id="filtros-container">
+            <!-- Se rellenan con JS a partir de las modalidades de Supabase (Datos.listarModalidades) -->
+        </div>
+    </div>
+
+    <div class="servidores-container" id="servidores-container">
+        <!-- Las cards se generan dinámicamente desde Supabase, 6 por página -->
+    </div>
+
+    <div class="paginacion" id="paginacion"></div>
+
+    <script src="seguridad.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2.112.3"></script>
+    <script src="supabase-client.js"></script>
+    <script src="datos.js"></script>
+    <script src="auth-nav.js"></script>
+    <script src="theme.js"></script>
+    <script>
+
+        const contenedor = document.getElementById("servidores-container");
+        const buscadorInput = document.getElementById("buscador-input");
+        const filtrosContainer = document.getElementById("filtros-container");
+        const paginacionEl = document.getElementById("paginacion");
+        const LOGO_FALLBACK = "imagenes/logo.png";
+
+        const POR_PAGINA = 6;
+        let paginaActual = 1;
+        let filtroActivo = null;
+        let textoBusqueda = "";
+        let timerBusqueda = null;
+        let intervalosEstado = [];
+
+        function mapearServidor(row) {
+            return {
+                id: row.id,
+                nombre: row.nombre,
+                logo: row.logo,
+                descripcion: row.descripcion,
+                jugadoresPromedio: row.jugadores_promedio,
+                anioCreacion: row.anio_creacion,
+                ip: row.ip,
+                // "java" o "bedrock": si un servidor viejo todavía no
+                // tiene esta columna cargada, se asume "java" (era el
+                // único comportamiento que existía antes).
+                tipoEdicion: row.tipo_edicion === "bedrock" ? "bedrock" : "java",
+                modalidades: row.modalidades || [],
+            };
+        }
+
+        // Los chips de filtro necesitan conocer TODAS las modalidades que
+        // existen, así que se trae solo esa columna (liviana) para todos
+        // los servidores, sin cargar el resto de sus datos (logo,
+        // descripción, etc.).
+        async function iniciar() {
+            let modalidades = [];
+            try {
+                modalidades = await Datos.listarModalidades();
+            } catch (e) {
+                modalidades = [];
+            }
+            construirFiltros(modalidades);
+            cargarPagina(1);
+        }
+
+        function construirFiltros(modalidadesUnicas) {
+            filtrosContainer.innerHTML = "";
+
+            const chipTodos = document.createElement("button");
+            chipTodos.className = "filtro-chip activo";
+            chipTodos.textContent = "Todos";
+            chipTodos.dataset.modalidad = "";
+            chipTodos.addEventListener("click", () => seleccionarFiltro(chipTodos, ""));
+            filtrosContainer.appendChild(chipTodos);
+
+            modalidadesUnicas.forEach((modalidad) => {
+                const chip = document.createElement("button");
+                chip.className = "filtro-chip";
+                chip.textContent = modalidad;
+                chip.dataset.modalidad = modalidad;
+                chip.addEventListener("click", () => seleccionarFiltro(chip, modalidad));
+                filtrosContainer.appendChild(chip);
+            });
+        }
+
+        function seleccionarFiltro(chipSeleccionado, modalidad) {
+            filtroActivo = modalidad || null;
+            filtrosContainer.querySelectorAll(".filtro-chip").forEach((c) => c.classList.remove("activo"));
+            chipSeleccionado.classList.add("activo");
+            cargarPagina(1);
+        }
+
+        // Arma los botones "‹ 1 2 3 … 10 ›" a partir de la página actual
+        // y el total de páginas. Solo se ven unos pocos números cerca de
+        // la página actual (más el primero y el último) para que no se
+        // haga interminable si hay muchas páginas.
+        function paginasVisibles(actual, total) {
+            const paginas = [];
+            for (let i = 1; i <= total; i++) {
+                if (i === 1 || i === total || (i >= actual - 1 && i <= actual + 1)) {
+                    paginas.push(i);
+                } else if (paginas[paginas.length - 1] !== "...") {
+                    paginas.push("...");
+                }
+            }
+            return paginas;
+        }
+
+        function renderPaginacion(actual, totalPaginas, onCambiar) {
+            paginacionEl.innerHTML = "";
+            if (totalPaginas <= 1) return;
+
+            function crearBoton(texto, pagina, opciones = {}) {
+                const btn = document.createElement("button");
+                btn.textContent = texto;
+                btn.type = "button";
+                if (opciones.activo) btn.classList.add("activo");
+                if (opciones.deshabilitado) btn.disabled = true;
+                btn.addEventListener("click", () => onCambiar(pagina));
+                return btn;
+            }
+
+            paginacionEl.appendChild(crearBoton("‹", actual - 1, { deshabilitado: actual === 1 }));
+            paginasVisibles(actual, totalPaginas).forEach((p) => {
+                if (p === "...") {
+                    const span = document.createElement("span");
+                    span.className = "paginacion-puntos";
+                    span.textContent = "…";
+                    paginacionEl.appendChild(span);
+                } else {
+                    paginacionEl.appendChild(crearBoton(String(p), p, { activo: p === actual }));
+                }
+            });
+            paginacionEl.appendChild(crearBoton("›", actual + 1, { deshabilitado: actual === totalPaginas }));
+        }
+
+        // Tarjetas "esqueleto": se muestran de inmediato mientras se
+        // consulta Supabase, para que la página no aparezca vacía/en
+        // blanco esos primeros instantes. Tienen la misma forma que una
+        // tarjeta real, pero con bloques grises animados en vez de datos.
+        function crearSkeletons(cantidad) {
+            const frag = document.createDocumentFragment();
+            for (let i = 0; i < cantidad; i++) {
+                const div = document.createElement("div");
+                div.className = "server-card skeleton-card";
+                div.innerHTML = `
+                    <div class="server-logo-box skeleton-shimmer"></div>
+                    <div class="server-info">
+                        <div class="skeleton-line skeleton-titulo"></div>
+                        <div class="skeleton-line"></div>
+                        <div class="skeleton-line" style="width:60%"></div>
+                        <div class="skeleton-line skeleton-boton"></div>
+                    </div>
+                `;
+                frag.appendChild(div);
+            }
+            return frag;
+        }
+
+        // Trae solo los 6 servidores de la página pedida (con su
+        // búsqueda/filtro de modalidad aplicados en la base de datos, no
+        // en el navegador), así la web no se pone pesada aunque haya
+        // muchos servidores. Al agregar un servidor número 7, 13, 19...
+        // se crea sola una página nueva porque totalPaginas se recalcula
+        // con el total real que devuelve Supabase.
+        async function cargarPagina(pagina) {
+            contenedor.innerHTML = "";
+            contenedor.appendChild(crearSkeletons(POR_PAGINA));
+            paginacionEl.innerHTML = "";
+
+            // Se cancelan los refrescos automáticos de la página anterior
+            // (si no, seguirían llamando a mcstatus.io de fondo por
+            // servidores que ya no están a la vista).
+            intervalosEstado.forEach((id) => clearInterval(id));
+            intervalosEstado = [];
+
+            let resultado;
+            try {
+                resultado = await Datos.listarPagina("servidores", {
+                    pagina,
+                    porPagina: POR_PAGINA,
+                    busqueda: textoBusqueda,
+                    modalidad: filtroActivo,
+                });
+            } catch (e) {
+                contenedor.innerHTML = '<p class="sin-resultados">No se pudieron cargar los servidores. Revisa tu conexión e intenta de nuevo.<br><button type="button" class="btn-reintentar" id="btn-reintentar-servidores">Reintentar</button></p>';
+                const btnReintentar = document.getElementById("btn-reintentar-servidores");
+                if (btnReintentar) btnReintentar.addEventListener("click", () => cargarPagina(pagina));
+                return;
+            }
+
+            paginaActual = pagina;
+            const { datos, total, totalPaginas } = resultado;
+            contenedor.innerHTML = "";
+
+            if (total === 0) {
+                contenedor.innerHTML = '<p class="sin-resultados">No encontramos servidores con ese criterio.</p>';
+                return;
+            }
+
+            datos.map(mapearServidor).forEach((server, indice) => {
+                const card = document.createElement("div");
+                card.className = "server-card";
+                // server.id se usa además como id de HTML y en la URL, así
+                // que se limpia con encodeURIComponent; el resto de campos
+                // pasa por escapeHTML antes de insertarse con innerHTML.
+                const idSeguro = encodeURIComponent(server.id);
+                const logoSeguro = sanitizeURL(server.logo) || LOGO_FALLBACK;
+                const numero = (pagina - 1) * POR_PAGINA + indice + 1;
+                card.innerHTML = `
+                    <div class="server-logo-box">
+                        <div class="server-numero">${numero}</div>
+                        <div class="estado-badge" id="estado-${idSeguro}">
+                            <span class="estado-punto"></span>
+                            <span class="estado-texto">Consultando...</span>
+                        </div>
+                        <img
+                            src="${logoSeguro}"
+                            alt="Logo ${escapeHTML(server.nombre)}"
+                            loading="lazy"
+                            onerror="this.onerror=null; this.src='${LOGO_FALLBACK}';"
+                        >
+                    </div>
+                    <div class="server-info">
+                        <h2>${escapeHTML(server.nombre)}</h2>
+                        <p>${escapeHTML(server.descripcion)}</p>
+                        <div class="server-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Jugadores promedio</span>
+                                <span class="stat-value">${escapeHTML(server.jugadoresPromedio)}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Año de creación</span>
+                                <span class="stat-value">${escapeHTML(server.anioCreacion)}</span>
+                            </div>
+                        </div>
+                        <div class="ip-row">
+                            <span class="ip-texto">${escapeHTML(server.ip)}</span>
+                            <button class="btn-copiar-ip">Copiar IP</button>
+                        </div>
+                        <div class="modalidades">
+                            ${server.modalidades.map((m) => `<span class="modalidad-tag">${escapeHTML(m)}</span>`).join("")}
+                        </div>
+                        <a class="btn-ver-mas" href="/servidor-detalle?id=${idSeguro}">Ver más y opinar</a>
+                    </div>
+                `;
+                contenedor.appendChild(card);
+                consultarEstadoServidor(server);
+            });
+
+            activarBotonesCopiarIp();
+            actualizarSeoItemList(datos.map(mapearServidor));
+
+            renderPaginacion(paginaActual, totalPaginas, (p) => {
+                if (p < 1 || p > totalPaginas || p === paginaActual) return;
+                cargarPagina(p);
+                paginacionEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            });
+        }
+
+        // SEO: mantiene un bloque JSON-LD (ItemList) con los servidores
+        // que están realmente visibles en la página actual, para que los
+        // buscadores entiendan el listado aunque se cargue por JS.
+        function actualizarSeoItemList(servidoresVisibles) {
+            let script = document.getElementById("seo-itemlist-servidores");
+            if (!script) {
+                script = document.createElement("script");
+                script.type = "application/ld+json";
+                script.id = "seo-itemlist-servidores";
+                document.head.appendChild(script);
+            }
+            const data = {
+                "@context": "https://schema.org",
+                "@type": "ItemList",
+                "itemListElement": servidoresVisibles.map((server, i) => ({
+                    "@type": "ListItem",
+                    "position": i + 1,
+                    "name": server.nombre,
+                    "url": `https://vivandro-cl-i1x2.vercel.app/servidor-detalle?id=${encodeURIComponent(server.id)}`,
+                })),
+            };
+            script.textContent = JSON.stringify(data);
+        }
+
+        function activarBotonesCopiarIp() {
+            document.querySelectorAll(".btn-copiar-ip").forEach((boton) => {
+                boton.addEventListener("click", () => {
+                    const ip = boton.previousElementSibling.textContent.trim();
+                    navigator.clipboard.writeText(ip).then(() => {
+                        const textoOriginal = boton.textContent;
+                        boton.textContent = "¡Copiado!";
+                        boton.classList.add("copiado");
+                        setTimeout(() => {
+                            boton.textContent = textoOriginal;
+                            boton.classList.remove("copiado");
+                        }, 1500);
+                    });
+                });
+            });
+        }
+
+        // Estado en vivo (online/offline + jugadores) vía mcstatus.io.
+        // Se consulta al mostrar la card y luego se refresca sola cada
+        // 60 segundos mientras esa página siga a la vista.
+        const INTERVALO_ESTADO_MS = 60000;
+
+        function consultarEstadoServidor(server) {
+            const badge = document.getElementById(`estado-${server.id}`);
+            if (!badge) return;
+
+            function actualizar() {
+                const texto = badge.querySelector(".estado-texto");
+                const controlador = new AbortController();
+                const timeout = setTimeout(() => controlador.abort(), 8000);
+
+                // Java Edition y Bedrock Edition usan protocolos y puertos
+                // distintos, así que mcstatus.io tiene un endpoint separado
+                // para cada uno. Sin esto, un servidor Bedrock consultado
+                // como si fuera Java siempre aparecía offline.
+                const endpoint = server.tipoEdicion === "bedrock" ? "bedrock" : "java";
+
+                fetch(`https://api.mcstatus.io/v2/status/${endpoint}/${server.ip}`, { signal: controlador.signal })
+                    .then((res) => {
+                        if (!res.ok) throw new Error("Respuesta no válida");
+                        return res.json();
+                    })
+                    .then((data) => {
+                        clearTimeout(timeout);
+                        badge.classList.remove("online", "offline");
+                        if (data && data.online) {
+                            badge.classList.add("online");
+                            const jugadores = data.players ? data.players.online : null;
+                            texto.textContent = jugadores !== null && jugadores !== undefined ? `Online · ${jugadores}` : "Online";
+                        } else {
+                            badge.classList.add("offline");
+                            texto.textContent = "Offline";
+                        }
+                    })
+                    .catch(() => {
+                        clearTimeout(timeout);
+                        badge.classList.remove("online");
+                        badge.classList.add("offline");
+                        texto.textContent = "Estado no disponible";
+                    });
+            }
+
+            actualizar();
+            const idIntervalo = setInterval(actualizar, INTERVALO_ESTADO_MS);
+            intervalosEstado.push(idIntervalo);
+        }
+
+        buscadorInput.addEventListener("input", () => {
+            clearTimeout(timerBusqueda);
+            timerBusqueda = setTimeout(() => {
+                textoBusqueda = buscadorInput.value.trim();
+                cargarPagina(1);
+            }, 350);
+        });
+
+        iniciar();
+
+    </script>
+
+</body>
+</html>

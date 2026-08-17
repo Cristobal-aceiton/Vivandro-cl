@@ -1,0 +1,12 @@
+# robots.txt TEMPORAL — mientras el sitio vive en vivandro-cl-i1x2.vercel.app
+#
+# Bloquea todo el rastreo a propósito: esta URL es provisoria (no tiene
+# dominio propio todavía) y no queremos que Google la indexe, porque esa
+# indexación se "pierde" o hay que migrarla cuando se conecte vivandro.cl.
+#
+# CUANDO CONECTES EL DOMINIO vivandro.cl EN VERCEL:
+# reemplaza este archivo por robots-produccion.txt (renómbralo a
+# robots.txt) y recién ahí da de alta el sitio en Search Console.
+
+User-agent: *
+Disallow: /

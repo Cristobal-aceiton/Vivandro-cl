@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mods de Minecraft para Descargar | Vivandro</title>
+    <meta name="description" content="Descarga los mejores mods de Minecraft: nuevas mecánicas, contenido y mejoras de rendimiento. Actualizado, con enlace directo a CurseForge.">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://vivandro-cl-i1x2.vercel.app/mods">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Vivandro">
+    <meta property="og:title" content="Mods de Minecraft para Descargar | Vivandro">
+    <meta property="og:description" content="Descarga los mejores mods de Minecraft: nuevas mecánicas, contenido y mejoras de rendimiento.">
+    <meta property="og:url" content="https://vivandro-cl-i1x2.vercel.app/mods">
+    <meta property="og:image" content="https://vivandro-cl-i1x2.vercel.app/imagenes/logo.png">
+    <meta property="og:locale" content="es_CL">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Mods de Minecraft para Descargar | Vivandro">
+    <meta name="twitter:description" content="Descarga los mejores mods de Minecraft: nuevas mecánicas, contenido y mejoras de rendimiento.">
+    <meta name="twitter:image" content="https://vivandro-cl-i1x2.vercel.app/imagenes/logo.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="16x16" href="imagenes/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="imagenes/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="imagenes/favicon-192x192.png">
+<link rel="apple-touch-icon" href="imagenes/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#a708b6">
+    <link rel="stylesheet" href="css/navbar.css">
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Inicio", "item": "https://vivandro-cl-i1x2.vercel.app/"},
+            {"@type": "ListItem", "position": 2, "name": "Mods", "item": "https://vivandro-cl-i1x2.vercel.app/mods"}
+        ]
+    }
+    </script>
+    <style>
+
+        :root {
+            --bg: #a708b6;
+            --navbar-bg: #9801ac;
+            --card-bg: #ffffff;
+            --card-text: #333333;
+            --card-text-soft: #555555;
+            --titulo-color: #e6dada;
+            --acento: #a708b6;
+            --acento-fuerte: #9801ac;
+            --input-bg: #ffffff;
+            --input-border: #d8bfe0;
+            --skeleton-base: #e6dcea;
+            --skeleton-shine: #f5f0f7;
+        }
+
+        html.dark-mode {
+            --bg: #17071c;
+            --navbar-bg: #250a2c;
+            --card-bg: #241129;
+            --card-text: #f0e8f3;
+            --card-text-soft: #c9b8ce;
+            --titulo-color: #f3e6f7;
+            --acento: #e07bff;
+            --acento-fuerte: #c94dff;
+            --input-bg: #2d1533;
+            --input-border: #4a2652;
+            --skeleton-base: #3a1f42;
+            --skeleton-shine: #4d2a57;
+        }
+
+        body, html {
+            margin: 0;
+            background-color: var(--bg);
+            transition: background-color 0.3s ease;
+        }
+
+        .titulo-seccion {
+            text-align: center;
+            font-family: "Pixelify Sans", sans-serif;
+            color: var(--titulo-color);
+            padding: 40px 20px 20px;
+        }
+
+        .titulo-seccion h1 {
+            font-size: 3rem;
+            margin: 0 0 10px;
+        }
+
+        .titulo-seccion p {
+            font-family: "Poppins", sans-serif;
+            font-size: 1.1rem;
+            margin: 0;
+        }
+
+        /* Buscador */
+        .controles {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .buscador input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--input-border);
+            background-color: var(--input-bg);
+            color: var(--card-text);
+            font-family: "Poppins", sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .sin-resultados {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: var(--titulo-color);
+            font-family: "Poppins", sans-serif;
+            padding: 40px 20px;
+        }
+
+        /* Skeleton (placeholder animado) mientras cargan los mods */
+        @keyframes skeleton-pulso {
+            0% { background-position: -400px 0; }
+            100% { background-position: 400px 0; }
+        }
+
+        .skeleton-shimmer,
+        .skeleton-line {
+            background-image: linear-gradient(90deg, var(--skeleton-base) 25%, var(--skeleton-shine) 37%, var(--skeleton-base) 63%);
+            background-size: 400px 100%;
+            animation: skeleton-pulso 1.4s ease infinite;
+        }
+
+        .skeleton-card {
+            pointer-events: none;
+        }
+
+        .skeleton-card:hover {
+            transform: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .skeleton-line {
+            height: 12px;
+            border-radius: 6px;
+        }
+
+        .skeleton-titulo {
+            height: 18px;
+            width: 55%;
+        }
+
+        .skeleton-boton {
+            height: 34px;
+            border-radius: 6px;
+            margin-top: 4px;
+        }
+
+        .mods-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            align-items: start;
+            gap: 25px;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 20px 20px 60px;
+        }
+
+        .mod-card {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s ease;
+        }
+
+        /* Carrusel */
+        .carousel {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 850 / 457;
+            background-color: #1a1a1a;
+            overflow: hidden;
+        }
+
+        .mod-numero {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background-color: #9801ac;
+            color: #fff;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: "Poppins", sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            z-index: 2;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+        }
+
+        .carousel-track {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.35s ease;
+        }
+
+        .carousel-track img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            flex-shrink: 0;
+            background-color: #1a1a1a;
+        }
+
+        .carousel-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s ease;
+            z-index: 2;
+        }
+
+        .carousel-arrow:hover {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .carousel-arrow.prev { left: 8px; }
+        .carousel-arrow.next { right: 8px; }
+
+        .carousel-dots {
+            position: absolute;
+            bottom: 8px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            z-index: 2;
+        }
+
+        .carousel-dots span {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+        }
+
+        .carousel-dots span.active {
+            background-color: #ffffff;
+        }
+
+        .mod-info {
+            padding: 18px 20px;
+            font-family: "Poppins", sans-serif;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            height: 250px;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .mod-info h2 {
+            font-family: "Pixelify Sans", sans-serif;
+            font-size: 1.4rem;
+            margin: 0;
+            color: var(--acento);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .mod-info .mod-descripcion {
+            margin: 0;
+            font-size: 0.9rem;
+            color: var(--card-text-soft);
+            white-space: pre-line;
+            flex-grow: 1;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            line-clamp: 3;
+        }
+
+        .mod-info .mod-version {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--card-text-soft);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .cargadores {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .cargador-tag {
+            background-color: #a708b6;
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 999px;
+        }
+
+        .btn-versiones {
+            margin-top: 10px;
+            background-color: #9801ac;
+            color: #fff;
+            border: none;
+            text-align: center;
+            padding: 10px 0;
+            border-radius: 6px;
+            font-family: "Poppins", sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-versiones:hover {
+            background-color: #7a018a;
+        }
+
+        /* Botón sutil "Ver más": abre el modal de detalle del mod */
+        .btn-ver-mas {
+            align-self: flex-start;
+            background: none;
+            border: none;
+            padding: 0;
+            margin-top: -2px;
+            color: var(--acento);
+            font-family: "Poppins", sans-serif;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            opacity: 0.8;
+            transition: opacity 0.2s ease;
+        }
+
+        .btn-ver-mas:hover {
+            opacity: 1;
+        }
+
+        .btn-curseforge {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background-color: #f16436;
+            color: #fff;
+            text-align: center;
+            padding: 10px 0;
+            border-radius: 6px;
+            font-family: "Poppins", sans-serif;
+            font-weight: 600;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-curseforge img {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        .btn-curseforge:hover {
+            background-color: #d2532a;
+        }
+
+        .requisitos {
+            margin-top: 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .requisitos .requisitos-titulo {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--card-text-soft);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .requisito-link {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #2b8fe0;
+            text-decoration: none;
+            word-break: break-word;
+        }
+
+        .requisito-link::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #2b8fe0;
+            flex-shrink: 0;
+        }
+
+        .requisito-link:hover {
+            text-decoration: underline;
+        }
+
+        html.dark-mode .requisito-link {
+            color: #6ab8ff;
+        }
+        html.dark-mode .requisito-link::before {
+            background-color: #6ab8ff;
+        }
+
+        .cargando-lista, .error-lista {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: var(--titulo-color);
+            font-family: "Poppins", sans-serif;
+            padding: 40px 20px;
+        }
+
+        .btn-reintentar {
+            display: inline-block;
+            margin-top: 14px;
+            background-color: var(--acento);
+            color: #fff;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-family: "Poppins", sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .btn-reintentar:hover {
+            background-color: var(--acento-fuerte);
+        }
+
+        /* Paginación */
+        .paginacion {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 10px 20px 60px;
+        }
+
+        .paginacion button {
+            background-color: var(--card-bg);
+            color: var(--card-text);
+            border: 1px solid var(--input-border);
+            min-width: 38px;
+            height: 38px;
+            padding: 0 8px;
+            border-radius: 8px;
+            font-family: "Poppins", sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .paginacion button:hover:not(:disabled) {
+            background-color: var(--acento-fuerte);
+            border-color: var(--acento-fuerte);
+            color: #fff;
+        }
+
+        .paginacion button.activo {
+            background-color: var(--acento-fuerte);
+            border-color: var(--acento-fuerte);
+            color: #fff;
+        }
+
+        .paginacion button:disabled {
+            opacity: 0.4;
+            cursor: default;
+        }
+
+        .paginacion-puntos {
+            color: var(--titulo-color);
+            font-family: "Poppins", sans-serif;
+            padding: 0 4px;
+        }
+
+        /* "Ir a la página N" dentro de la paginación */
+        .paginacion-salto {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-left: 6px;
+        }
+
+        .paginacion-salto input {
+            width: 56px;
+            height: 38px;
+            box-sizing: border-box;
+            text-align: center;
+            padding: 0 4px;
+            border-radius: 8px;
+            border: 1px solid var(--input-border);
+            background-color: var(--input-bg);
+            color: var(--card-text);
+            font-family: "Poppins", sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .paginacion-salto input::-webkit-outer-spin-button,
+        .paginacion-salto input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .paginacion-salto input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        .paginacion-salto button {
+            background-color: var(--card-bg);
+            color: var(--card-text);
+            border: 1px solid var(--input-border);
+            height: 38px;
+            padding: 0 14px;
+            border-radius: 8px;
+            font-family: "Poppins", sans-serif;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .paginacion-salto button:hover {
+            background-color: var(--acento-fuerte);
+            border-color: var(--acento-fuerte);
+            color: #fff;
+        }
+
+        /* Panel / modal de versiones */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.6);
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            padding: 20px;
+        }
+
+        .modal-overlay.activo {
+            display: flex;
+        }
+
+        .modal {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            width: 100%;
+            max-width: 420px;
+            max-height: 80vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            box-sizing: border-box;
+            padding: 25px;
+            font-family: "Poppins", sans-serif;
+            position: relative;
+            transition: background-color 0.3s ease;
+        }
+
+        .modal-cerrar {
+            position: absolute;
+            top: 12px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--card-text-soft);
+        }
+
+        .modal h2 {
+            font-family: "Pixelify Sans", sans-serif;
+            color: var(--acento);
+            margin: 0 0 20px;
+            font-size: 1.5rem;
+        }
+
+        /* Modal de detalle: "ventana" propia de cada mod */
+        .modal-detalle {
+            max-width: 480px;
+        }
+
+        .modal-detalle img.modal-imagen-principal {
+            width: 100%;
+            aspect-ratio: 850 / 457;
+            object-fit: cover;
+            border-radius: 8px;
+            background-color: #1a1a1a;
+            display: block;
+            margin-bottom: 14px;
+        }
+
+        .modal-detalle h2 {
+            margin: 0 0 8px;
+        }
+
+        .modal-detalle p {
+            color: var(--card-text-soft);
+            font-size: 0.92rem;
+            white-space: pre-line;
+            margin: 0 0 10px;
+        }
+
+        .modal-detalle .mod-version {
+            color: var(--card-text-soft);
+            font-size: 0.88rem;
+            margin: 0 0 10px;
+        }
+
+        .modal-detalle .cargadores {
+            margin-bottom: 10px;
+        }
+
+        .modal-acciones {
+            display: flex;
+            gap: 10px;
+            margin-top: 18px;
+            flex-wrap: wrap;
+        }
+
+        .modal-acciones > * {
+            flex: 1 1 140px;
+            min-width: 0;
+            margin-top: 0;
+        }
+
+        .modal-acciones .btn-curseforge img {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
+        .btn-compartir {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--input-border);
+            color: var(--card-text);
+            text-align: center;
+            padding: 10px 0;
+            border-radius: 6px;
+            font-family: "Poppins", sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .btn-compartir:hover {
+            background-color: var(--acento);
+            border-color: var(--acento);
+            color: #fff;
+        }
+
+        /* Aviso flotante "Enlace copiado" */
+        .compartir-aviso {
+            position: fixed;
+            left: 50%;
+            bottom: 26px;
+            transform: translateX(-50%) translateY(16px);
+            background-color: var(--acento-fuerte);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-family: "Poppins", sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            z-index: 1100;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .compartir-aviso.activo {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .version-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--input-border);
+        }
+
+        .version-item:last-child {
+            border-bottom: none;
+        }
+
+        .version-item span {
+            font-weight: 600;
+            color: var(--card-text);
+        }
+
+        .version-item a {
+            background-color: var(--acento-fuerte);
+            color: #fff;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        .version-item a:hover {
+            background-color: var(--acento);
+        }
+
+        @media (max-width: 768px) {
+            .titulo-seccion h1 {
+                font-size: 2rem;
+            }
+
+            .mods-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-links">
+            <a href="/">Inicio</a>
+            <a href="/mods">Mods</a>
+            <a href="/texturas">Texturas</a>
+            <a href="/servidores">Servidores</a>
+        </div>
+        <div class="navbar-right">
+            <div class="nav-auth" id="nav-auth"></div>
+            <button id="theme-toggle" title="Cambiar tema" aria-label="Cambiar tema claro/oscuro"></button>
+        </div>
+    </nav>
+
+    <div class="titulo-seccion">
+        <h1>Mods</h1>
+        <p>Descarga los mejores mods para tu Minecraft</p>
+    </div>
+
+    <div class="controles">
+        <div class="buscador">
+            <input type="text" id="buscador-input" placeholder="Buscar mod por nombre...">
+        </div>
+    </div>
+
+    <div class="mods-container" id="mods-container">
+        <p class="cargando-lista" id="cargando-lista" style="display:none;"></p>
+        <p class="sin-resultados" id="sin-resultados" style="display:none;">No encontramos mods con ese nombre.</p>
+    </div>
+
+    <div class="paginacion" id="paginacion"></div>
+
+    <!-- Modal de detalle: la "ventana" propia de cada mod. Se abre con
+         el botón "Ver más" o directo desde un link compartido
+         (mods.html?id=...). -->
+    <div class="modal-overlay" id="modal-detalle">
+        <div class="modal modal-detalle">
+            <button type="button" class="modal-cerrar" id="modal-detalle-cerrar" aria-label="Cerrar">&times;</button>
+            <div id="modal-detalle-contenido"></div>
+        </div>
+    </div>
+
+    <div class="compartir-aviso" id="compartir-aviso">Enlace copiado</div>
+
+    <script src="seguridad.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2.112.3"></script>
+    <script src="supabase-client.js"></script>
+    <script src="datos.js"></script>
+    <script src="auth-nav.js"></script>
+    <script src="theme.js"></script>
+    <script>
+
+        const contenedor = document.getElementById("mods-container");
+        const buscadorInput = document.getElementById("buscador-input");
+        const sinResultados = document.getElementById("sin-resultados");
+        const cargandoAviso = document.getElementById("cargando-lista");
+        const paginacionEl = document.getElementById("paginacion");
+
+        const POR_PAGINA = 6;
+        let paginaActual = 1;
+        let textoBusqueda = "";
+        let timerBusqueda = null;
+
+        // Guarda los mods ya cargados (por id) para poder abrir el
+        // modal de detalle sin volver a pedirlos a Supabase.
+        const cacheMods = new Map();
+
+        const modalOverlay = document.getElementById("modal-detalle");
+        const modalContenido = document.getElementById("modal-detalle-contenido");
+        const modalCerrarBtn = document.getElementById("modal-detalle-cerrar");
+        const avisoCompartir = document.getElementById("compartir-aviso");
+        let avisoTimer = null;
+
+        // Arma el link directo a un mod (mods.html?id=123): es lo que
+        // se comparte y lo que abre el modal automáticamente si alguien
+        // entra desde ese link.
+        function urlCompartirMod(id) {
+            const url = new URL(window.location.href);
+            url.search = "";
+            url.searchParams.set("id", id);
+            return url.toString();
+        }
+
+        function mostrarAvisoCompartir(texto) {
+            avisoCompartir.textContent = texto;
+            avisoCompartir.classList.add("activo");
+            clearTimeout(avisoTimer);
+            avisoTimer = setTimeout(() => avisoCompartir.classList.remove("activo"), 2200);
+        }
+
+        async function compartirMod(mod) {
+            const url = urlCompartirMod(mod.id);
+            const nombre = mod.nombre || "este mod";
+
+            // En celulares, si el navegador lo soporta, se usa el panel
+            // nativo de compartir (WhatsApp, etc). En escritorio (o si
+            // no está disponible) se copia el link al portapapeles.
+            if (navigator.share) {
+                try {
+                    await navigator.share({ title: `${nombre} · VivandroCL`, url });
+                    return;
+                } catch (e) {
+                    // El usuario canceló el panel de compartir: no hacemos nada más.
+                    if (e && e.name === "AbortError") return;
+                }
+            }
+
+            try {
+                await navigator.clipboard.writeText(url);
+                mostrarAvisoCompartir("Enlace copiado ✔");
+            } catch (e) {
+                window.prompt("Copia el enlace del mod:", url);
+            }
+        }
+
+        function abrirModalDetalle(mod) {
+            cacheMods.set(String(mod.id), mod);
+            modalContenido.innerHTML = contenidoModalDetalle(mod);
+            modalOverlay.classList.add("activo");
+            document.body.style.overflow = "hidden";
+
+            const btnCompartir = document.getElementById("modal-btn-compartir");
+            if (btnCompartir) btnCompartir.addEventListener("click", () => compartirMod(mod));
+
+            const btnDescargar = document.getElementById("modal-btn-descargar");
+            if (btnDescargar) {
+                btnDescargar.addEventListener("click", () => Datos.registrarDescarga("mods", mod.id));
+            }
+
+            // Actualiza la URL a la del mod (sin recargar la página) para
+            // que copiar el link de la barra de direcciones también sirva.
+            const url = urlCompartirMod(mod.id);
+            if (window.location.href !== url) {
+                window.history.pushState({ modId: mod.id }, "", url);
+            }
+        }
+
+        function cerrarModalDetalle(actualizarURL = true) {
+            modalOverlay.classList.remove("activo");
+            document.body.style.overflow = "";
+            if (actualizarURL) {
+                const url = new URL(window.location.href);
+                url.searchParams.delete("id");
+                window.history.pushState({}, "", url.pathname + url.search);
+            }
+        }
+
+        modalCerrarBtn.addEventListener("click", () => cerrarModalDetalle());
+        modalOverlay.addEventListener("click", (e) => {
+            if (e.target === modalOverlay) cerrarModalDetalle();
+        });
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && modalOverlay.classList.contains("activo")) cerrarModalDetalle();
+        });
+        // Botón "atrás" del navegador: si veníamos de un mod abierto, cierra el modal.
+        window.addEventListener("popstate", () => {
+            const id = new URLSearchParams(window.location.search).get("id");
+            if (!id && modalOverlay.classList.contains("activo")) {
+                cerrarModalDetalle(false);
+            }
+        });
+
+        // Si alguien entra directo a un link compartido (mods.html?id=123),
+        // busca ese mod puntual y abre su modal automáticamente.
+        async function revisarLinkDirecto() {
+            const id = new URLSearchParams(window.location.search).get("id");
+            if (!id) return;
+            const enCache = cacheMods.get(String(id));
+            if (enCache) {
+                abrirModalDetalle(enCache);
+                return;
+            }
+            const mod = await Datos.obtenerPorId("mods", id);
+            if (mod) abrirModalDetalle(mod);
+        }
+
+        // SEO: mantiene un bloque JSON-LD (ItemList) con los ítems que
+        // están realmente visibles en la página actual, para que los
+        // buscadores entiendan el listado aunque se cargue por JS.
+        function actualizarSeoItemList(items, tipoId) {
+            const domId = `seo-itemlist-${tipoId}`;
+            let script = document.getElementById(domId);
+            if (!script) {
+                script = document.createElement("script");
+                script.type = "application/ld+json";
+                script.id = domId;
+                document.head.appendChild(script);
+            }
+            const data = {
+                "@context": "https://schema.org",
+                "@type": "ItemList",
+                "itemListElement": items.map((item, i) => ({
+                    "@type": "ListItem",
+                    "position": i + 1,
+                    "name": item.nombre,
+                })),
+            };
+            script.textContent = JSON.stringify(data);
+        }
+
+        function tarjetaMod(mod, numero) {
+            const nombre = escapeHTML(mod.nombre || "");
+            const descripcion = escapeHTML(mod.descripcion || "");
+            const imagen = sanitizeURL(mod.imagen) || "imagenes/logo.png";
+            const link = sanitizeURL(mod.curseforge_url);
+            const version = mod.version_minecraft ? `<p class="mod-version">Versión: ${escapeHTML(mod.version_minecraft)}</p>` : "";
+
+            const div = document.createElement("div");
+            div.className = "mod-card";
+            div.dataset.nombre = nombre.toLowerCase();
+            div.innerHTML = `
+                <div class="carousel">
+                    <div class="mod-numero">${numero}</div>
+                    <div class="carousel-track">
+                        <img src="${imagen}" alt="${nombre}" loading="lazy" onerror="this.onerror=null; this.src='imagenes/logo.png';">
+                    </div>
+                </div>
+                <div class="mod-info">
+                    <h2>${nombre}</h2>
+                    <p class="mod-descripcion">${descripcion}</p>
+                    ${version}
+                    <button type="button" class="btn-ver-mas" data-ver-id="${mod.id}">Ver más</button>
+                    ${link ? `<a class="btn-curseforge" data-item-id="${mod.id}" href="${link}" target="_blank" rel="noopener noreferrer"><img src="imagenes/curseforge.png" alt="" aria-hidden="true" width="18" height="18">Descargar en CurseForge</a>` : ""}
+                </div>
+            `;
+            return div;
+        }
+
+        // Arma el contenido interno del modal de detalle para un mod
+        // (misma info que la tarjeta, pero completa: sin recortes, con
+        // la imagen grande y el botón de compartir).
+        function contenidoModalDetalle(mod) {
+            const nombre = escapeHTML(mod.nombre || "");
+            const descripcion = escapeHTML(mod.descripcion || "");
+            const imagen = sanitizeURL(mod.imagen) || "imagenes/logo.png";
+            const link = sanitizeURL(mod.curseforge_url);
+            const version = mod.version_minecraft ? `<p class="mod-version">Versión: ${escapeHTML(mod.version_minecraft)}</p>` : "";
+            const cargadores = Array.isArray(mod.cargadores) ? mod.cargadores : [];
+            const cargadoresHTML = cargadores.length
+                ? `<div class="cargadores">${cargadores.map((c) => `<span class="cargador-tag">${escapeHTML(c)}</span>`).join("")}</div>`
+                : "";
+            const requisitos = Array.isArray(mod.requisitos) ? mod.requisitos.slice(0, 4) : [];
+            const requisitosValidos = requisitos
+                .map((r) => ({ nombre: escapeHTML(r?.nombre || ""), url: sanitizeURL(r?.url) }))
+                .filter((r) => r.nombre && r.url);
+            const requisitosHTML = requisitosValidos.length
+                ? `<div class="requisitos">
+                    <span class="requisitos-titulo">Requiere:</span>
+                    ${requisitosValidos.map((r) => `<a class="requisito-link" href="${r.url}" target="_blank" rel="noopener noreferrer">${r.nombre}</a>`).join("")}
+                   </div>`
+                : "";
+
+            return `
+                <img class="modal-imagen-principal" src="${imagen}" alt="${nombre}" loading="lazy" onerror="this.onerror=null; this.src='imagenes/logo.png';">
+                <h2>${nombre}</h2>
+                <p>${descripcion}</p>
+                ${version}
+                ${cargadoresHTML}
+                ${requisitosHTML}
+                <div class="modal-acciones">
+                    <button type="button" class="btn-compartir" id="modal-btn-compartir">🔗 Compartir</button>
+                    ${link ? `<a class="btn-curseforge" data-item-id="${mod.id}" href="${link}" target="_blank" rel="noopener noreferrer" id="modal-btn-descargar"><img src="imagenes/curseforge.png" alt="" aria-hidden="true" width="18" height="18">Descargar</a>` : ""}
+                </div>
+            `;
+        }
+
+        // Tarjetas "esqueleto": se muestran de inmediato mientras se
+        // consulta Supabase, para que la página no aparezca vacía/en
+        // blanco esos primeros instantes. Tienen la misma forma que una
+        // tarjeta real, pero con bloques grises animados en vez de datos.
+        function crearSkeletons(cantidad) {
+            const frag = document.createDocumentFragment();
+            for (let i = 0; i < cantidad; i++) {
+                const div = document.createElement("div");
+                div.className = "mod-card skeleton-card";
+                div.innerHTML = `
+                    <div class="carousel skeleton-shimmer"></div>
+                    <div class="mod-info">
+                        <div class="skeleton-line skeleton-titulo"></div>
+                        <div class="skeleton-line"></div>
+                        <div class="skeleton-line" style="width:70%"></div>
+                        <div class="skeleton-line skeleton-boton"></div>
+                    </div>
+                `;
+                frag.appendChild(div);
+            }
+            return frag;
+        }
+
+        function activarTrackingDescargas(cont) {
+            cont.querySelectorAll(".btn-curseforge").forEach((a) => {
+                if (a.dataset.trackListo) return;
+                a.dataset.trackListo = "1";
+                a.addEventListener("click", () => {
+                    Datos.registrarDescarga("mods", a.dataset.itemId);
+                });
+            });
+        }
+
+        // Un solo listener delegado en el contenedor: como las tarjetas
+        // se reemplazan al cambiar de página, esto evita tener que
+        // enganchar el evento tarjeta por tarjeta cada vez.
+        contenedor.addEventListener("click", (e) => {
+            const btn = e.target.closest(".btn-ver-mas");
+            if (!btn) return;
+            const mod = cacheMods.get(String(btn.dataset.verId));
+            if (mod) abrirModalDetalle(mod);
+        });
+
+        // Arma los botones "‹ 1 2 3 … 10 ›" a partir de la página actual
+        // y el total de páginas. Solo se ven unos pocos números cerca de
+        // la página actual (más el primero y el último) para que no se
+        // haga interminable si hay muchas páginas.
+        function paginasVisibles(actual, total) {
+            const paginas = [];
+            for (let i = 1; i <= total; i++) {
+                if (i === 1 || i === total || (i >= actual - 1 && i <= actual + 1)) {
+                    paginas.push(i);
+                } else if (paginas[paginas.length - 1] !== "...") {
+                    paginas.push("...");
+                }
+            }
+            return paginas;
+        }
+
+        function renderPaginacion(actual, totalPaginas, onCambiar) {
+            paginacionEl.innerHTML = "";
+            if (totalPaginas <= 1) return;
+
+            function crearBoton(texto, pagina, opciones = {}) {
+                const btn = document.createElement("button");
+                btn.textContent = texto;
+                btn.type = "button";
+                if (opciones.activo) btn.classList.add("activo");
+                if (opciones.deshabilitado) btn.disabled = true;
+                btn.addEventListener("click", () => onCambiar(pagina));
+                return btn;
+            }
+
+            paginacionEl.appendChild(crearBoton("‹", actual - 1, { deshabilitado: actual === 1 }));
+            paginasVisibles(actual, totalPaginas).forEach((p) => {
+                if (p === "...") {
+                    const span = document.createElement("span");
+                    span.className = "paginacion-puntos";
+                    span.textContent = "…";
+                    paginacionEl.appendChild(span);
+                } else {
+                    paginacionEl.appendChild(crearBoton(String(p), p, { activo: p === actual }));
+                }
+            });
+            paginacionEl.appendChild(crearBoton("›", actual + 1, { deshabilitado: actual === totalPaginas }));
+
+            // Caja para saltar directo a una página escribiendo el número,
+            // útil cuando hay muchas páginas y no se quiere hacer clic
+            // varias veces en "›".
+            const saltoForm = document.createElement("form");
+            saltoForm.className = "paginacion-salto";
+
+            const saltoInput = document.createElement("input");
+            saltoInput.type = "number";
+            saltoInput.min = "1";
+            saltoInput.max = String(totalPaginas);
+            saltoInput.inputMode = "numeric";
+            saltoInput.placeholder = "Ir a…";
+            saltoInput.setAttribute("aria-label", "Ir a la página número");
+
+            const saltoBoton = document.createElement("button");
+            saltoBoton.type = "submit";
+            saltoBoton.textContent = "Ir";
+
+            saltoForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+                const pagina = Math.floor(Number(saltoInput.value));
+                if (!Number.isFinite(pagina)) return;
+                // Si escriben un número fuera de rango, lo llevamos al
+                // límite más cercano en vez de no hacer nada.
+                onCambiar(Math.min(Math.max(pagina, 1), totalPaginas));
+            });
+
+            saltoForm.appendChild(saltoInput);
+            saltoForm.appendChild(saltoBoton);
+            paginacionEl.appendChild(saltoForm);
+        }
+
+        // Trae solo los 6 mods de la página pedida (no la tabla completa),
+        // así la web queda liviana aunque haya cientos de mods. Cuando se
+        // agrega un mod número 7, 13, 19... automáticamente aparece una
+        // página nueva porque totalPaginas se recalcula con el total real
+        // que devuelve Supabase.
+        async function cargarPagina(pagina) {
+            cargandoAviso.style.display = "none";
+            cargandoAviso.classList.remove("error-lista");
+            sinResultados.style.display = "none";
+            contenedor.querySelectorAll(".mod-card").forEach((c) => c.remove());
+            contenedor.insertBefore(crearSkeletons(POR_PAGINA), sinResultados);
+            paginacionEl.innerHTML = "";
+
+            let resultado;
+            try {
+                resultado = await Datos.listarPagina("mods", { pagina, porPagina: POR_PAGINA, busqueda: textoBusqueda });
+            } catch (e) {
+                contenedor.querySelectorAll(".skeleton-card").forEach((c) => c.remove());
+                cargandoAviso.innerHTML = 'No se pudieron cargar los mods. Revisa tu conexión e intenta de nuevo.<br><button type="button" class="btn-reintentar" id="btn-reintentar-mods">Reintentar</button>';
+                cargandoAviso.classList.add("error-lista");
+                cargandoAviso.style.display = "block";
+                const btnReintentar = document.getElementById("btn-reintentar-mods");
+                if (btnReintentar) btnReintentar.addEventListener("click", () => cargarPagina(pagina));
+                return;
+            }
+
+            contenedor.querySelectorAll(".skeleton-card").forEach((c) => c.remove());
+            paginaActual = pagina;
+
+            const { datos, total, totalPaginas } = resultado;
+
+            if (total === 0) {
+                sinResultados.textContent = textoBusqueda
+                    ? "No encontramos mods con ese nombre."
+                    : "Todavía no hay mods publicados.";
+                sinResultados.style.display = "block";
+                return;
+            }
+
+            datos.forEach((mod, i) => {
+                const numero = (pagina - 1) * POR_PAGINA + i + 1;
+                cacheMods.set(String(mod.id), mod);
+                contenedor.insertBefore(tarjetaMod(mod, numero), sinResultados);
+            });
+            activarTrackingDescargas(contenedor);
+            actualizarSeoItemList(datos, "mods");
+
+            renderPaginacion(paginaActual, totalPaginas, (p) => {
+                if (p < 1 || p > totalPaginas || p === paginaActual) return;
+                cargarPagina(p);
+                paginacionEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+            });
+        }
+
+        buscadorInput.addEventListener("input", () => {
+            clearTimeout(timerBusqueda);
+            timerBusqueda = setTimeout(() => {
+                textoBusqueda = buscadorInput.value.trim();
+                cargarPagina(1);
+            }, 350);
+        });
+
+        cargarPagina(1);
+        revisarLinkDirecto();
+
+    </script>
+
+</body>
+</html>

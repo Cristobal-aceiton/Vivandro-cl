@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página no encontrada | Vivandro</title>
+    <meta name="description" content="La página que buscabas no existe o se movió. Vuelve al inicio de Vivandro o explora servidores, mods y texturas de Minecraft.">
+    <meta name="robots" content="noindex, follow">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="16x16" href="imagenes/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="imagenes/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="imagenes/favicon-192x192.png">
+    <link rel="apple-touch-icon" href="imagenes/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#a708b6">
+    <link rel="stylesheet" href="css/navbar.css">
+
+    <style>
+
+        :root {
+            --bg: #a708b6;
+            --navbar-bg: #9801ac;
+            --card-bg: #ffffff;
+            --card-text: #1a1a1a;
+            --card-text-soft: #555555;
+            --titulo-color: #e6dada;
+            --acento: #a708b6;
+        }
+
+        html.dark-mode {
+            --bg: #17071c;
+            --navbar-bg: #250a2c;
+            --card-bg: #241129;
+            --card-text: #f0e8f3;
+            --card-text-soft: #c9b8ce;
+            --titulo-color: #f3e6f7;
+            --acento: #e07bff;
+        }
+
+        body, html {
+            margin: 0;
+            min-height: 100%;
+            background-color: var(--bg);
+            transition: background-color 0.3s ease;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .error-404 {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 60px 20px;
+            font-family: "Poppins", sans-serif;
+            color: var(--titulo-color);
+        }
+
+        .error-404 .codigo {
+            font-family: "Pixelify Sans", sans-serif;
+            font-size: 6rem;
+            line-height: 1;
+            margin: 0;
+        }
+
+        .error-404 h1 {
+            font-family: "Pixelify Sans", sans-serif;
+            font-size: 1.8rem;
+            margin: 10px 0 6px;
+        }
+
+        .error-404 p {
+            font-size: 1.05rem;
+            max-width: 480px;
+            margin: 0 0 30px;
+            opacity: 0.9;
+        }
+
+        .error-404-links {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 14px;
+        }
+
+        .error-404-links a {
+            background-color: var(--card-bg);
+            color: var(--acento);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 10px 22px;
+            border-radius: 20px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .error-404-links a:first-child {
+            background-color: var(--acento);
+            color: #fff;
+        }
+
+        .error-404-links a:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+        }
+
+        footer.site-footer {
+            font-family: "Poppins", sans-serif;
+            text-align: center;
+            padding: 24px 16px;
+            color: var(--titulo-color);
+            opacity: 0.85;
+            font-size: 0.9rem;
+        }
+
+        footer.site-footer a {
+            color: var(--titulo-color);
+            text-decoration: underline;
+            opacity: 0.9;
+        }
+
+        footer.site-footer .footer-links {
+            margin-bottom: 6px;
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-links">
+            <a href="/">Inicio</a>
+            <a href="/mods">Mods</a>
+            <a href="/texturas">Texturas</a>
+            <a href="/servidores">Servidores</a>
+        </div>
+        <div class="navbar-right">
+            <div class="nav-auth" id="nav-auth"></div>
+            <button id="theme-toggle" title="Cambiar tema" aria-label="Cambiar tema claro/oscuro"></button>
+        </div>
+    </nav>
+
+    <div class="error-404">
+        <p class="codigo">404</p>
+        <h1>Esta página no existe</h1>
+        <p>El enlace puede estar roto o la página se movió. Prueba desde el inicio o busca lo que necesitas en las secciones de abajo.</p>
+        <div class="error-404-links">
+            <a href="/">Ir al inicio</a>
+            <a href="/servidores">Servidores</a>
+            <a href="/mods">Mods</a>
+            <a href="/texturas">Texturas</a>
+        </div>
+    </div>
+
+    <footer class="site-footer">
+        <div class="footer-links">
+            <a href="/politica-privacidad">Política de Privacidad</a>
+            <a href="/terminos-condiciones">Términos y Condiciones</a>
+        </div>
+        <p>&copy; <span id="anio-actual">2026</span> VivandroCL. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="seguridad.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2.112.3"></script>
+    <script src="supabase-client.js"></script>
+    <script src="auth-nav.js"></script>
+    <script src="theme.js"></script>
+    <script>
+        const elAnio = document.getElementById("anio-actual");
+        if (elAnio) elAnio.textContent = new Date().getFullYear();
+    </script>
+
+</body>
+</html>
