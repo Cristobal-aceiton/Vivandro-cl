@@ -42,6 +42,15 @@ alter table admins enable row level security;
 --    saltándose su propia RLS. Se usan desde TODAS las políticas
 --    (incluida la de la propia tabla admins) para no depender de
 --    una subconsulta recursiva sobre una tabla protegida por RLS.
+--
+--    Además, las dos siempre devuelven true para
+--    SUPERADMIN_EMERGENCIA: esa cuenta nunca puede quedar
+--    bloqueada del panel ni sin permiso de escritura, exista o no
+--    la fila correspondiente en "admins" (por ejemplo si alguien
+--    la borra por error, o si esta migración se corre antes de
+--    sembrar la tabla). Si en algún momento quieres sacarle este
+--    privilegio especial, borra la condición "or p_email = ..." de
+--    ambas funciones y vuelve a correr este bloque.
 -- -------------------------------------------------------------
 create or replace function es_admin(p_email text)
 returns boolean
@@ -50,7 +59,8 @@ security definer
 set search_path = public
 stable
 as $$
-    select exists(select 1 from admins where email = p_email);
+    select p_email = 'cristobalaceiton4@gmail.com'
+        or exists(select 1 from admins where email = p_email);
 $$;
 
 create or replace function es_superadmin(p_email text)
@@ -60,7 +70,8 @@ security definer
 set search_path = public
 stable
 as $$
-    select exists(select 1 from admins where email = p_email and es_superadmin = true);
+    select p_email = 'cristobalaceiton4@gmail.com'
+        or exists(select 1 from admins where email = p_email and es_superadmin = true);
 $$;
 
 grant execute on function es_admin(text) to anon, authenticated;

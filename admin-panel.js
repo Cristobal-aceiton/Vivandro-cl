@@ -17,11 +17,19 @@
   -----------------------------------------------------------
 */
 
-// Ya no hay un único "ADMIN_EMAIL" hardcodeado: quién puede entrar
-// se decide consultando la tabla "admins" en Supabase (ver
-// agregar_tabla_admins.sql), que es también la que revisan las
-// políticas RLS del resto de las tablas. Este código solo guarda
-// el resultado de esa consulta para la sesión actual.
+// Ya no hay un único "ADMIN_EMAIL" hardcodeado para el manejo del
+// día a día: quién puede entrar se decide consultando la tabla
+// "admins" en Supabase (ver agregar_tabla_admins.sql), que es
+// también la que revisan las políticas RLS del resto de las
+// tablas. Igual dejamos esta cuenta como "puerta de emergencia":
+// siempre entra como superadmin aunque la tabla "admins" todavía
+// no exista, esté vacía, o falle la consulta por algún motivo — así
+// nunca te puedes quedar afuera de tu propio panel. Está reforzado
+// en el mismo lugar dentro de agregar_tabla_admins.sql (funciones
+// es_admin/es_superadmin), así que también sigue funcionando del
+// lado del servidor (RLS), no solo acá.
+const SUPERADMIN_EMERGENCIA = "cristobalaceiton4@gmail.com";
+
 let sesionAdmin = null; // { email, esSuperadmin } una vez autorizado, si no null
 
 const SECCIONES = {
@@ -173,7 +181,7 @@ async function manejarSesion(sesion) {
 
     const admin = await Datos.obtenerAdmin(email);
 
-    if (!admin) {
+    if (!admin && email !== SUPERADMIN_EMERGENCIA) {
         sesionAdmin = null;
         $("admin-shell").classList.remove("mostrar");
         $("denegado-titulo").textContent = "No tienes acceso";
@@ -188,9 +196,10 @@ async function manejarSesion(sesion) {
 
     // Nota: esto solo controla qué se MUESTRA. El servidor (RLS)
     // vuelve a comprobar este mismo email contra la tabla "admins"
+    // (o contra SUPERADMIN_EMERGENCIA, ver agregar_tabla_admins.sql)
     // en cada operación de escritura, así que no hay forma de
     // saltarse esto por acá.
-    sesionAdmin = { email, esSuperadmin: !!admin.es_superadmin };
+    sesionAdmin = { email, esSuperadmin: email === SUPERADMIN_EMERGENCIA || !!admin?.es_superadmin };
     $("pantalla-denegado").style.display = "none";
     $("admin-shell").classList.add("mostrar");
 
