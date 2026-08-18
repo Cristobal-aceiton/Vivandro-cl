@@ -64,6 +64,7 @@
         <div class="admin-nav-label">Cuenta</div>
         <nav class="admin-nav" style="flex-grow:0;">
             <button data-seccion="seguridad" title="Seguridad"><span class="ico"><i data-lucide="shield"></i></span> Seguridad</button>
+            <button data-seccion="administradores" title="Administradores"><span class="ico"><i data-lucide="users"></i></span> Administradores</button>
             <button data-seccion="config" title="Configuración"><span class="ico"><i data-lucide="settings"></i></span> Configuracion</button>
         </nav>
 
@@ -173,6 +174,25 @@
                     <p class="desc">Cuentas de Google que iniciaron sesión pero no son la del administrador.</p>
                     <ul class="top-lista" id="seguridad-intentos"></ul>
                 </div>
+            </div>
+        </div>
+
+        <div id="vista-administradores" style="display:none;">
+            <div class="panel-bloque" style="margin-bottom:16px;" id="administradores-agregar-wrap">
+                <h2><i data-lucide="user-plus" class="h2-ico"></i> Autorizar nuevo administrador</h2>
+                <p class="desc">La persona va a poder entrar al panel iniciando sesión con Google usando ese correo, y va a tener acceso a todo excepto a esta sección.</p>
+                <form id="form-administradores" style="display:flex; gap:10px; align-items:flex-start; flex-wrap:wrap;">
+                    <div class="campo" style="flex:1; min-width:220px; margin-bottom:0;">
+                        <input type="email" id="campo-admin-email" placeholder="correo@gmail.com" required>
+                        <small class="campo-aviso" id="aviso-admin-duplicado" style="display:none;"><i data-lucide="alert-triangle"></i> Ese correo ya está autorizado.</small>
+                    </div>
+                    <button type="submit" class="btn-primario" id="btn-agregar-admin"><i data-lucide="plus"></i> Autorizar</button>
+                </form>
+            </div>
+            <div class="panel-bloque">
+                <h2><i data-lucide="shield-check" class="h2-ico"></i> Administradores autorizados</h2>
+                <p class="desc">Todos pueden crear, editar y eliminar servidores, mods y texturas. Solo un superadministrador puede autorizar o quitar administradores.</p>
+                <ul class="top-lista" id="administradores-lista"></ul>
             </div>
         </div>
 

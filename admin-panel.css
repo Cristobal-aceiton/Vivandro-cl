@@ -307,6 +307,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .top-lista .info .t { font-size: .74rem; color: var(--admin-text-soft); }
 .top-lista .cant { font-size: .85rem; font-weight: 700; color: var(--admin-acento-fuerte); flex-shrink: 0; }
 
+.chip-superadmin { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: var(--admin-acento-fuerte); background: var(--admin-acento-soft); padding: 2px 8px; border-radius: 999px; flex-shrink: 0; }
+.chip-tu { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; color: var(--admin-text-soft); background: var(--admin-bg); border: 1px solid var(--admin-border); padding: 2px 8px; border-radius: 999px; flex-shrink: 0; }
+
 .pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 20px; font-size: .72rem; font-weight: 700; }
 .pill.java { background: var(--admin-ok-soft); color: var(--admin-ok); }
 .pill.bedrock { background: var(--admin-warn-soft); color: var(--admin-warn); }

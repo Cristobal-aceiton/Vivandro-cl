@@ -1129,7 +1129,7 @@
             renderPaginacion(paginaActual, totalPaginas, (p) => {
                 if (p < 1 || p > totalPaginas || p === paginaActual) return;
                 cargarPagina(p);
-                paginacionEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                contenedor.scrollIntoView({ behavior: "smooth", block: "start" });
             });
         }
 

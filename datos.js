@@ -248,9 +248,63 @@ const Datos = (function () {
         return data || [];
     }
 
+    // ---------- Administradores autorizados ----------
+    // La tabla "admins" (ver agregar_tabla_admins.sql) es la que de
+    // verdad decide quién puede leer/escribir en todo lo demás: las
+    // políticas RLS de servidores/mods/texturas/etc. comprueban que
+    // el email del JWT esté en esta tabla. Este archivo solo la lee
+    // y escribe; la autorización real vuelve a resolverse en el
+    // servidor (Postgres), igual que con el resto del panel.
+
+    // Devuelve { email, es_superadmin } si el email es un admin
+    // autorizado, o null si no lo es (o si la tabla todavía no
+    // existe / RLS lo bloquea, lo cual para este propósito es lo
+    // mismo que "no autorizado").
+    async function obtenerAdmin(email) {
+        if (!clienteListo() || !email) return null;
+        try {
+            const { data, error } = await supabaseClient
+                .from("admins")
+                .select("email, es_superadmin")
+                .eq("email", email)
+                .maybeSingle();
+            if (error || !data) return null;
+            return data;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    async function listarAdmins() {
+        if (!clienteListo()) return [];
+        const { data, error } = await supabaseClient
+            .from("admins")
+            .select("email, es_superadmin, creado_en")
+            .order("creado_en", { ascending: true });
+        if (error) {
+            console.error("[Datos] Error listando administradores:", error.message);
+            return [];
+        }
+        return data || [];
+    }
+
+    // Solo funciona si quien llama ya es superadmin: lo hace
+    // cumplir la política RLS "solo_superadmin_escribe_admins" en
+    // el servidor, no este código.
+    async function agregarAdmin(email) {
+        const { error } = await supabaseClient.from("admins").insert({ email });
+        if (error) throw error;
+    }
+
+    async function eliminarAdmin(email) {
+        const { error } = await supabaseClient.from("admins").delete().eq("email", email);
+        if (error) throw error;
+    }
+
     return {
         listar, listarPagina, listarModalidades, obtenerPorId, crear, actualizar, eliminar, clienteListo,
         registrarDescarga, listarDescargas,
         listarBitacora, registrarIntentoAcceso, listarIntentosAcceso,
+        obtenerAdmin, listarAdmins, agregarAdmin, eliminarAdmin,
     };
 })();

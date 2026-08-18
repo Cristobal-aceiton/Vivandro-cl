@@ -4,19 +4,25 @@
   Lógica del panel de administración.
 
   IMPORTANTE SOBRE SEGURIDAD:
-  El check de "email === ADMIN_EMAIL" que se hace aquí abajo es
+  El check contra la tabla "admins" que se hace aquí abajo es
   SOLO para decidir si se muestra o esconde la interfaz (UX).
   No es lo que realmente protege los datos: eso lo hacen las
   políticas de Row Level Security en Supabase (ver
-  db_schema_admin.sql), que corren en el servidor y comprueban
-  el JWT firmado por Supabase Auth. Aunque alguien manipule este
-  archivo JS en su navegador, cualquier intento de crear, editar
-  o eliminar sin ser el admin va a ser rechazado por la base de
-  datos, no por este código.
+  db_schema_admin.sql y agregar_tabla_admins.sql), que corren en
+  el servidor y comprueban el JWT firmado por Supabase Auth.
+  Aunque alguien manipule este archivo JS en su navegador,
+  cualquier intento de crear, editar o eliminar sin estar en la
+  tabla "admins" va a ser rechazado por la base de datos, no por
+  este código.
   -----------------------------------------------------------
 */
 
-const ADMIN_EMAIL = "cristobalaceiton4@gmail.com";
+// Ya no hay un único "ADMIN_EMAIL" hardcodeado: quién puede entrar
+// se decide consultando la tabla "admins" en Supabase (ver
+// agregar_tabla_admins.sql), que es también la que revisan las
+// políticas RLS del resto de las tablas. Este código solo guarda
+// el resultado de esa consulta para la sesión actual.
+let sesionAdmin = null; // { email, esSuperadmin } una vez autorizado, si no null
 
 const SECCIONES = {
     servidores: {
@@ -54,6 +60,7 @@ const SUBTITULOS = {
     texturas: "Administra los packs de texturas disponibles.",
     estadisticas: "Qué se está descargando y cuándo.",
     seguridad: "Bitácora de cambios e intentos de acceso.",
+    administradores: "Quién puede entrar al panel.",
     config: "Datos de la cuenta y seguridad del panel.",
 };
 
@@ -102,6 +109,18 @@ function mostrarCampo(id, visible) {
 }
 
 // ---------- Auth gate ----------
+
+// Supabase dispara onAuthStateChange con la sesión actual apenas
+// uno se suscribe (evento "INITIAL_SESSION"), y durante un login
+// puede disparar varios eventos más (SIGNED_IN, TOKEN_REFRESHED,
+// etc.) para lo que en la práctica es un solo inicio de sesión. Si
+// no se filtra, cada uno de esos disparos vuelve a correr todo
+// manejarSesion() de nuevo: duplica los botones de "Resumen" (se
+// vuelven a agregar sin sacar los anteriores) y registra el mismo
+// intento de acceso rechazado varias veces. Por eso acá se recuerda
+// el último access_token ya procesado y se ignoran repeticiones.
+let ultimoTokenProcesado = undefined; // undefined = todavía no procesó ninguno
+
 async function iniciarPanel() {
     refrescarIconos();
     if (!Datos.clienteListo()) {
@@ -113,20 +132,37 @@ async function iniciarPanel() {
         return;
     }
 
-    const { data } = await supabaseClient.auth.getSession();
-    manejarSesion(data.session);
-
+    // onAuthStateChange ya entrega la sesión actual apenas se
+    // suscribe, así que no hace falta además llamar getSession() a
+    // mano (eso era lo que provocaba que la sesión inicial se
+    // procesara dos veces).
     supabaseClient.auth.onAuthStateChange((_ev, sesion) => {
         manejarSesion(sesion);
     });
 }
 
-function manejarSesion(sesion) {
+// Evita registrar el mismo intento de acceso rechazado más de una
+// vez en una ventana corta de tiempo, aunque por algún motivo
+// manejarSesion() se vuelva a disparar para el mismo email.
+let ultimoIntentoRegistrado = { email: null, ts: 0 };
+function registrarIntentoSiCorresponde(email) {
+    const ahora = Date.now();
+    if (email === ultimoIntentoRegistrado.email && (ahora - ultimoIntentoRegistrado.ts) < 60000) return;
+    ultimoIntentoRegistrado = { email, ts: ahora };
+    Datos.registrarIntentoAcceso(email);
+}
+
+async function manejarSesion(sesion) {
+    const token = sesion?.access_token || null;
+    if (token && token === ultimoTokenProcesado) return; // ya se procesó esta misma sesión
+    ultimoTokenProcesado = token;
+
     $("pantalla-cargando").style.display = "none";
 
     const email = sesion?.user?.email || null;
 
     if (!sesion) {
+        sesionAdmin = null;
         $("admin-shell").classList.remove("mostrar");
         $("denegado-titulo").textContent = "Acceso restringido";
         $("denegado-texto").textContent = "Necesitas iniciar sesión con la cuenta de administrador para ver este panel.";
@@ -135,21 +171,26 @@ function manejarSesion(sesion) {
         return;
     }
 
-    if (email !== ADMIN_EMAIL) {
+    const admin = await Datos.obtenerAdmin(email);
+
+    if (!admin) {
+        sesionAdmin = null;
         $("admin-shell").classList.remove("mostrar");
         $("denegado-titulo").textContent = "No tienes acceso";
-        $("denegado-texto").textContent = `Iniciaste sesión como ${email}, pero este panel es exclusivo para el administrador de Vivandro.`;
+        $("denegado-texto").textContent = `Iniciaste sesión como ${email}, pero este panel es exclusivo para administradores autorizados de Vivandro.`;
         $("btn-login-google").style.display = "none";
         $("pantalla-denegado").style.display = "flex";
         // Deja constancia del intento (RLS solo permite insertar el
         // propio email, así que esto no se puede falsificar).
-        Datos.registrarIntentoAcceso(email);
+        registrarIntentoSiCorresponde(email);
         return;
     }
 
     // Nota: esto solo controla qué se MUESTRA. El servidor (RLS)
-    // vuelve a comprobar este mismo email en cada operación de
-    // escritura, así que no hay forma de saltarse esto por acá.
+    // vuelve a comprobar este mismo email contra la tabla "admins"
+    // en cada operación de escritura, así que no hay forma de
+    // saltarse esto por acá.
+    sesionAdmin = { email, esSuperadmin: !!admin.es_superadmin };
     $("pantalla-denegado").style.display = "none";
     $("admin-shell").classList.add("mostrar");
 
@@ -158,7 +199,7 @@ function manejarSesion(sesion) {
     const avatarHTML = foto ? `<img src="${foto}" alt="">` : `<span class="avatar-generico">${icono("user")}</span>`;
 
     $("admin-usuario").innerHTML = `${avatarHTML} <span>${nombre}</span>`;
-    $("admin-sidebar-perfil").innerHTML = `${avatarHTML}<div class="quien"><div class="nombre">${nombre}</div><div class="rol">Administrador</div></div>`;
+    $("admin-sidebar-perfil").innerHTML = `${avatarHTML}<div class="quien"><div class="nombre">${nombre}</div><div class="rol">${sesionAdmin.esSuperadmin ? "Superadministrador" : "Administrador"}</div></div>`;
     $("btn-avatar-movil").innerHTML = avatarHTML;
     refrescarIconos();
 
@@ -178,10 +219,16 @@ $("btn-logout").addEventListener("click", async () => {
 });
 
 // ---------- Configuración: mostrar/ocultar el email del admin ----------
-const EMAIL_OCULTO = "cristobal••••••••@gmail.com";
+function ocultarEmail(email) {
+    const [usuario, dominio] = email.split("@");
+    if (!dominio) return "••••••••";
+    const visible = usuario.slice(0, Math.min(3, usuario.length));
+    return `${visible}${"•".repeat(8)}@${dominio}`;
+}
 $("btn-mostrar-email").addEventListener("click", () => {
-    const visible = $("config-email").textContent === ADMIN_EMAIL;
-    $("config-email").textContent = visible ? EMAIL_OCULTO : ADMIN_EMAIL;
+    if (!sesionAdmin) return;
+    const visible = $("config-email").textContent === sesionAdmin.email;
+    $("config-email").textContent = visible ? ocultarEmail(sesionAdmin.email) : sesionAdmin.email;
     $("btn-mostrar-email").innerHTML = visible
         ? `${icono("eye")} <span class="txt">Mostrar</span>`
         : `${icono("eye-off")} <span class="txt">Ocultar</span>`;
@@ -242,6 +289,7 @@ function cambiarSeccion(id) {
     $("vista-lista").style.display = "none";
     $("vista-estadisticas").style.display = "none";
     $("vista-seguridad").style.display = "none";
+    $("vista-administradores").style.display = "none";
     $("subtitulo-seccion").textContent = SUBTITULOS[id] || "";
 
     if (id === "resumen") {
@@ -264,6 +312,17 @@ function cambiarSeccion(id) {
         $("titulo-seccion").textContent = "Configuración";
         $("vista-config").style.display = "block";
         $("stats-grid").innerHTML = "";
+        if (sesionAdmin) $("config-email").textContent = ocultarEmail(sesionAdmin.email);
+        $("btn-mostrar-email").innerHTML = `${icono("eye")} <span class="txt">Mostrar</span>`;
+        refrescarIconos();
+        return;
+    }
+
+    if (id === "administradores") {
+        $("titulo-seccion").textContent = "Administradores";
+        $("vista-administradores").style.display = "block";
+        $("stats-grid").innerHTML = "";
+        cargarAdministradores();
         return;
     }
 
@@ -306,6 +365,7 @@ async function cargarStats() {
 
 // ---------- Resumen (dashboard) ----------
 let graficoResumen = null;
+let resumenCargaId = 0; // evita que una carga vieja pise/duplique el resultado de una más nueva
 
 function botonAccionRapida(nombreIcono, titulo, sub, onClick) {
     const btn = document.createElement("button");
@@ -316,6 +376,8 @@ function botonAccionRapida(nombreIcono, titulo, sub, onClick) {
 }
 
 async function cargarResumen() {
+    const miCarga = ++resumenCargaId;
+
     $("resumen-stats").innerHTML = `<div class="vacio">Cargando…</div>`;
     $("resumen-acciones").innerHTML = "";
     $("resumen-top-lista").innerHTML = "";
@@ -325,11 +387,13 @@ async function cargarResumen() {
         Datos.listar("mods"),
         Datos.listar("texturas"),
     ]);
+    if (miCarga !== resumenCargaId) return; // se pidió otra carga más nueva mientras esperábamos
 
     let descargas30 = [];
     try {
         descargas30 = await Datos.listarDescargas({ desde: fechaDesdeRango(30) });
     } catch (e) { /* la tabla de descargas puede no existir aún; no rompe el resto del panel */ }
+    if (miCarga !== resumenCargaId) return;
 
     $("resumen-stats").innerHTML =
         tarjetaStat("server", servidores.length, "Servidores publicados") +
@@ -465,6 +529,82 @@ async function cargarSeguridad() {
     }
     refrescarIconos();
 }
+
+// ---------- Administradores autorizados ----------
+async function cargarAdministradores() {
+    const wrapAgregar = $("administradores-agregar-wrap");
+    const lista = $("administradores-lista");
+
+    // Autorizar (o quitar) administradores es exclusivo de un
+    // superadmin. El servidor (RLS sobre la tabla "admins") lo
+    // vuelve a exigir igual, así que esconder el formulario acá es
+    // solo para no confundir a un admin normal con un botón que de
+    // todas formas le va a fallar.
+    wrapAgregar.style.display = sesionAdmin?.esSuperadmin ? "block" : "none";
+
+    lista.innerHTML = `<div class="vacio">Cargando…</div>`;
+    const admins = await Datos.listarAdmins();
+
+    if (admins.length === 0) {
+        lista.innerHTML = `<div class="vacio"><span class="vacio-ico">${icono("inbox")}</span>No se encontraron administradores.</div>`;
+        refrescarIconos();
+        return;
+    }
+
+    lista.innerHTML = admins.map((a) => {
+        const esYo = a.email === sesionAdmin?.email;
+        const puedeQuitar = sesionAdmin?.esSuperadmin && !esYo;
+        return `<li>
+            <div class="rank">${icono("user")}</div>
+            <div class="info"><div class="n">${escapeHTML(a.email)}</div><div class="t">Autorizado ${tiempoRelativo(a.creado_en)}</div></div>
+            ${a.es_superadmin ? `<span class="chip-superadmin">Superadmin</span>` : ""}
+            ${esYo ? `<span class="chip-tu">Tú</span>` : ""}
+            ${puedeQuitar ? `<button type="button" class="btn-icono eliminar" data-quitar-admin="${escapeHTML(a.email)}" title="Quitar acceso"><i data-lucide="user-x"></i></button>` : ""}
+        </li>`;
+    }).join("");
+    refrescarIconos();
+
+    lista.querySelectorAll("[data-quitar-admin]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+            const email = btn.dataset.quitarAdmin;
+            if (!confirm(`¿Quitar el acceso de ${email} al panel de administración?`)) return;
+            try {
+                await Datos.eliminarAdmin(email);
+                toast("Acceso quitado.");
+                cargarAdministradores();
+            } catch (e) {
+                toast("No se pudo quitar el acceso. " + (e.message || ""), "error");
+            }
+        });
+    });
+}
+
+$("form-administradores").addEventListener("submit", async (ev) => {
+    ev.preventDefault();
+    const input = $("campo-admin-email");
+    const email = input.value.trim().toLowerCase();
+    $("aviso-admin-duplicado").style.display = "none";
+    if (!email) return;
+
+    const btn = $("btn-agregar-admin");
+    btn.disabled = true;
+    try {
+        await Datos.agregarAdmin(email);
+        toast(`${email} ahora puede entrar al panel.`);
+        input.value = "";
+        cargarAdministradores();
+    } catch (e) {
+        // Violación de la llave primaria (email ya existe en la tabla).
+        if (e.code === "23505" || /duplicate|unique/i.test(e.message || "")) {
+            $("aviso-admin-duplicado").style.display = "block";
+            refrescarIconos();
+        } else {
+            toast("No se pudo autorizar el correo. " + (e.message || ""), "error");
+        }
+    } finally {
+        btn.disabled = false;
+    }
+});
 
 // ---------- Cierre de sesión automático por inactividad ----------
 const MINUTOS_INACTIVIDAD = 30;
