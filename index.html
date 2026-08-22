@@ -25,7 +25,7 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="16x16" href="imagenes/favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="imagenes/favicon-32x32.png">
@@ -64,6 +64,12 @@
             --card-text-soft: #555555;
             --titulo-color: #e6dada;
             --acento: #a708b6;
+            --acento-2: #ff6ad5;
+            --hero-glow-1: rgba(255, 255, 255, 0.16);
+            --hero-glow-2: rgba(255, 106, 213, 0.22);
+            --block-fill: rgba(255, 255, 255, 0.16);
+            --block-edge: rgba(255, 255, 255, 0.32);
+            --stats-border: rgba(255, 255, 255, 0.25);
         }
 
         html.dark-mode {
@@ -74,6 +80,12 @@
             --card-text-soft: #c9b8ce;
             --titulo-color: #f3e6f7;
             --acento: #e07bff;
+            --acento-2: #ff9ee8;
+            --hero-glow-1: rgba(224, 123, 255, 0.16);
+            --hero-glow-2: rgba(255, 106, 213, 0.14);
+            --block-fill: rgba(224, 123, 255, 0.14);
+            --block-edge: rgba(224, 123, 255, 0.35);
+            --stats-border: rgba(224, 123, 255, 0.28);
         }
 
         body, html {
@@ -120,29 +132,121 @@
             flex-wrap: wrap;
         }
 
+        /* ---------- HERO ---------- */
+
         .inicio {
+            position: relative;
             text-align: center;
             font-family: "Pixelify Sans", sans-serif;
-            font-size: 2rem;
             color: var(--titulo-color);
+            padding: 72px 20px 40px;
+            overflow: hidden;
+            isolation: isolate;
+            background:
+                radial-gradient(ellipse 60% 50% at 20% 15%, var(--hero-glow-1), transparent 60%),
+                radial-gradient(ellipse 55% 45% at 85% 25%, var(--hero-glow-2), transparent 60%);
+        }
+
+        /* bloques pixelados flotando, como partículas de Minecraft */
+        .bloques-flotantes {
+            position: absolute;
+            inset: 0;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .bloque {
+            position: absolute;
+            width: var(--s, 14px);
+            height: var(--s, 14px);
+            background: var(--block-fill);
+            border: 2px solid var(--block-edge);
+            box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.08);
+            animation: flotar var(--dur, 14s) ease-in-out infinite;
+            animation-delay: var(--delay, 0s);
+            left: var(--x, 10%);
+            top: var(--y, 80%);
+        }
+
+        @keyframes flotar {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.9; }
+            90% { opacity: 0.9; }
+            100% { transform: translateY(-260px) rotate(90deg); opacity: 0; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .bloque { animation: none; opacity: 0.4; }
         }
 
         .inicio h1 {
             position: relative;
-            font-size: 4.5rem;
-            margin-bottom: 10px;
+            font-size: clamp(3rem, 8vw, 5rem);
+            margin: 0 0 6px;
+            letter-spacing: 1px;
+            background: linear-gradient(100deg, var(--titulo-color) 10%, var(--acento-2) 50%, var(--acento) 90%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: aparecer 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
 
-        .inicio p {
+        .inicio p.subtitulo {
             position: relative;
-            font-size: 1.8rem;
+            font-size: clamp(1.1rem, 2.6vw, 1.5rem);
+            font-family: "Poppins", sans-serif;
+            font-weight: 600;
+            color: var(--titulo-color);
+            opacity: 0.92;
+            margin: 0 0 28px;
+            animation: aparecer 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
         }
+
+        @keyframes aparecer {
+            from { opacity: 0; transform: translateY(14px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: center;
+            gap: clamp(20px, 6vw, 56px);
+            flex-wrap: wrap;
+            animation: aparecer 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.16s both;
+        }
+
+        .stats-bar .stat {
+            font-family: "Poppins", sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .stats-bar .stat strong {
+            font-family: "Pixelify Sans", sans-serif;
+            font-size: 1.9rem;
+            color: var(--titulo-color);
+            line-height: 1;
+        }
+
+        .stats-bar .stat span {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--titulo-color);
+            opacity: 0.75;
+        }
+
+        .stats-bar[hidden] { display: none; }
+
+        /* ---------- OPCIONES / CARDS ---------- */
 
         .opciones {
             text-align: center;
             font-family: "Poppins", sans-serif;
             color: var(--titulo-color);
-            padding: 40px 20px;
+            padding: 40px 20px 56px;
         }
 
         .opciones h2 {
@@ -160,22 +264,56 @@
         }
 
         .card {
+            position: relative;
             width: 280px;
             background-color: var(--card-bg);
-            border-radius: 8px;
+            border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-            padding: 25px 20px;
+            transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                        box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+                        background-color 0.3s ease;
+            padding: 26px 22px 24px;
             text-decoration: none;
             color: var(--card-text);
             display: flex;
             flex-direction: column;
             gap: 10px;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: "";
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--acento), var(--acento-2));
+            opacity: 0.8;
+        }
+
+        .card .card-icono {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--acento), var(--acento-2));
+            color: #fff;
+            margin-bottom: 4px;
+        }
+
+        .card .card-icono svg {
+            width: 22px;
+            height: 22px;
         }
 
         .card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            transform: translateY(-8px) scale(1.015);
+            box-shadow: 0 14px 28px rgba(0, 0, 0, 0.22);
+        }
+
+        .card:active {
+            transform: translateY(-4px) scale(0.98);
         }
 
         .card h3 {
@@ -191,13 +329,14 @@
             color: var(--card-text-soft);
         }
 
-        @media (max-width: 768px) {
-            .inicio h1 {
-                font-size: 2.5rem;
-            }
+        html.dark-mode .card {
+            background-color: color-mix(in srgb, var(--card-bg) 82%, transparent);
+            backdrop-filter: blur(10px);
+        }
 
-            .inicio p {
-                font-size: 1.2rem;
+        @media (max-width: 768px) {
+            .inicio {
+                padding: 56px 16px 32px;
             }
 
             .cards-container {
@@ -229,8 +368,14 @@
     </nav>
 
     <div class="inicio">
+        <div class="bloques-flotantes" id="bloques-flotantes" aria-hidden="true"></div>
         <h1>Vivandro</h1>
-        <p>Mods, textura packs, servidores</p>
+        <p class="subtitulo">Mods, texture packs y servidores de Minecraft</p>
+        <div class="stats-bar" id="stats-bar" hidden>
+            <div class="stat"><strong id="stat-servidores">0</strong><span>Servidores</span></div>
+            <div class="stat"><strong id="stat-texturas">0</strong><span>Texture packs</span></div>
+            <div class="stat"><strong id="stat-mods">0</strong><span>Mods</span></div>
+        </div>
     </div>
 
     <div class="opciones">
@@ -239,16 +384,19 @@
         <div class="cards-container">
 
             <a href="/servidores" class="card">
+                <span class="card-icono"><i data-lucide="server"></i></span>
                 <h3>Servidores</h3>
                 <p>Encuentra los mejores servidores para jugar</p>
             </a>
 
             <a href="/texturas" class="card">
+                <span class="card-icono"><i data-lucide="palette"></i></span>
                 <h3>Texture Packs</h3>
                 <p>Cambia el look de tu Minecraft</p>
             </a>
 
             <a href="/mods" class="card">
+                <span class="card-icono"><i data-lucide="puzzle"></i></span>
                 <h3>Mods</h3>
                 <p>Agrega nuevas funciones y contenido</p>
             </a>
@@ -267,11 +415,52 @@
     <script src="seguridad.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2.112.3"></script>
     <script src="supabase-client.js"></script>
+    <script src="datos.js"></script>
     <script src="auth-nav.js"></script>
     <script src="theme.js"></script>
+    <script src="lucide.min.js"></script>
     <script>
         const elAnio = document.getElementById("anio-actual");
         if (elAnio) elAnio.textContent = new Date().getFullYear();
+
+        if (window.lucide && typeof window.lucide.createIcons === "function") {
+            window.lucide.createIcons();
+        }
+
+        // Bloques pixelados flotando en el hero (decorativo, respeta reduced-motion)
+        (function () {
+            const contenedor = document.getElementById("bloques-flotantes");
+            if (!contenedor) return;
+            const CANTIDAD = 14;
+            for (let i = 0; i < CANTIDAD; i++) {
+                const bloque = document.createElement("div");
+                bloque.className = "bloque";
+                const tam = 8 + Math.round(Math.random() * 14);
+                bloque.style.setProperty("--s", tam + "px");
+                bloque.style.setProperty("--x", Math.round(Math.random() * 100) + "%");
+                bloque.style.setProperty("--y", (60 + Math.round(Math.random() * 40)) + "%");
+                bloque.style.setProperty("--dur", (10 + Math.random() * 10).toFixed(1) + "s");
+                bloque.style.setProperty("--delay", (Math.random() * 10).toFixed(1) + "s");
+                contenedor.appendChild(bloque);
+            }
+        })();
+
+        // Contadores reales del catálogo (Servidores / Texturas / Mods)
+        (function () {
+            if (typeof Datos === "undefined") return;
+            Promise.all([
+                Datos.listar("servidores"),
+                Datos.listar("texturas"),
+                Datos.listar("mods")
+            ]).then(([servidores, texturas, mods]) => {
+                const total = servidores.length + texturas.length + mods.length;
+                if (total === 0) return; // sin backend configurado todavía: no mostrar ceros falsos
+                document.getElementById("stat-servidores").textContent = servidores.length;
+                document.getElementById("stat-texturas").textContent = texturas.length;
+                document.getElementById("stat-mods").textContent = mods.length;
+                document.getElementById("stats-bar").hidden = false;
+            }).catch(() => {});
+        })();
     </script>
 
 </body>
