@@ -82,6 +82,14 @@ Después de agregarlas, vuelve a desplegar el proyecto (un simple
 redeploy alcanza, no hace falta tocar código) para que la función
 las lea.
 
+## Solución de problemas
+
+**Error "null value in column admin_email of relation admin_log":**
+corre `arreglo_admin_log_generador_ia.sql` una sola vez en Supabase →
+SQL Editor. Arregla el trigger de auditoría para que no falle cuando
+el Generador IA inserta usando la Service Role Key (sin sesión de
+usuario).
+
 ## 6) Usarlo
 
 Panel admin → "Generador IA" → elige Mods o Texturas, cuántos
