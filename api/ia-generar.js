@@ -53,6 +53,39 @@ function limpiar(texto) {
   return (texto || "").toString().trim();
 }
 
+// Compara dos versiones tipo "1.20.1" numéricamente, parte por parte
+// (así 1.9 < 1.10, a diferencia de una comparación de texto normal).
+function compararVersiones(a, b) {
+  const pa = a.split(".").map(Number);
+  const pb = b.split(".").map(Number);
+  const largo = Math.max(pa.length, pb.length);
+  for (let i = 0; i < largo; i++) {
+    const na = pa[i] || 0;
+    const nb = pb[i] || 0;
+    if (na !== nb) return na - nb;
+  }
+  return 0;
+}
+
+// candidato.latestFilesIndexes trae, por cada archivo, la versión de
+// Minecraft compatible. Un mismo mod puede tener varios archivos para
+// distintas versiones (ej: 1.19.2, 1.20, 1.20.1). Sacamos todas las
+// versiones válidas (descartando cosas como "Forge", "Java 17", que
+// CurseForge a veces mezcla en el mismo campo) y devolvemos el rango
+// "mínima - máxima". Si solo hay una, devolvemos esa sola.
+function calcularRangoVersiones(candidato) {
+  const versiones = new Set();
+  (candidato.latestFilesIndexes || []).forEach((f) => {
+    const v = limpiar(f.gameVersion);
+    if (/^\d+(\.\d+){1,2}$/.test(v)) versiones.add(v);
+  });
+
+  const ordenadas = [...versiones].sort(compararVersiones);
+  if (ordenadas.length === 0) return "";
+  if (ordenadas.length === 1) return ordenadas[0];
+  return `${ordenadas[0]} - ${ordenadas[ordenadas.length - 1]}`;
+}
+
 async function esAdmin(supabaseAdmin, token) {
   const { data: userData, error } = await supabaseAdmin.auth.getUser(token);
   if (error || !userData?.user?.email) return null;
@@ -141,7 +174,7 @@ async function redactarDescripcion({ apiKey, tipo, candidato, categoria, version
 Nombre: ${candidato.name}
 Categoría: ${categoria || "sin categoría específica"}
 Resumen original (en inglés, de CurseForge): ${original}
-Versión de Minecraft: ${version || "no especificada"}`;
+Versión(es) de Minecraft compatibles: ${version || "no especificada"}`;
 
     const iaRes = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
@@ -150,7 +183,7 @@ Versión de Minecraft: ${version || "no especificada"}`;
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
+        model: "openai/gpt-oss-120b",
         max_tokens: 300,
         temperature: 0.7,
         messages: [{ role: "user", content: prompt }],
@@ -240,9 +273,7 @@ module.exports = async (req, res) => {
     }
 
     // ---- 4) Armar el registro con datos reales ----
-    const versionMinecraft = limpiar(
-      candidato.latestFilesIndexes?.find((f) => f.gameVersion)?.gameVersion
-    );
+    const versionMinecraft = calcularRangoVersiones(candidato);
     const categoria = limpiar(candidato.categories?.[0]?.name);
 
     let cargadores = [];
