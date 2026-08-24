@@ -1,0 +1,8 @@
+{
+  "name": "vivandro-api",
+  "private": true,
+  "description": "Funciones serverless de Vivandro (Vercel). El resto del sitio sigue siendo HTML/CSS/JS estático, esto solo instala lo que necesita /api.",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.4"
+  }
+}

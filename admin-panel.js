@@ -66,6 +66,7 @@ const SUBTITULOS = {
     servidores: "Administra los servidores que se muestran en la web.",
     mods: "Administra los mods disponibles para descargar.",
     texturas: "Administra los packs de texturas disponibles.",
+    ia: "Busca en CurseForge y agrega contenido nuevo automáticamente.",
     estadisticas: "Qué se está descargando y cuándo.",
     seguridad: "Bitácora de cambios e intentos de acceso.",
     administradores: "Quién puede entrar al panel.",
@@ -269,7 +270,7 @@ function aplicarTema(tema) {
         refrescarIconos();
     }
 }
-aplicarTema(localStorage.getItem(TEMA_KEY) || "light");
+aplicarTema(localStorage.getItem(TEMA_KEY) || "dark");
 $("theme-toggle").addEventListener("click", () => {
     const esOscuro = document.documentElement.classList.contains("dark-mode");
     const nuevo = esOscuro ? "light" : "dark";
@@ -299,6 +300,7 @@ function cambiarSeccion(id) {
     $("vista-estadisticas").style.display = "none";
     $("vista-seguridad").style.display = "none";
     $("vista-administradores").style.display = "none";
+    $("vista-ia").style.display = "none";
     $("subtitulo-seccion").textContent = SUBTITULOS[id] || "";
 
     if (id === "resumen") {
@@ -332,6 +334,14 @@ function cambiarSeccion(id) {
         $("vista-administradores").style.display = "block";
         $("stats-grid").innerHTML = "";
         cargarAdministradores();
+        return;
+    }
+
+    if (id === "ia") {
+        $("titulo-seccion").textContent = "Generador IA";
+        $("vista-ia").style.display = "block";
+        $("stats-grid").innerHTML = "";
+        cargarPendientesIA();
         return;
     }
 
@@ -679,12 +689,14 @@ function pintarTabla(items) {
                 </td>
             </tr>`;
         }
+        const pendiente = item.estado === "pendiente";
         return `<tr>
             <td><img class="miniatura" src="${img}" alt="" onerror="this.src='imagenes/logo.png'"></td>
-            <td>${nombre}</td>
+            <td>${nombre} ${pendiente ? `<span class="pill pendiente">${icono("clock")} Pendiente</span>` : ""}</td>
             <td>${item.version_minecraft ? `<span class="pill neutro">${escapeHTML(item.version_minecraft)}</span>` : "—"}</td>
             ${seccionActual === "mods" ? `<td>${(item.cargadores || []).length ? (item.cargadores || []).map((c) => `<span class="pill neutro">${escapeHTML(c)}</span>`).join(" ") : "—"}</td>` : ""}
             <td class="acciones-fila">
+                ${pendiente ? `<button class="btn-icono publicar" data-id="${item.id}">${icono("check")} <span class="txt">Publicar</span></button>` : ""}
                 <button class="btn-icono editar" data-id="${item.id}">${icono("edit-3")} <span class="txt">Editar</span></button>
                 <button class="btn-icono eliminar" data-id="${item.id}">${icono("trash-2")} <span class="txt">Eliminar</span></button>
             </td>
@@ -694,6 +706,20 @@ function pintarTabla(items) {
     refrescarIconos();
     cuerpo.querySelectorAll(".editar").forEach((b) => b.addEventListener("click", () => abrirForm(b.dataset.id)));
     cuerpo.querySelectorAll(".eliminar").forEach((b) => b.addEventListener("click", () => abrirConfirmar(b.dataset.id)));
+    cuerpo.querySelectorAll(".publicar").forEach((b) => b.addEventListener("click", () => publicarItem(b.dataset.id)));
+}
+
+// Aprueba un mod/textura generado por la IA (o cualquier ítem marcado
+// "pendiente"): lo pasa a "publicado" para que aparezca en el sitio.
+async function publicarItem(id) {
+    const conf = SECCIONES[seccionActual];
+    try {
+        await Datos.actualizar(conf.tabla, id, { estado: "publicado" });
+        toast("Publicado. Ya aparece en el sitio.");
+        cargarSeccion();
+    } catch (err) {
+        toast("No se pudo publicar: " + (err.message || "error desconocido"), "error");
+    }
 }
 
 $("buscar-input").addEventListener("input", (e) => {
@@ -1245,6 +1271,171 @@ async function cargarEstadisticas() {
             },
         });
     }
+}
+
+// ---------- Generador IA (busca en CurseForge y agrega mods/texturas nuevos) ----------
+
+let iaDetener = false;
+let iaCorriendo = false;
+
+function iaAgregarLog(icono_, texto, sub = "", tipoClase = "") {
+    const li = document.createElement("li");
+    li.className = tipoClase ? `ia-log-${tipoClase}` : "";
+    li.innerHTML = `<span class="ia-log-ico">${icono(icono_)}</span><span class="ia-log-texto">${escapeHTML(texto)}${sub ? `<small>${escapeHTML(sub)}</small>` : ""}</span>`;
+    $("ia-log").prepend(li);
+    refrescarIconos();
+}
+
+function iaActualizarBarra(hechos, total) {
+    const pct = total > 0 ? Math.round((hechos / total) * 100) : 0;
+    $("ia-barra-relleno").style.width = pct + "%";
+    $("ia-progreso-texto").textContent = `${hechos} de ${total} procesados…`;
+}
+
+async function iaObtenerToken() {
+    const { data } = await supabaseClient.auth.getSession();
+    return data?.session?.access_token || null;
+}
+
+$("form-ia-generar").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (iaCorriendo) return;
+
+    const tipo = $("ia-tipo").value;
+    const cantidad = Math.max(1, parseInt($("ia-cantidad").value, 10) || 1);
+
+    const token = await iaObtenerToken();
+    if (!token) {
+        toast("Tu sesión expiró, vuelve a iniciar sesión.", "error");
+        return;
+    }
+
+    iaDetener = false;
+    iaCorriendo = true;
+    $("ia-log").innerHTML = "";
+    $("ia-progreso-wrap").style.display = "block";
+    $("btn-ia-generar").disabled = true;
+    $("btn-ia-generar").textContent = "Generando…";
+    $("btn-ia-detener").style.display = "inline-flex";
+    iaActualizarBarra(0, cantidad);
+
+    let agregados = 0;
+    let indice = 0;
+
+    for (let i = 0; i < cantidad; i++) {
+        if (iaDetener) {
+            iaAgregarLog("octagon-x", "Detenido por el usuario.");
+            break;
+        }
+
+        try {
+            const resp = await fetch("/api/ia-generar", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ tipo, indiceInicio: indice }),
+            });
+            const body = await resp.json().catch(() => ({}));
+
+            if (!resp.ok) {
+                iaAgregarLog("alert-triangle", "Error buscando candidato.", body.error || `HTTP ${resp.status}`, "error");
+                if (resp.status === 401 || resp.status === 403) break; // sin sesión / sin permiso: no sigue insistiendo
+                if (typeof body.siguienteIndice === "number") indice = body.siguienteIndice;
+                continue;
+            }
+
+            if (body.agotado) {
+                iaAgregarLog("search-x", "No se encontraron más candidatos nuevos en CurseForge.");
+                break;
+            }
+
+            indice = typeof body.siguienteIndice === "number" ? body.siguienteIndice : indice;
+            agregados++;
+            iaAgregarLog("sparkles", `"${body.item.nombre}" agregado`, "Pendiente de revisión", "ok");
+        } catch (err) {
+            iaAgregarLog("wifi-off", "Fallo de red, reintentando el siguiente…", err.message || "", "error");
+        }
+
+        iaActualizarBarra(i + 1, cantidad);
+    }
+
+    iaCorriendo = false;
+    $("btn-ia-generar").disabled = false;
+    $("btn-ia-generar").innerHTML = `${icono("wand-2")} Generar con IA`;
+    $("btn-ia-detener").style.display = "none";
+    refrescarIconos();
+    toast(`Listo: ${agregados} elemento(s) nuevo(s) agregado(s) como pendiente.`);
+
+    if (seccionActual === "ia") cargarPendientesIA();
+    if (seccionActual === tipo) cargarSeccion();
+});
+
+$("btn-ia-detener").addEventListener("click", () => { iaDetener = true; });
+
+async function cargarPendientesIA() {
+    const cont = $("ia-pendientes-lista");
+    cont.innerHTML = `<p class="vacio">Cargando…</p>`;
+    $("ia-pendientes-vacio").style.display = "none";
+
+    const [mods, texturas] = await Promise.all([Datos.listar("mods"), Datos.listar("texturas")]);
+    const pendientes = [
+        ...mods.filter((m) => m.estado === "pendiente").map((m) => ({ ...m, _tabla: "mods" })),
+        ...texturas.filter((t) => t.estado === "pendiente").map((t) => ({ ...t, _tabla: "texturas" })),
+    ];
+
+    if (pendientes.length === 0) {
+        cont.innerHTML = "";
+        $("ia-pendientes-vacio").style.display = "block";
+        return;
+    }
+
+    cont.innerHTML = pendientes.map((it) => {
+        const img = sanitizeURL(it.imagen) || "imagenes/logo.png";
+        return `<div class="ia-candidato" data-tabla="${it._tabla}" data-id="${it.id}">
+            <img src="${img}" alt="" onerror="this.src='imagenes/logo.png'">
+            <div class="info">
+                <div class="n">${escapeHTML(it.nombre)} <span class="pill neutro">${it._tabla === "mods" ? "Mod" : "Textura"}</span>${it.version_minecraft ? `<span class="pill neutro">${escapeHTML(it.version_minecraft)}</span>` : ""}</div>
+                <div class="d">${escapeHTML((it.descripcion || "").slice(0, 160))}${(it.descripcion || "").length > 160 ? "…" : ""}</div>
+            </div>
+            <div class="acciones">
+                <button class="btn-icono ia-aprobar">${icono("check")} <span class="txt">Aprobar</span></button>
+                <button class="btn-icono ia-editar">${icono("edit-3")} <span class="txt">Editar</span></button>
+                <button class="btn-icono ia-rechazar">${icono("x")} <span class="txt">Rechazar</span></button>
+            </div>
+        </div>`;
+    }).join("");
+
+    refrescarIconos();
+
+    cont.querySelectorAll(".ia-candidato").forEach((el) => {
+        const tabla = el.dataset.tabla;
+        const id = el.dataset.id;
+
+        el.querySelector(".ia-aprobar").addEventListener("click", async () => {
+            try {
+                await Datos.actualizar(tabla, id, { estado: "publicado" });
+                toast("Publicado. Ya aparece en el sitio.");
+                cargarPendientesIA();
+            } catch (err) {
+                toast("No se pudo publicar: " + (err.message || "error desconocido"), "error");
+            }
+        });
+
+        el.querySelector(".ia-rechazar").addEventListener("click", async () => {
+            try {
+                await Datos.eliminar(tabla, id);
+                toast("Rechazado y eliminado.");
+                cargarPendientesIA();
+            } catch (err) {
+                toast("No se pudo eliminar: " + (err.message || "error desconocido"), "error");
+            }
+        });
+
+        el.querySelector(".ia-editar").addEventListener("click", async () => {
+            cambiarSeccion(tabla);
+            await cargarSeccion();
+            abrirForm(id);
+        });
+    });
 }
 
 document.addEventListener("DOMContentLoaded", iniciarPanel);

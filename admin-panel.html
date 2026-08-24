@@ -59,6 +59,7 @@
             <button data-seccion="servidores" title="Servidores"><span class="ico"><i data-lucide="server"></i></span> Servidores</button>
             <button data-seccion="mods" title="Mods"><span class="ico"><i data-lucide="puzzle"></i></span> Mods</button>
             <button data-seccion="texturas" title="Texturas"><span class="ico"><i data-lucide="palette"></i></span> Texturas</button>
+            <button data-seccion="ia" title="Generador IA"><span class="ico"><i data-lucide="sparkles"></i></span> Generador IA</button>
         </nav>
 
         <div class="admin-nav-label">Cuenta</div>
@@ -210,6 +211,42 @@
                 <p class="desc">La autorización se valida en el servidor mediante las políticas de Row Level Security de Supabase (tabla por tabla), no confiando en el email que envía el navegador. Ver <code>db_schema_admin.sql</code> y <code>mejoras_seguridad_backend.sql</code>.</p>
                 <p class="desc">Cualquiera puede registrar una descarga (para las estadísticas) a través de una función validada en el servidor, pero solo esta cuenta puede leerlas, crear, editar o eliminar contenido.</p>
                 <p class="desc" style="margin-bottom:0;">Por seguridad, esta sesión se cierra sola después de 30 minutos sin actividad.</p>
+            </div>
+        </div>
+
+        <div id="vista-ia" style="display:none;">
+            <div class="panel-bloque" style="margin-bottom:16px;">
+                <h2><i data-lucide="sparkles" class="h2-ico"></i> Buscar y agregar contenido nuevo</h2>
+                <p class="desc">Busca en CurseForge mods o texturas reales que todavía no están en tu sitio (nombre, imagen, link, versión, cargadores y requisitos vienen directo de CurseForge; la descripción la redacta la IA a partir de esos datos reales, nunca inventados). Todo lo que se agrega queda <strong>pendiente de revisión</strong>: no se publica solo.</p>
+                <form id="form-ia-generar" style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
+                    <div class="campo" style="margin-bottom:0; min-width:160px;">
+                        <label>Tipo de contenido</label>
+                        <select id="ia-tipo">
+                            <option value="mods">Mods</option>
+                            <option value="texturas">Texturas</option>
+                        </select>
+                    </div>
+                    <div class="campo" style="margin-bottom:0; width:120px;">
+                        <label>Cuántos agregar</label>
+                        <input type="number" id="ia-cantidad" value="5" min="1" max="200">
+                    </div>
+                    <button type="submit" class="btn-primario" id="btn-ia-generar"><i data-lucide="wand-2"></i> Generar con IA</button>
+                    <button type="button" class="btn-secundario" id="btn-ia-detener" style="display:none;"><i data-lucide="octagon-x"></i> Detener</button>
+                </form>
+
+                <div id="ia-progreso-wrap" style="display:none; margin-top:18px;">
+                    <div class="ia-barra-fondo"><div class="ia-barra-relleno" id="ia-barra-relleno"></div></div>
+                    <p class="desc" id="ia-progreso-texto" style="margin-top:6px;">Preparando…</p>
+                </div>
+
+                <ul class="top-lista" id="ia-log" style="margin-top:14px;"></ul>
+            </div>
+
+            <div class="panel-bloque">
+                <h2><i data-lucide="clipboard-check" class="h2-ico"></i> Pendientes de revisión</h2>
+                <p class="desc">Revisa cada uno antes de publicarlo: puedes editarlo, aprobarlo o rechazarlo. No aparecen en el sitio hasta que los apruebes.</p>
+                <div id="ia-pendientes-lista"></div>
+                <p class="vacio" id="ia-pendientes-vacio" style="display:none;"><span class="vacio-ico"><i data-lucide="inbox"></i></span>No hay nada pendiente de revisión por ahora.</p>
             </div>
         </div>
 
