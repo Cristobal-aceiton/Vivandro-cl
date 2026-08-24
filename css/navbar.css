@@ -71,6 +71,8 @@
 }
 
 .nav-btn-google {
+    position: relative;
+    overflow: hidden;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -84,6 +86,90 @@
     font-size: 0.85rem;
     cursor: pointer;
     white-space: nowrap;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+        border-radius 0.4s ease, transform 0.15s ease, box-shadow 0.25s ease;
+}
+
+.nav-btn-google:hover {
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+    transform: translateY(-1px);
+}
+
+.nav-btn-google:active {
+    transform: translateY(0) scale(0.97);
+}
+
+.nav-btn-google svg,
+.nav-btn-google span {
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* Onda expansiva desde el punto de clic */
+.nav-btn-google-ripple {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    margin-left: -5px;
+    margin-top: -5px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(66, 133, 244, 0.45), rgba(66, 133, 244, 0) 70%);
+    transform: scale(0);
+    pointer-events: none;
+    animation: nav-btn-google-ripple 0.6s ease-out forwards;
+}
+
+@keyframes nav-btn-google-ripple {
+    to {
+        transform: scale(22);
+        opacity: 0;
+    }
+}
+
+/* El botón se colapsa en un círculo con un anillo giratorio de
+   los 4 colores de Google mientras se conecta con la cuenta */
+.nav-btn-google--loading {
+    width: 34px;
+    padding: 0;
+    border-radius: 50%;
+    cursor: default;
+}
+
+.nav-btn-google--loading span {
+    opacity: 0;
+    transform: translateX(6px);
+    width: 0;
+    white-space: nowrap;
+}
+
+.nav-btn-google--loading svg {
+    animation: nav-btn-google-spin 0.9s linear infinite;
+}
+
+.nav-btn-google--loading::after {
+    content: "";
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    border-top-color: #4285F4;
+    border-right-color: #EA4335;
+    border-bottom-color: #FBBC05;
+    border-left-color: #34A853;
+    animation: nav-btn-google-spin 0.9s linear infinite;
+}
+
+@keyframes nav-btn-google-spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .nav-btn-google,
+    .nav-btn-google-ripple,
+    .nav-btn-google--loading svg,
+    .nav-btn-google--loading::after {
+        animation: none !important;
+        transition: none !important;
+    }
 }
 
 .nav-usuario {

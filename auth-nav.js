@@ -44,11 +44,37 @@
                     ${iconoGoogle()}<span>Iniciar sesión</span>
                 </button>
             `;
-            document.getElementById("nav-btn-login").addEventListener("click", async () => {
-                await supabaseClient.auth.signInWithOAuth({
+            const boton = document.getElementById("nav-btn-login");
+            boton.addEventListener("click", async (evento) => {
+                if (boton.classList.contains("nav-btn-google--loading")) return;
+
+                // Onda expansiva desde el punto donde se hizo clic
+                const rect = boton.getBoundingClientRect();
+                const onda = document.createElement("span");
+                onda.className = "nav-btn-google-ripple";
+                onda.style.left = `${evento.clientX - rect.left}px`;
+                onda.style.top = `${evento.clientY - rect.top}px`;
+                boton.appendChild(onda);
+
+                // El botón se colapsa en un anillo giratorio con los colores de Google
+                boton.classList.add("nav-btn-google--loading");
+                boton.disabled = true;
+
+                // Pequeña espera para que la animación se alcance a ver antes
+                // de que el navegador redirija a Google.
+                await new Promise((resolve) => setTimeout(resolve, 550));
+
+                const { error } = await supabaseClient.auth.signInWithOAuth({
                     provider: "google",
                     options: { redirectTo: window.location.href }
                 });
+
+                // Si algo falla y no hubo redirección, volvemos al estado normal.
+                if (error) {
+                    boton.classList.remove("nav-btn-google--loading");
+                    boton.disabled = false;
+                    onda.remove();
+                }
             });
             return;
         }

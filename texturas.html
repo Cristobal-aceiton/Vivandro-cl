@@ -405,6 +405,8 @@
         }
 
         .btn-curseforge {
+            position: relative;
+            overflow: hidden;
             margin-top: 10px;
             display: flex;
             align-items: center;
@@ -419,17 +421,78 @@
             font-weight: 600;
             font-size: 1rem;
             text-decoration: none;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, transform 0.25s ease, box-shadow 0.25s ease;
         }
 
         .btn-curseforge img {
             width: 18px;
             height: 18px;
             flex-shrink: 0;
+            position: relative;
+            z-index: 1;
         }
 
         .btn-curseforge:hover {
             background-color: #d2532a;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(241, 100, 54, 0.45);
+        }
+
+        /* Destello que recorre el botón al pasar el mouse */
+        .btn-curseforge::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -60%;
+            width: 40%;
+            height: 100%;
+            background: linear-gradient(115deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transform: skewX(-20deg);
+            pointer-events: none;
+        }
+
+        .btn-curseforge:hover::before {
+            animation: btn-curseforge-shine 0.85s ease;
+        }
+
+        /* Avioncito de papel que cruza el botón al pasar el mouse */
+        .btn-curseforge::after {
+            content: "✈️";
+            position: absolute;
+            top: 50%;
+            left: -10%;
+            font-size: 15px;
+            line-height: 1;
+            transform: translateY(-50%) rotate(-6deg);
+            opacity: 0;
+            pointer-events: none;
+            filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.25));
+        }
+
+        .btn-curseforge:hover::after {
+            animation: btn-curseforge-plane 0.9s cubic-bezier(0.45, 0, 0.55, 1);
+        }
+
+        @keyframes btn-curseforge-shine {
+            0% { left: -60%; }
+            100% { left: 120%; }
+        }
+
+        @keyframes btn-curseforge-plane {
+            0% { left: -10%; opacity: 0; transform: translateY(-50%) rotate(-10deg) scale(0.85); }
+            12% { opacity: 1; }
+            50% { transform: translateY(-65%) rotate(4deg) scale(1); }
+            88% { opacity: 1; }
+            100% { left: 105%; opacity: 0; transform: translateY(-45%) rotate(10deg) scale(0.85); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .btn-curseforge::before,
+            .btn-curseforge::after,
+            .btn-curseforge:hover {
+                animation: none !important;
+                transform: none !important;
+            }
         }
 
         .cargando-lista, .error-lista {
