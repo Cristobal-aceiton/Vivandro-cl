@@ -74,6 +74,16 @@ const Datos = (function () {
             .order("creado_en", { ascending: true })
             .range(desde, hasta);
 
+        // mods/texturas tienen estado ('publicado' | 'pendiente' | 'rechazado').
+        // Esta función la usan las páginas PÚBLICAS (mods.html, texturas.html),
+        // así que siempre se filtra a "publicado" acá mismo, sin depender solo
+        // de RLS: si quien navega el sitio es el propio admin logueado, RLS le
+        // deja ver todo (para que el panel funcione), y sin este filtro vería
+        // pendientes y rechazados mezclados en la vista pública.
+        if (tabla === "mods" || tabla === "texturas") {
+            query = query.eq("estado", "publicado");
+        }
+
         const textoBusqueda = (busqueda || "").trim();
         if (textoBusqueda) {
             // Se escapan los comodines de ILIKE para que buscar "50%" o
@@ -106,11 +116,20 @@ const Datos = (function () {
     async function obtenerPorId(tabla, id) {
         chequearTabla(tabla);
         if (!clienteListo() || !id) return null;
-        const { data, error } = await supabaseClient
+        let query = supabaseClient
             .from(tabla)
             .select("*")
-            .eq("id", id)
-            .maybeSingle();
+            .eq("id", id);
+
+        // Mismo motivo que en listarPagina: esta función la usan las
+        // páginas públicas de detalle (mods.html, texturas.html) para
+        // abrir un ítem por id. Si no está publicado, no debe mostrarse
+        // aunque quien esté navegando sea el propio admin logueado.
+        if (tabla === "mods" || tabla === "texturas") {
+            query = query.eq("estado", "publicado");
+        }
+
+        const { data, error } = await query.maybeSingle();
         if (error) {
             console.error(`[Datos] Error obteniendo ${tabla} #${id}:`, error.message);
             return null;

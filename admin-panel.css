@@ -621,6 +621,7 @@ table.admin-tabla tbody tr:hover td { color: var(--admin-text); }
 
 /* ---------- Generador IA ---------- */
 .pill.pendiente { background: var(--admin-warn-soft); color: var(--admin-warn); }
+.pill.rechazado { background: var(--admin-error-soft); color: var(--admin-error); }
 .pill.publicado { background: var(--admin-ok-soft); color: var(--admin-ok); }
 
 .ia-barra-fondo {

@@ -57,6 +57,7 @@ const SECCIONES = {
 };
 
 let seccionActual = "resumen";
+let mostrarRechazados = false;
 let cacheActual = [];
 let editandoId = null;
 let idAEliminar = null;
@@ -302,6 +303,16 @@ function cambiarSeccion(id) {
     $("vista-administradores").style.display = "none";
     $("vista-ia").style.display = "none";
     $("subtitulo-seccion").textContent = SUBTITULOS[id] || "";
+
+    // El toggle "Ver rechazados" solo aplica a mods/texturas (las
+    // únicas tablas con columna "estado"); se resetea a apagado cada
+    // vez que se entra a la sección.
+    mostrarRechazados = false;
+    const toggleWrap = $("toggle-rechazados-wrap");
+    if (toggleWrap) {
+        toggleWrap.style.display = (id === "mods" || id === "texturas") ? "flex" : "none";
+        $("toggle-rechazados").checked = false;
+    }
 
     if (id === "resumen") {
         $("titulo-seccion").textContent = "Resumen";
@@ -653,9 +664,10 @@ async function cargarSeccion() {
     try {
         const todos = await Datos.listar(conf.tabla);
         // Los "rechazados" por el Generador IA se guardan (no se borran)
-        // solo para que el generador no los vuelva a sugerir; no
-        // aparecen en esta lista normal del panel.
-        cacheActual = todos.filter((item) => item.estado !== "rechazado");
+        // para que el generador no los vuelva a sugerir. Por defecto se
+        // ocultan de esta lista; el toggle "Ver rechazados" los muestra
+        // para poder revisarlos o borrarlos definitivamente.
+        cacheActual = mostrarRechazados ? todos : todos.filter((item) => item.estado !== "rechazado");
         pintarTabla(cacheActual);
     } catch (e) {
         toast("Error cargando datos: " + e.message, "error");
@@ -694,13 +706,15 @@ function pintarTabla(items) {
             </tr>`;
         }
         const pendiente = item.estado === "pendiente";
+        const rechazado = item.estado === "rechazado";
         return `<tr>
             <td><img class="miniatura" src="${img}" alt="" onerror="this.src='imagenes/logo.png'"></td>
-            <td>${nombre} ${pendiente ? `<span class="pill pendiente">${icono("clock")} Pendiente</span>` : ""}</td>
+            <td>${nombre} ${pendiente ? `<span class="pill pendiente">${icono("clock")} Pendiente</span>` : ""}${rechazado ? `<span class="pill rechazado">${icono("x")} Rechazado</span>` : ""}</td>
             <td>${item.version_minecraft ? `<span class="pill neutro">${escapeHTML(item.version_minecraft)}</span>` : "—"}</td>
             ${seccionActual === "mods" ? `<td>${(item.cargadores || []).length ? (item.cargadores || []).map((c) => `<span class="pill neutro">${escapeHTML(c)}</span>`).join(" ") : "—"}</td>` : ""}
             <td class="acciones-fila">
                 ${pendiente ? `<button class="btn-icono publicar" data-id="${item.id}">${icono("check")} <span class="txt">Publicar</span></button>` : ""}
+                ${rechazado ? `<button class="btn-icono restaurar" data-id="${item.id}">${icono("rotate-ccw")} <span class="txt">Restaurar</span></button>` : ""}
                 <button class="btn-icono editar" data-id="${item.id}">${icono("edit-3")} <span class="txt">Editar</span></button>
                 <button class="btn-icono eliminar" data-id="${item.id}">${icono("trash-2")} <span class="txt">Eliminar</span></button>
             </td>
@@ -711,6 +725,20 @@ function pintarTabla(items) {
     cuerpo.querySelectorAll(".editar").forEach((b) => b.addEventListener("click", () => abrirForm(b.dataset.id)));
     cuerpo.querySelectorAll(".eliminar").forEach((b) => b.addEventListener("click", () => abrirConfirmar(b.dataset.id)));
     cuerpo.querySelectorAll(".publicar").forEach((b) => b.addEventListener("click", () => publicarItem(b.dataset.id)));
+    cuerpo.querySelectorAll(".restaurar").forEach((b) => b.addEventListener("click", () => restaurarItem(b.dataset.id)));
+}
+
+// Devuelve un mod/textura rechazado a "pendiente", por si se rechazó
+// por error y se quiere volver a revisar desde "Pendientes de revisión".
+async function restaurarItem(id) {
+    const conf = SECCIONES[seccionActual];
+    try {
+        await Datos.actualizar(conf.tabla, id, { estado: "pendiente" });
+        toast("Restaurado a pendiente de revisión.");
+        cargarSeccion();
+    } catch (err) {
+        toast("No se pudo restaurar: " + (err.message || "error desconocido"), "error");
+    }
 }
 
 // Aprueba un mod/textura generado por la IA (o cualquier ítem marcado
@@ -730,6 +758,11 @@ $("buscar-input").addEventListener("input", (e) => {
     const texto = e.target.value.trim().toLowerCase();
     const filtrados = cacheActual.filter((it) => (it.nombre || "").toLowerCase().includes(texto));
     pintarTabla(filtrados);
+});
+
+$("toggle-rechazados").addEventListener("change", (e) => {
+    mostrarRechazados = e.target.checked;
+    cargarSeccion();
 });
 
 // ---------- Modal crear/editar ----------
