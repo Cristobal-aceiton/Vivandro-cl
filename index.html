@@ -54,26 +54,40 @@
         "logo": "https://vivandro-cl-i1x2.vercel.app/imagenes/logo.png"
     }
     </script>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
 
         :root {
-            --bg: #a708b6;
-            --navbar-bg: #9801ac;
-            --card-bg: #ffffff;
-            --card-text: #1a1a1a;
-            --card-text-soft: #555555;
-            --titulo-color: #e6dada;
-            --acento: #a708b6;
+            --bg: #f3eefa;
+            --navbar-bg: rgba(152, 1, 172, 0.55);
+            --titulo-color: #221530;
+            --titulo-soft: #6b5c7d;
+            --card-bg: rgba(255, 255, 255, 0.65);
+            --card-border: rgba(124, 31, 176, 0.14);
+            --card-border-hover: rgba(124, 31, 176, 0.5);
+            --card-text: #241129;
+            --card-text-soft: #6b5c7d;
+            --acento: #8c1fc4;
+            --acento-fuerte: #6d1798;
+            --glow1: rgba(155, 92, 255, 0.22);
+            --glow2: rgba(92, 140, 255, 0.16);
         }
 
         html.dark-mode {
-            --bg: #17071c;
-            --navbar-bg: #250a2c;
-            --card-bg: #241129;
-            --card-text: #f0e8f3;
-            --card-text-soft: #c9b8ce;
-            --titulo-color: #f3e6f7;
-            --acento: #e07bff;
+            --bg: #0b0710;
+            --navbar-bg: rgba(37, 10, 44, 0.6);
+            --titulo-color: #efe9f5;
+            --titulo-soft: #b5adc4;
+            --card-bg: rgba(255, 255, 255, 0.04);
+            --card-border: rgba(255, 255, 255, 0.09);
+            --card-border-hover: rgba(155, 92, 255, 0.55);
+            --card-text: #efe9f5;
+            --card-text-soft: #b5adc4;
+            --acento: #b48bff;
+            --acento-fuerte: #d8c4ff;
+            --glow1: rgba(155, 92, 255, 0.25);
+            --glow2: rgba(92, 140, 255, 0.2);
         }
 
         body, html {
@@ -91,23 +105,41 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
         }
+
+        .glow {
+            position: absolute;
+            width: 560px;
+            height: 560px;
+            border-radius: 50%;
+            filter: blur(120px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glow-1 { top: -180px; left: -140px; background: var(--glow1); }
+        .glow-2 { bottom: -220px; right: -140px; background: var(--glow2); }
 
         .opciones {
             flex: 1;
+            position: relative;
+            z-index: 1;
         }
 
         footer.site-footer {
             font-family: "Poppins", sans-serif;
             text-align: center;
             padding: 24px 16px;
-            color: var(--titulo-color);
-            opacity: 0.85;
+            color: var(--titulo-soft);
             font-size: 0.9rem;
+            position: relative;
+            z-index: 1;
         }
 
         footer.site-footer a {
-            color: var(--titulo-color);
+            color: var(--titulo-soft);
             text-decoration: underline;
             opacity: 0.9;
         }
@@ -122,92 +154,114 @@
 
         .inicio {
             text-align: center;
-            font-family: "Pixelify Sans", sans-serif;
-            font-size: 2rem;
             color: var(--titulo-color);
+            padding: 80px 20px 20px;
+            position: relative;
+            z-index: 1;
         }
 
         .inicio h1 {
-            position: relative;
-            font-size: 4.5rem;
-            margin-bottom: 10px;
+            font-family: "Space Grotesk", sans-serif;
+            font-weight: 700;
+            font-size: 3.6rem;
+            margin: 0 0 12px;
         }
 
         .inicio p {
-            position: relative;
-            font-size: 1.8rem;
+            font-family: "Poppins", sans-serif;
+            font-size: 1.1rem;
+            color: var(--titulo-soft);
+            margin: 0;
         }
 
         .opciones {
             text-align: center;
             font-family: "Poppins", sans-serif;
-            color: var(--titulo-color);
-            padding: 40px 20px;
+            padding: 40px 20px 20px;
         }
 
-        .opciones h2 {
-            font-family: "Pixelify Sans", sans-serif;
-            font-size: 2rem;
-            margin-bottom: 30px;
-        }
-
-        .cards-container {
-            display: flex;
-            justify-content: center;
-            align-items: stretch;
-            gap: 25px;
-            flex-wrap: wrap;
+        .bento {
+            max-width: 1020px;
+            margin: 16px auto 60px;
+            display: grid;
+            grid-template-columns: 1.3fr 1fr;
+            grid-template-rows: auto auto;
+            gap: 18px;
+            text-align: left;
         }
 
         .card {
-            width: 280px;
-            background-color: var(--card-bg);
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease;
-            padding: 25px 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            backdrop-filter: blur(6px);
+            padding: 30px;
             text-decoration: none;
             color: var(--card-text);
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            justify-content: space-between;
+            min-height: 190px;
+            transition: transform 0.25s ease, border-color 0.25s ease;
         }
 
         .card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            transform: translateY(-4px);
+            border-color: var(--card-border-hover);
+        }
+
+        .card.big {
+            grid-row: span 2;
+        }
+
+        .card .etiqueta {
+            font-size: 0.75rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--acento);
+            font-weight: 600;
+            margin-bottom: 14px;
         }
 
         .card h3 {
-            font-family: "Pixelify Sans", sans-serif;
-            font-size: 1.5rem;
-            margin: 0;
-            color: var(--acento);
+            font-family: "Space Grotesk", sans-serif;
+            font-size: 1.6rem;
+            margin: 0 0 10px;
         }
 
         .card p {
             margin: 0;
             font-size: 0.95rem;
             color: var(--card-text-soft);
+            line-height: 1.5;
+        }
+
+        .card .ir {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--acento-fuerte);
         }
 
         @media (max-width: 768px) {
+            .inicio {
+                padding: 56px 20px 10px;
+            }
+
             .inicio h1 {
-                font-size: 2.5rem;
+                font-size: 2.4rem;
             }
 
             .inicio p {
-                font-size: 1.2rem;
+                font-size: 1rem;
             }
 
-            .cards-container {
-                flex-direction: column;
-                align-items: center;
+            .bento {
+                grid-template-columns: 1fr;
             }
 
-            .card {
-                width: 90%;
-                max-width: 350px;
+            .card.big {
+                grid-row: auto;
             }
         }
 
@@ -228,29 +282,42 @@
         </div>
     </nav>
 
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+
     <div class="inicio">
-        <h1>Vivandro</h1>
-        <p>Mods, textura packs, servidores</p>
+        <h1>Mods, texturas y servidores</h1>
+        <p>Contenido de Minecraft verificado, listo para descargar</p>
     </div>
 
     <div class="opciones">
-        <h2>¿Por dónde quieres empezar?</h2>
+        <div class="bento">
 
-        <div class="cards-container">
-
-            <a href="/servidores" class="card">
-                <h3>Servidores</h3>
-                <p>Encuentra los mejores servidores para jugar</p>
+            <a href="/servidores" class="card big">
+                <div>
+                    <div class="etiqueta">Más buscado</div>
+                    <h3>Servidores</h3>
+                    <p>Servers no-premium activos ahora mismo, con IP, modalidad y jugadores conectados.</p>
+                </div>
+                <div class="ir">Ver servidores →</div>
             </a>
 
             <a href="/texturas" class="card">
-                <h3>Texture Packs</h3>
-                <p>Cambia el look de tu Minecraft</p>
+                <div>
+                    <div class="etiqueta">Personaliza</div>
+                    <h3>Texture Packs</h3>
+                    <p>Dale otro look a tu mundo.</p>
+                </div>
+                <div class="ir">Explorar →</div>
             </a>
 
             <a href="/mods" class="card">
-                <h3>Mods</h3>
-                <p>Agrega nuevas funciones y contenido</p>
+                <div>
+                    <div class="etiqueta">Expande</div>
+                    <h3>Mods</h3>
+                    <p>Nuevas mecánicas y contenido.</p>
+                </div>
+                <div class="ir">Descargar →</div>
             </a>
 
         </div>

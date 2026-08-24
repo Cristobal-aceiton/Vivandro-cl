@@ -22,23 +22,29 @@
     <style>
 
         :root {
-            --bg: #a708b6;
-            --navbar-bg: #9801ac;
-            --card-bg: #ffffff;
+            --bg: #f3eefa;
+            --navbar-bg: rgba(152, 1, 172, 0.55);
+            --card-bg: rgba(255, 255, 255, 0.65);
+            --card-border: rgba(124, 31, 176, 0.14);
             --card-text: #1a1a1a;
             --card-text-soft: #555555;
-            --titulo-color: #e6dada;
+            --titulo-color: #221530;
             --acento: #a708b6;
+            --glow1: rgba(155, 92, 255, 0.22);
+            --glow2: rgba(92, 140, 255, 0.16);
         }
 
         html.dark-mode {
-            --bg: #17071c;
-            --navbar-bg: #250a2c;
-            --card-bg: #241129;
+            --bg: #0b0710;
+            --navbar-bg: rgba(37, 10, 44, 0.6);
+            --card-bg: rgba(255, 255, 255, 0.04);
+            --card-border: rgba(255, 255, 255, 0.09);
             --card-text: #f0e8f3;
             --card-text-soft: #c9b8ce;
-            --titulo-color: #f3e6f7;
+            --titulo-color: #efe9f5;
             --acento: #e07bff;
+            --glow1: rgba(155, 92, 255, 0.25);
+            --glow2: rgba(92, 140, 255, 0.2);
         }
 
         body, html {
@@ -56,6 +62,26 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .glow {
+            position: fixed;
+            width: 560px;
+            height: 560px;
+            border-radius: 50%;
+            filter: blur(120px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glow-1 { top: -180px; left: -140px; background: var(--glow1); }
+        .glow-2 { bottom: -220px; right: -140px; background: var(--glow2); }
+
+        .error-404, footer.site-footer {
+            position: relative;
+            z-index: 1;
         }
 
         .error-404 {
@@ -99,12 +125,15 @@
 
         .error-404-links a {
             background-color: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--card-border);
             color: var(--acento);
             text-decoration: none;
             font-weight: 600;
             padding: 10px 22px;
             border-radius: 20px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
         }
 
         .error-404-links a:first-child {
@@ -156,6 +185,9 @@
             <button id="theme-toggle" title="Cambiar tema" aria-label="Cambiar tema claro/oscuro"></button>
         </div>
     </nav>
+
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
 
     <div class="error-404">
         <p class="codigo">404</p>

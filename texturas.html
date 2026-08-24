@@ -48,39 +48,72 @@
     <style>
 
         :root {
-            --bg: #a708b6;
-            --navbar-bg: #9801ac;
-            --card-bg: #ffffff;
+            --bg: #f3eefa;
+            --navbar-bg: rgba(152, 1, 172, 0.55);
+            --card-bg: rgba(255, 255, 255, 0.65);
+            --card-border: rgba(124, 31, 176, 0.14);
             --card-text: #333333;
             --card-text-soft: #555555;
-            --titulo-color: #e6dada;
+            --titulo-color: #221530;
             --acento: #a708b6;
             --acento-fuerte: #9801ac;
-            --input-bg: #ffffff;
+            --input-bg: rgba(255, 255, 255, 0.7);
             --input-border: #d8bfe0;
             --skeleton-base: #e6dcea;
             --skeleton-shine: #f5f0f7;
+            --glow1: rgba(155, 92, 255, 0.22);
+            --glow2: rgba(92, 140, 255, 0.16);
         }
 
         html.dark-mode {
-            --bg: #17071c;
-            --navbar-bg: #250a2c;
-            --card-bg: #241129;
+            --bg: #0b0710;
+            --navbar-bg: rgba(37, 10, 44, 0.6);
+            --card-bg: rgba(255, 255, 255, 0.04);
+            --card-border: rgba(255, 255, 255, 0.09);
             --card-text: #f0e8f3;
             --card-text-soft: #c9b8ce;
-            --titulo-color: #f3e6f7;
+            --titulo-color: #efe9f5;
             --acento: #e07bff;
             --acento-fuerte: #c94dff;
-            --input-bg: #2d1533;
+            --input-bg: rgba(255, 255, 255, 0.06);
             --input-border: #4a2652;
             --skeleton-base: #3a1f42;
             --skeleton-shine: #4d2a57;
+            --glow1: rgba(155, 92, 255, 0.25);
+            --glow2: rgba(92, 140, 255, 0.2);
         }
 
         body, html {
             margin: 0;
+            min-height: 100%;
             background-color: var(--bg);
             transition: background-color 0.3s ease;
+        }
+
+        html { height: 100%; }
+
+        body {
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        .glow {
+            position: fixed;
+            width: 560px;
+            height: 560px;
+            border-radius: 50%;
+            filter: blur(120px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .glow-1 { top: -180px; left: -140px; background: var(--glow1); }
+        .glow-2 { bottom: -220px; right: -140px; background: var(--glow2); }
+
+        .titulo-seccion, .controles, .texturas-container, .paginacion {
+            position: relative;
+            z-index: 1;
         }
 
         .titulo-seccion {
@@ -179,12 +212,19 @@
 
         .textura-card {
             background-color: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--card-border);
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, border-color 0.25s ease;
+        }
+
+        .textura-card:hover {
+            border-color: var(--acento);
         }
 
         /* Carrusel */
@@ -430,6 +470,8 @@
 
         .paginacion button {
             background-color: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             color: var(--card-text);
             border: 1px solid var(--input-border);
             min-width: 38px;
@@ -501,6 +543,8 @@
 
         .paginacion-salto button {
             background-color: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             color: var(--card-text);
             border: 1px solid var(--input-border);
             height: 38px;
@@ -537,6 +581,9 @@
 
         .modal {
             background-color: var(--card-bg);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid var(--card-border);
             border-radius: 10px;
             width: 100%;
             max-width: 420px;
@@ -727,6 +774,9 @@
             <button id="theme-toggle" title="Cambiar tema" aria-label="Cambiar tema claro/oscuro"></button>
         </div>
     </nav>
+
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
 
     <div class="titulo-seccion">
         <h1>Texturas</h1>

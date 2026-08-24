@@ -1,13 +1,14 @@
 :root {
-    --admin-bg: #f3f0f7;
-    --admin-bg-soft: #ffffff;
-    --admin-sidebar: #1c0e22;
-    --admin-sidebar-2: #2a1030;
-    --admin-sidebar-hover: #33163c;
+    --admin-bg: #f3eefa;
+    --admin-bg-soft: rgba(255, 255, 255, 0.7);
+    --admin-sidebar: rgba(28, 14, 34, 0.75);
+    --admin-sidebar-2: rgba(42, 16, 48, 0.75);
+    --admin-sidebar-hover: rgba(51, 22, 60, 0.85);
     --admin-acento: #9801ac;
     --admin-acento-fuerte: #7a018a;
     --admin-acento-soft: #f4defa;
-    --admin-card: #ffffff;
+    --admin-card: rgba(255, 255, 255, 0.7);
+    --admin-card-border: rgba(124, 31, 176, 0.14);
     --admin-text: #241129;
     --admin-text-soft: #6b6270;
     --admin-border: #e7e1ec;
@@ -21,18 +22,21 @@
     --admin-shadow: 0 1px 2px rgba(36,17,41,.04), 0 8px 24px -12px rgba(36,17,41,.12);
     --admin-shadow-lg: 0 12px 32px -12px rgba(36,17,41,.28);
     --admin-radius: 14px;
+    --admin-glow1: rgba(155, 92, 255, 0.22);
+    --admin-glow2: rgba(92, 140, 255, 0.16);
 }
 
 html.dark-mode {
-    --admin-bg: #150a1a;
-    --admin-bg-soft: #1d0f24;
-    --admin-sidebar: #120810;
-    --admin-sidebar-2: #1c0c1f;
-    --admin-sidebar-hover: #2c1332;
+    --admin-bg: #0b0710;
+    --admin-bg-soft: rgba(255, 255, 255, 0.05);
+    --admin-sidebar: rgba(18, 8, 16, 0.7);
+    --admin-sidebar-2: rgba(28, 12, 31, 0.7);
+    --admin-sidebar-hover: rgba(44, 19, 50, 0.8);
     --admin-acento: #c34ad6;
     --admin-acento-fuerte: #e07bff;
     --admin-acento-soft: #3a1640;
-    --admin-card: #22102a;
+    --admin-card: rgba(255, 255, 255, 0.04);
+    --admin-card-border: rgba(255, 255, 255, 0.09);
     --admin-text: #f2e9f5;
     --admin-text-soft: #b6a6bd;
     --admin-border: #3a2242;
@@ -44,6 +48,8 @@ html.dark-mode {
     --admin-warn-soft: #362a10;
     --admin-shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
     --admin-shadow-lg: 0 16px 40px -14px rgba(0,0,0,.6);
+    --admin-glow1: rgba(155, 92, 255, 0.25);
+    --admin-glow2: rgba(92, 140, 255, 0.2);
 }
 
 * { box-sizing: border-box; }
@@ -77,12 +83,30 @@ body {
     margin: 0;
     font-family: "Poppins", sans-serif;
     background-color: var(--admin-bg);
-    background-image:
-        radial-gradient(circle at 100% 0%, rgba(152,1,172,.06), transparent 40%),
-        radial-gradient(circle at 0% 100%, rgba(152,1,172,.04), transparent 45%);
-    background-attachment: fixed;
     color: var(--admin-text);
     transition: background-color .2s ease, color .2s ease;
+    position: relative;
+    overflow-x: hidden;
+}
+
+body::before,
+body::after {
+    content: "";
+    position: fixed;
+    width: 560px;
+    height: 560px;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+    z-index: 0;
+}
+
+body::before { top: -180px; left: -140px; background: var(--admin-glow1); }
+body::after { bottom: -220px; right: -140px; background: var(--admin-glow2); }
+
+.admin-shell, #pantalla-cargando, #pantalla-denegado {
+    position: relative;
+    z-index: 1;
 }
 
 ::selection { background: var(--admin-acento); color: #fff; }
@@ -110,6 +134,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 /* ---------- Sidebar (escritorio) ---------- */
 .admin-sidebar {
     background: linear-gradient(180deg, var(--admin-sidebar) 0%, var(--admin-sidebar-2) 100%);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
     color: #fff;
     display: flex;
     flex-direction: column;
@@ -225,7 +252,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .admin-header { padding-bottom: 18px; border-bottom: 1px solid var(--admin-border); }
 .admin-header h1 { margin: 0 0 4px; font-size: 1.65rem; letter-spacing: -.3px; }
 .admin-header .admin-subtitulo { margin: 0; color: var(--admin-text-soft); font-size: .9rem; }
-.admin-header .admin-usuario { display: flex; align-items: center; gap: 9px; color: var(--admin-text-soft); font-size: .88rem; background: var(--admin-card); border: 1px solid var(--admin-border); padding: 7px 14px 7px 7px; border-radius: 30px; box-shadow: var(--admin-shadow); transition: box-shadow .15s ease; }
+.admin-header .admin-usuario { display: flex; align-items: center; gap: 9px; color: var(--admin-text-soft); font-size: .88rem; background: var(--admin-card); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid var(--admin-card-border); padding: 7px 14px 7px 7px; border-radius: 30px; box-shadow: var(--admin-shadow); transition: box-shadow .15s ease; }
 .admin-header .admin-usuario:hover { box-shadow: var(--admin-shadow-lg); }
 .admin-header .admin-usuario img { width: 30px; height: 30px; border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px var(--admin-acento-soft); }
 .admin-header .admin-usuario span { font-weight: 600; color: var(--admin-text); }
@@ -234,7 +261,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 16px; margin-bottom: 26px; }
 .stat-card {
     background-color: var(--admin-card);
-    border: 1px solid var(--admin-border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--admin-card-border);
     border-radius: var(--admin-radius);
     padding: 18px 20px;
     box-shadow: var(--admin-shadow);
@@ -269,7 +298,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 /* ---------- Dashboard (Resumen) ---------- */
 .panel-bloque {
     background-color: var(--admin-card);
-    border: 1px solid var(--admin-border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--admin-card-border);
     border-radius: var(--admin-radius);
     box-shadow: var(--admin-shadow);
     padding: 22px 24px;
@@ -283,7 +314,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .accion-rapida {
     display: flex; align-items: center; gap: 12px;
     background-color: var(--admin-card);
-    border: 1px solid var(--admin-border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--admin-card-border);
     border-radius: 12px;
     padding: 14px 16px;
     cursor: pointer;
@@ -348,7 +381,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 .combo-panel {
     display: none; position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 40;
-    background-color: var(--admin-card); border: 1px solid var(--admin-border); border-radius: 12px;
+    background-color: var(--admin-card); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--admin-card-border); border-radius: 12px;
     box-shadow: var(--admin-shadow-lg); overflow: hidden;
 }
 .combo-panel.activo { display: block; }
@@ -387,7 +421,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .btn-primario:active { transform: scale(.97); }
 
 /* ---------- Tabla ---------- */
-.tabla-wrap { background-color: var(--admin-card); border: 1px solid var(--admin-border); border-radius: var(--admin-radius); overflow: hidden; overflow-x: auto; box-shadow: var(--admin-shadow); }
+.tabla-wrap { background-color: var(--admin-card); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--admin-card-border); border-radius: var(--admin-radius); overflow: hidden; overflow-x: auto; box-shadow: var(--admin-shadow); }
 table.admin-tabla { width: 100%; border-collapse: collapse; min-width: 640px; }
 table.admin-tabla th, table.admin-tabla td { padding: 13px 16px; text-align: left; border-bottom: 1px solid var(--admin-border); font-size: .87rem; }
 table.admin-tabla th { color: var(--admin-text-soft); font-weight: 600; font-size: .74rem; text-transform: uppercase; letter-spacing: .04em; background-color: var(--admin-bg); position: sticky; top: 0; z-index: 1; }
@@ -413,7 +447,7 @@ table.admin-tabla tbody tr:hover td { color: var(--admin-text); }
 /* ---------- Modal ---------- */
 .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15,6,18,.6); align-items: center; justify-content: center; z-index: 999; padding: 20px; backdrop-filter: blur(2px); }
 .modal-overlay.activo { display: flex; }
-.modal-box { background: var(--admin-card); border-radius: 18px; width: 100%; max-width: 500px; max-height: 88vh; overflow-y: auto; padding: 28px; position: relative; box-shadow: var(--admin-shadow-lg); }
+.modal-box { background: var(--admin-card); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--admin-card-border); border-radius: 18px; width: 100%; max-width: 500px; max-height: 88vh; overflow-y: auto; padding: 28px; position: relative; box-shadow: var(--admin-shadow-lg); }
 .modal-box h2 { margin-top: 0; font-size: 1.2rem; }
 .modal-cerrar { position: absolute; top: 16px; right: 18px; background: var(--admin-bg); border: none; width: 30px; height: 30px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; color: var(--admin-text-soft); display: flex; align-items: center; justify-content: center; }
 .modal-cerrar:hover { background: var(--admin-error-soft); color: var(--admin-error); }
