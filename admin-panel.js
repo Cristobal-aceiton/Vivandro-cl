@@ -651,7 +651,11 @@ async function cargarSeccion() {
     $("tabla-head").innerHTML = `<tr>${conf.columnas.map((c) => `<th>${c}</th>`).join("")}</tr>`;
 
     try {
-        cacheActual = await Datos.listar(conf.tabla);
+        const todos = await Datos.listar(conf.tabla);
+        // Los "rechazados" por el Generador IA se guardan (no se borran)
+        // solo para que el generador no los vuelva a sugerir; no
+        // aparecen en esta lista normal del panel.
+        cacheActual = todos.filter((item) => item.estado !== "rechazado");
         pintarTabla(cacheActual);
     } catch (e) {
         toast("Error cargando datos: " + e.message, "error");
@@ -1422,11 +1426,14 @@ async function cargarPendientesIA() {
 
         el.querySelector(".ia-rechazar").addEventListener("click", async () => {
             try {
-                await Datos.eliminar(tabla, id);
-                toast("Rechazado y eliminado.");
+                // No se borra: se marca "rechazado" para que el generador IA
+                // lo siga reconociendo como "ya visto" y no lo vuelva a
+                // sugerir. Queda oculto del sitio y de la lista normal.
+                await Datos.actualizar(tabla, id, { estado: "rechazado" });
+                toast("Rechazado. No se volverá a sugerir.");
                 cargarPendientesIA();
             } catch (err) {
-                toast("No se pudo eliminar: " + (err.message || "error desconocido"), "error");
+                toast("No se pudo rechazar: " + (err.message || "error desconocido"), "error");
             }
         });
 
