@@ -884,6 +884,12 @@
             .mods-container {
                 grid-template-columns: 1fr;
             }
+
+            /* Evita que Safari (iOS) haga zoom automático al tocar el
+               buscador: pasa a hacerlo solo si la letra queda bajo 16px. */
+            .buscador input {
+                font-size: 16px;
+            }
         }
 
     </style>

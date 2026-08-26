@@ -546,6 +546,17 @@ table.admin-tabla tbody tr:hover td { color: var(--admin-text); }
 @media (max-width: 860px) {
     .admin-shell.mostrar { display: block; }
 
+    /* En celulares, cualquier input/select/textarea con letra menor a
+       16px hace que Safari (iOS) haga zoom automático de la pantalla
+       apenas lo tocas. Se sube a 16px solo en móvil para evitarlo, sin
+       tocar el tamaño más compacto que se ve bien en pantallas grandes. */
+    .campo input, .campo textarea, .campo select,
+    .admin-toolbar input[type="search"], .admin-toolbar select,
+    .combo-disparador, .combo-buscar-wrap input[type="text"],
+    #campo-admin-email, #stats-tabla-buscar {
+        font-size: 16px;
+    }
+
     .admin-topbar-movil {
         display: flex; align-items: center; justify-content: space-between;
         position: sticky; top: 0; z-index: 60;
