@@ -59,6 +59,7 @@
             <button data-seccion="servidores" title="Servidores"><span class="ico"><i data-lucide="server"></i></span> Servidores</button>
             <button data-seccion="mods" title="Mods"><span class="ico"><i data-lucide="puzzle"></i></span> Mods</button>
             <button data-seccion="texturas" title="Texturas"><span class="ico"><i data-lucide="palette"></i></span> Texturas</button>
+            <button data-seccion="tops" title="Tops"><span class="ico"><i data-lucide="trophy"></i></span> Tops</button>
             <button data-seccion="ia" title="Generador IA"><span class="ico"><i data-lucide="sparkles"></i></span> Generador IA</button>
         </nav>
 
@@ -171,10 +172,35 @@
                     <ul class="top-lista" id="seguridad-bitacora"></ul>
                 </div>
                 <div class="panel-bloque">
-                    <h2><i data-lucide="shield-alert" class="h2-ico"></i> Intentos de acceso rechazados</h2>
+                    <h2 style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+                        <span style="display:flex; align-items:center; gap:8px;"><i data-lucide="shield-alert" class="h2-ico"></i> Intentos de acceso rechazados</span>
+                        <button type="button" class="btn-secundario" id="btn-vaciar-intentos" style="font-size:.78rem; padding:6px 12px;"><i data-lucide="trash-2"></i> <span class="txt">Vaciar historial</span></button>
+                    </h2>
                     <p class="desc">Cuentas de Google que iniciaron sesión pero no son la del administrador.</p>
                     <ul class="top-lista" id="seguridad-intentos"></ul>
                 </div>
+            </div>
+        </div>
+
+        <div id="vista-tops" style="display:none;">
+            <p class="desc" style="margin:-4px 0 18px;">Busca y asigna hasta 5 elementos por Top: aparecen en el sitio en <a href="/tops" target="_blank" rel="noopener" style="color:var(--admin-acento-fuerte); text-decoration:underline;">/tops</a> en el mismo orden en que quedan aquí.</p>
+
+            <div class="panel-bloque" style="margin-bottom:16px;">
+                <h2><i data-lucide="sword" class="h2-ico"></i> Top 5 texture packs para PVP</h2>
+                <p class="desc">Los packs favoritos para combate: hitbox clara y buen rendimiento.</p>
+                <div class="tops-admin-grid" id="top-grid-texturas_pvp"></div>
+            </div>
+
+            <div class="panel-bloque" style="margin-bottom:16px;">
+                <h2><i data-lucide="swords" class="h2-ico"></i> Top 5 mods para PVP</h2>
+                <p class="desc">Mods que mejoran combate, movimiento y ventaja competitiva.</p>
+                <div class="tops-admin-grid" id="top-grid-mods_pvp"></div>
+            </div>
+
+            <div class="panel-bloque">
+                <h2><i data-lucide="pickaxe" class="h2-ico"></i> Top 5 texture packs para survival o técnico</h2>
+                <p class="desc">Ideal para exploración, construcción y partidas técnicas.</p>
+                <div class="tops-admin-grid" id="top-grid-texturas_survival"></div>
             </div>
         </div>
 
@@ -377,6 +403,19 @@
             <button class="btn-secundario" id="btn-confirmar-no">Cancelar</button>
             <button class="btn-peligro" id="btn-confirmar-si">Eliminar</button>
         </div>
+    </div>
+</div>
+
+<!-- Modal elegir mod/textura para un slot de un Top -->
+<div class="modal-overlay" id="modal-top">
+    <div class="modal-box">
+        <button class="modal-cerrar" id="modal-top-cerrar">&times;</button>
+        <h2 id="modal-top-titulo">Elegir para el Top</h2>
+        <div class="buscar-wrap" style="margin-bottom:12px;">
+            <i data-lucide="search" class="buscar-ico"></i>
+            <input type="search" id="modal-top-buscar" placeholder="Buscar por nombre...">
+        </div>
+        <ul class="modal-top-lista" id="modal-top-lista" role="listbox"></ul>
     </div>
 </div>
 
