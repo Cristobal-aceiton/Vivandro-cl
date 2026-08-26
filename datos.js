@@ -267,6 +267,20 @@ const Datos = (function () {
         return data || [];
     }
 
+    // Borra TODO el historial de intentos de acceso rechazados. Solo lo
+    // puede hacer un admin (lo exige la política RLS "admin_borra_intentos",
+    // ver fase2_tops_y_logs.sql); si quien llama no es admin, Supabase
+    // simplemente no borra nada y no tira error.
+    async function limpiarIntentosAcceso() {
+        if (!clienteListo()) throw new Error("Supabase no está configurado (ver supabase-client.js).");
+        // Supabase exige algún filtro para un delete masivo: "id" es un
+        // bigint que siempre parte en 1, así que "distinto de 0" es
+        // siempre verdadero y en la práctica borra todas las filas.
+        const { error } = await supabaseClient.from("intentos_acceso").delete().neq("id", 0);
+        if (error) throw error;
+        return true;
+    }
+
     // ---------- Administradores autorizados ----------
     // La tabla "admins" (ver agregar_tabla_admins.sql) es la que de
     // verdad decide quién puede leer/escribir en todo lo demás: las
@@ -320,10 +334,84 @@ const Datos = (function () {
         if (error) throw error;
     }
 
+    // ---------- Tops (Top 5 de cada categoría, sección "Tops" del panel) ----------
+    // Cada fila de "tops" es un slot: qué mod/textura ocupa la posición N
+    // (1 a 5) de un top_tipo determinado. Ver fase2_tops_y_logs.sql.
+    const TOP_TIPOS = ["texturas_pvp", "mods_pvp", "texturas_survival"];
+
+    // Trae las 3 x 5 filas de "tops" que existan (cualquiera puede leerlas,
+    // están protegidas solo para escritura), sin los datos del mod/textura
+    // en sí — eso lo resuelve listarTopsConItems() para no repetir el join
+    // acá cuando solo hace falta saber qué posiciones están ocupadas.
+    async function listarTops() {
+        if (!clienteListo()) return [];
+        const { data, error } = await supabaseClient
+            .from("tops")
+            .select("id, top_tipo, posicion, item_tabla, item_id");
+        if (error) {
+            console.error("[Datos] Error listando tops:", error.message);
+            return [];
+        }
+        return data || [];
+    }
+
+    // Igual que listarTops(), pero cada fila trae además { nombre, imagen }
+    // del mod/textura correspondiente, listo para pintar en pantalla (tanto
+    // en el panel admin como en tops.html).
+    async function listarTopsConItems() {
+        const filas = await listarTops();
+        if (filas.length === 0) return [];
+
+        const idsMods = [...new Set(filas.filter((f) => f.item_tabla === "mods").map((f) => f.item_id))];
+        const idsTexturas = [...new Set(filas.filter((f) => f.item_tabla === "texturas").map((f) => f.item_id))];
+
+        const [resMods, resTexturas] = await Promise.all([
+            idsMods.length ? supabaseClient.from("mods").select("id, nombre, imagen").in("id", idsMods) : Promise.resolve({ data: [] }),
+            idsTexturas.length ? supabaseClient.from("texturas").select("id, nombre, imagen").in("id", idsTexturas) : Promise.resolve({ data: [] }),
+        ]);
+
+        const mapaMods = Object.fromEntries((resMods.data || []).map((m) => [m.id, m]));
+        const mapaTexturas = Object.fromEntries((resTexturas.data || []).map((t) => [t.id, t]));
+
+        return filas.map((f) => ({
+            ...f,
+            item: (f.item_tabla === "mods" ? mapaMods : mapaTexturas)[f.item_id] || null,
+        }));
+    }
+
+    // Asigna (o reemplaza) el mod/textura de una posición puntual de un
+    // Top. Un "upsert" sobre la clave única (top_tipo, posicion): si ya
+    // había algo en ese casillero, lo reemplaza; si no, lo crea. La
+    // validación real (que el Top acepte ese tipo de ítem y que el ítem
+    // exista) la hace el trigger fn_validar_top() en la base de datos.
+    async function asignarTop(topTipo, posicion, itemTabla, itemId) {
+        if (!clienteListo()) throw new Error("Supabase no está configurado (ver supabase-client.js).");
+        if (!TOP_TIPOS.includes(topTipo)) throw new Error(`Top desconocido: ${topTipo}`);
+        const { data, error } = await supabaseClient
+            .from("tops")
+            .upsert(
+                { top_tipo: topTipo, posicion, item_tabla: itemTabla, item_id: itemId },
+                { onConflict: "top_tipo,posicion" }
+            )
+            .select()
+            .single();
+        if (error) throw error;
+        return data;
+    }
+
+    // Deja vacía una posición del Top (quita lo que hubiera ahí).
+    async function quitarTop(topTipo, posicion) {
+        if (!clienteListo()) throw new Error("Supabase no está configurado (ver supabase-client.js).");
+        const { error } = await supabaseClient.from("tops").delete().eq("top_tipo", topTipo).eq("posicion", posicion);
+        if (error) throw error;
+        return true;
+    }
+
     return {
         listar, listarPagina, listarModalidades, obtenerPorId, crear, actualizar, eliminar, clienteListo,
         registrarDescarga, listarDescargas,
-        listarBitacora, registrarIntentoAcceso, listarIntentosAcceso,
+        listarBitacora, registrarIntentoAcceso, listarIntentosAcceso, limpiarIntentosAcceso,
         obtenerAdmin, listarAdmins, agregarAdmin, eliminarAdmin,
+        listarTops, listarTopsConItems, asignarTop, quitarTop,
     };
 })();

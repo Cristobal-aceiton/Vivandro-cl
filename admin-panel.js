@@ -72,6 +72,7 @@ const SUBTITULOS = {
     seguridad: "Bitácora de cambios e intentos de acceso.",
     administradores: "Quién puede entrar al panel.",
     config: "Datos de la cuenta y seguridad del panel.",
+    tops: "Elige qué mods y texturas aparecen en cada Top del sitio.",
 };
 
 // ---------- Helpers UI ----------
@@ -302,6 +303,7 @@ function cambiarSeccion(id) {
     $("vista-seguridad").style.display = "none";
     $("vista-administradores").style.display = "none";
     $("vista-ia").style.display = "none";
+    $("vista-tops").style.display = "none";
     $("subtitulo-seccion").textContent = SUBTITULOS[id] || "";
 
     // El toggle "Ver rechazados" solo aplica a mods/texturas (las
@@ -353,6 +355,14 @@ function cambiarSeccion(id) {
         $("vista-ia").style.display = "block";
         $("stats-grid").innerHTML = "";
         cargarPendientesIA();
+        return;
+    }
+
+    if (id === "tops") {
+        $("titulo-seccion").textContent = "Tops";
+        $("vista-tops").style.display = "block";
+        $("stats-grid").innerHTML = "";
+        cargarTops();
         return;
     }
 
@@ -560,6 +570,21 @@ async function cargarSeguridad() {
     refrescarIconos();
 }
 
+$("btn-vaciar-intentos").addEventListener("click", async () => {
+    if (!confirm("¿Vaciar todo el historial de intentos de acceso rechazados? Esta acción no se puede deshacer.")) return;
+    const btn = $("btn-vaciar-intentos");
+    btn.disabled = true;
+    try {
+        await Datos.limpiarIntentosAcceso();
+        toast("Historial de intentos de acceso vaciado.");
+        cargarSeguridad();
+    } catch (e) {
+        toast("No se pudo vaciar el historial. " + (e.message || ""), "error");
+    } finally {
+        btn.disabled = false;
+    }
+});
+
 // ---------- Administradores autorizados ----------
 async function cargarAdministradores() {
     const wrapAgregar = $("administradores-agregar-wrap");
@@ -635,6 +660,159 @@ $("form-administradores").addEventListener("submit", async (ev) => {
         btn.disabled = false;
     }
 });
+
+// ---------- Tops (Top 5 de cada categoría, sección "Tops") ----------
+// Cada Top solo acepta un tipo de ítem: el de mods para PVP acepta
+// mods, los otros dos aceptan texturas (lo mismo que valida el
+// trigger fn_validar_top() en fase2_tops_y_logs.sql).
+const TOP_CONFIG = {
+    texturas_pvp: { itemTabla: "texturas", etiqueta: "textura" },
+    mods_pvp: { itemTabla: "mods", etiqueta: "mod" },
+    texturas_survival: { itemTabla: "texturas", etiqueta: "textura" },
+};
+
+let topsCache = {}; // "top_tipo|posicion" -> fila con { ...fila, item }
+let topsItemsDisponibles = { mods: [], texturas: [] }; // solo publicados, para el buscador
+let topsModalListo = false;
+let modalTopContexto = null; // { topTipo, posicion } mientras el modal está abierto
+
+async function cargarTops() {
+    if (!topsModalListo) {
+        $("modal-top-cerrar").addEventListener("click", cerrarModalTop);
+        $("modal-top-buscar").addEventListener("input", (e) => renderListaModalTop(e.target.value));
+        $("modal-top").addEventListener("click", (e) => { if (e.target.id === "modal-top") cerrarModalTop(); });
+        topsModalListo = true;
+    }
+
+    Object.keys(TOP_CONFIG).forEach((tipo) => {
+        $(`top-grid-${tipo}`).innerHTML = `<div class="vacio">Cargando…</div>`;
+    });
+
+    const [filas, mods, texturas] = await Promise.all([
+        Datos.listarTopsConItems(),
+        Datos.listar("mods"),
+        Datos.listar("texturas"),
+    ]);
+
+    // Solo se puede elegir para un Top algo que ya esté publicado en el
+    // sitio; si algo deja de estar publicado, el propio trigger de la
+    // base de datos ya lo saca del Top (ver fase2_tops_y_logs.sql).
+    topsItemsDisponibles = {
+        mods: mods.filter((m) => m.estado === "publicado" || m.estado === undefined),
+        texturas: texturas.filter((t) => t.estado === "publicado" || t.estado === undefined),
+    };
+
+    topsCache = {};
+    filas.forEach((f) => { topsCache[`${f.top_tipo}|${f.posicion}`] = f; });
+
+    Object.keys(TOP_CONFIG).forEach(renderTopGrid);
+}
+
+function renderTopGrid(topTipo) {
+    const grid = $(`top-grid-${topTipo}`);
+    let html = "";
+    for (let posicion = 1; posicion <= 5; posicion++) {
+        const fila = topsCache[`${topTipo}|${posicion}`];
+        const ocupado = fila && fila.item;
+        html += `<div class="top-slot-admin${ocupado ? " ocupado" : ""}">
+            ${ocupado ? `
+                <div class="top-slot-imagen-wrap">
+                    <div class="top-slot-numero">${posicion}</div>
+                    <img src="${sanitizeURL(fila.item.imagen) || "imagenes/logo.png"}" alt="${escapeHTML(fila.item.nombre)}">
+                </div>
+                <div class="top-slot-info">
+                    <div class="top-slot-nombre">${escapeHTML(fila.item.nombre)}</div>
+                    <div class="top-slot-acciones">
+                        <button type="button" class="btn-icono editar" data-top-cambiar="${topTipo}" data-top-posicion="${posicion}" title="Cambiar"><i data-lucide="repeat"></i></button>
+                        <button type="button" class="btn-icono eliminar" data-top-quitar="${topTipo}" data-top-posicion="${posicion}" title="Quitar"><i data-lucide="x"></i></button>
+                    </div>
+                </div>` : `
+                <div class="top-slot-numero">${posicion}</div>
+                <div class="top-slot-vacio-txt">Vacío</div>
+                <button type="button" class="btn-icono editar" data-top-cambiar="${topTipo}" data-top-posicion="${posicion}" title="Agregar"><i data-lucide="plus"></i></button>`
+            }
+        </div>`;
+    }
+    grid.innerHTML = html;
+    refrescarIconos();
+
+    grid.querySelectorAll("[data-top-cambiar]").forEach((btn) => {
+        btn.addEventListener("click", () => abrirModalTop(btn.dataset.topCambiar, Number(btn.dataset.topPosicion)));
+    });
+    grid.querySelectorAll("[data-top-quitar]").forEach((btn) => {
+        btn.addEventListener("click", () => quitarSlotTop(btn.dataset.topQuitar, Number(btn.dataset.topPosicion)));
+    });
+}
+
+async function quitarSlotTop(topTipo, posicion) {
+    try {
+        await Datos.quitarTop(topTipo, posicion);
+        delete topsCache[`${topTipo}|${posicion}`];
+        renderTopGrid(topTipo);
+        toast("Elemento quitado del Top.");
+    } catch (e) {
+        toast("No se pudo quitar: " + (e.message || ""), "error");
+    }
+}
+
+function abrirModalTop(topTipo, posicion) {
+    modalTopContexto = { topTipo, posicion };
+    $("modal-top-titulo").textContent = `Elegir ${TOP_CONFIG[topTipo].etiqueta} — posición ${posicion}`;
+    $("modal-top-buscar").value = "";
+    renderListaModalTop("");
+    $("modal-top").classList.add("activo");
+    setTimeout(() => $("modal-top-buscar").focus(), 0);
+}
+
+function cerrarModalTop() {
+    modalTopContexto = null;
+    $("modal-top").classList.remove("activo");
+}
+
+function renderListaModalTop(textoBusqueda) {
+    if (!modalTopContexto) return;
+    const { topTipo } = modalTopContexto;
+    const itemTabla = TOP_CONFIG[topTipo].itemTabla;
+    const texto = (textoBusqueda || "").trim().toLowerCase();
+
+    const opciones = topsItemsDisponibles[itemTabla]
+        .filter((it) => !texto || it.nombre.toLowerCase().includes(texto))
+        .sort((a, b) => a.nombre.localeCompare(b.nombre));
+
+    const lista = $("modal-top-lista");
+    if (opciones.length === 0) {
+        lista.innerHTML = `<li class="combo-sin-resultados">${icono("search-x")} Sin coincidencias</li>`;
+        refrescarIconos();
+        return;
+    }
+
+    lista.innerHTML = opciones.map((it) => `
+        <li class="combo-opcion" data-id="${it.id}" role="option">
+            <i data-lucide="${itemTabla === "mods" ? "puzzle" : "palette"}" class="combo-opcion-ico"></i>
+            <span>${escapeHTML(it.nombre)}</span>
+        </li>`).join("");
+    refrescarIconos();
+
+    lista.querySelectorAll("[data-id]").forEach((li) => {
+        li.addEventListener("click", () => elegirItemParaTop(li.dataset.id));
+    });
+}
+
+async function elegirItemParaTop(itemId) {
+    if (!modalTopContexto) return;
+    const { topTipo, posicion } = modalTopContexto;
+    const itemTabla = TOP_CONFIG[topTipo].itemTabla;
+    try {
+        const fila = await Datos.asignarTop(topTipo, posicion, itemTabla, itemId);
+        const item = topsItemsDisponibles[itemTabla].find((it) => String(it.id) === String(itemId));
+        topsCache[`${topTipo}|${posicion}`] = { ...fila, item };
+        renderTopGrid(topTipo);
+        cerrarModalTop();
+        toast("Top actualizado.");
+    } catch (e) {
+        toast("No se pudo asignar: " + (e.message || ""), "error");
+    }
+}
 
 // ---------- Cierre de sesión automático por inactividad ----------
 const MINUTOS_INACTIVIDAD = 30;

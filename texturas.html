@@ -837,6 +837,8 @@
             <a href="/mods">Mods</a>
             <a href="/texturas">Texturas</a>
             <a href="/servidores">Servidores</a>
+            <a href="/tops">Tops</a>
+            <a href="/#comunidad">Comunidad</a>
         </div>
         <div class="navbar-right">
             <div class="nav-auth" id="nav-auth"></div>
@@ -1259,6 +1261,14 @@
                 cargarPagina(1);
             }, 350);
         });
+
+        // Si se llega desde el buscador global del Hero (texturas.html?buscar=...)
+        // se precarga el texto en el buscador de esta página.
+        const busquedaInicial = new URLSearchParams(window.location.search).get("buscar");
+        if (busquedaInicial) {
+            buscadorInput.value = busquedaInicial;
+            textoBusqueda = busquedaInicial.trim();
+        }
 
         cargarPagina(1);
         revisarLinkDirecto();

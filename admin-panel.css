@@ -24,6 +24,13 @@
     --admin-radius: 14px;
     --admin-glow1: rgba(155, 92, 255, 0.22);
     --admin-glow2: rgba(92, 140, 255, 0.16);
+    /* Le dice al navegador que use su tema CLARO para los controles que
+       arma él mismo (el desplegable de un <select>, checkboxes, el
+       scrollbar, etc). Sin esto, en modo oscuro esos controles nativos
+       ignoran nuestras variables de color y el navegador puede pintar
+       su texto en negro por defecto sobre un fondo oscuro (ilegible).
+       Ver el bloque de abajo para el modo oscuro. */
+    color-scheme: light;
 }
 
 html.dark-mode {
@@ -50,6 +57,10 @@ html.dark-mode {
     --admin-shadow-lg: 0 16px 40px -14px rgba(0,0,0,.6);
     --admin-glow1: rgba(155, 92, 255, 0.25);
     --admin-glow2: rgba(92, 140, 255, 0.2);
+    /* En modo oscuro, los controles nativos (selects, checkboxes,
+       scrollbar) pasan a su variante oscura: fondo oscuro y texto
+       claro, nunca texto negro sobre fondo oscuro. */
+    color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -686,3 +697,97 @@ table.admin-tabla tbody tr:hover td { color: var(--admin-text); }
     .ia-candidato .acciones { width: 100%; }
     .ia-candidato .acciones .btn-icono { flex: 1; justify-content: center; }
 }
+
+/* ---------- Gestión dinámica de Tops ---------- */
+.tops-admin-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+}
+
+.top-slot-admin {
+    background-color: var(--admin-bg-soft);
+    border: 1.5px dashed var(--admin-border);
+    border-radius: 12px;
+    min-height: 168px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-align: center;
+    padding: 14px 10px;
+    position: relative;
+    transition: border-color .15s ease, background-color .15s ease;
+}
+.top-slot-admin:hover { border-color: var(--admin-acento); }
+
+/* Slot con contenido asignado: card con imagen real ocupando todo el
+   ancho arriba (misma proporción que se ve en el sitio público), no
+   un ícono chico centrado. */
+.top-slot-admin.ocupado {
+    border-style: solid;
+    background-color: var(--admin-card);
+    padding: 0;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 0;
+    overflow: hidden;
+    text-align: left;
+}
+
+.top-slot-admin .top-slot-numero {
+    position: absolute; top: 8px; left: 8px; z-index: 2;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--admin-acento); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: .74rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,.35);
+}
+/* En el slot vacío el número no va superpuesto, va arriba de todo. */
+.top-slot-admin:not(.ocupado) .top-slot-numero { position: static; box-shadow: none; }
+
+.top-slot-admin .top-slot-imagen-wrap {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: var(--admin-bg);
+    overflow: hidden;
+}
+.top-slot-admin .top-slot-imagen-wrap img {
+    width: 100%; height: 100%; object-fit: cover; object-position: center; display: block;
+}
+
+.top-slot-admin .top-slot-info { padding: 8px 10px 10px; display: flex; flex-direction: column; gap: 6px; }
+
+.top-slot-admin .top-slot-nombre {
+    font-size: .78rem; font-weight: 600; color: var(--admin-text);
+    line-height: 1.3;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+
+.top-slot-admin .top-slot-vacio-txt {
+    font-size: .78rem; color: var(--admin-text-soft);
+}
+
+.top-slot-admin .top-slot-acciones {
+    display: flex; gap: 6px;
+}
+.top-slot-admin:not(.ocupado) .top-slot-acciones { margin-top: 2px; }
+
+@media (max-width: 900px) {
+    .tops-admin-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 560px) {
+    .tops-admin-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* Lista buscable dentro del modal de "Elegir para el Top": reutiliza
+   la apariencia de .combo-opcion para que se sienta parte del mismo
+   sistema de diseño. */
+.modal-top-lista {
+    list-style: none; margin: 0; padding: 0;
+    max-height: 320px; overflow-y: auto;
+    border: 1px solid var(--admin-border); border-radius: 10px;
+}
+.modal-top-lista .combo-opcion { padding: 10px 12px; border-bottom: 1px solid var(--admin-border); cursor: pointer; }
+.modal-top-lista li:last-child { border-bottom: none; }
