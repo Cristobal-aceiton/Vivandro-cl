@@ -721,6 +721,7 @@ table.admin-tabla tbody tr:hover td { color: var(--admin-text); }
     transition: border-color .15s ease, background-color .15s ease;
 }
 .top-slot-admin:hover { border-color: var(--admin-acento); }
+<<<<<<< HEAD
 
 /* Slot con contenido asignado: card con imagen real ocupando todo el
    ancho arriba (misma proporción que se ve en el sitio público), no
@@ -738,10 +739,17 @@ table.admin-tabla tbody tr:hover td { color: var(--admin-text); }
 
 .top-slot-admin .top-slot-numero {
     position: absolute; top: 8px; left: 8px; z-index: 2;
+=======
+.top-slot-admin.ocupado { border-style: solid; background-color: var(--admin-card); }
+
+.top-slot-admin .top-slot-numero {
+    position: absolute; top: 8px; left: 8px;
+>>>>>>> 07d55724a0c4a6ccc49f42078f0e7a6accd20fe7
     width: 22px; height: 22px; border-radius: 50%;
     background: var(--admin-acento); color: #fff;
     display: flex; align-items: center; justify-content: center;
     font-weight: 700; font-size: .74rem;
+<<<<<<< HEAD
     box-shadow: 0 2px 6px rgba(0,0,0,.35);
 }
 /* En el slot vacío el número no va superpuesto, va arriba de todo. */
@@ -758,6 +766,14 @@ table.admin-tabla tbody tr:hover td { color: var(--admin-text); }
 }
 
 .top-slot-admin .top-slot-info { padding: 8px 10px 10px; display: flex; flex-direction: column; gap: 6px; }
+=======
+}
+
+.top-slot-admin img {
+    width: 56px; height: 56px; border-radius: 10px; object-fit: cover;
+    background: var(--admin-bg); border: 1px solid var(--admin-border);
+}
+>>>>>>> 07d55724a0c4a6ccc49f42078f0e7a6accd20fe7
 
 .top-slot-admin .top-slot-nombre {
     font-size: .78rem; font-weight: 600; color: var(--admin-text);
@@ -770,9 +786,14 @@ table.admin-tabla tbody tr:hover td { color: var(--admin-text); }
 }
 
 .top-slot-admin .top-slot-acciones {
+<<<<<<< HEAD
     display: flex; gap: 6px;
 }
 .top-slot-admin:not(.ocupado) .top-slot-acciones { margin-top: 2px; }
+=======
+    display: flex; gap: 6px; margin-top: 2px;
+}
+>>>>>>> 07d55724a0c4a6ccc49f42078f0e7a6accd20fe7
 
 @media (max-width: 900px) {
     .tops-admin-grid { grid-template-columns: repeat(3, 1fr); }

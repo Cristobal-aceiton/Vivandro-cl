@@ -715,6 +715,7 @@ function renderTopGrid(topTipo) {
         const fila = topsCache[`${topTipo}|${posicion}`];
         const ocupado = fila && fila.item;
         html += `<div class="top-slot-admin${ocupado ? " ocupado" : ""}">
+<<<<<<< HEAD
             ${ocupado ? `
                 <div class="top-slot-imagen-wrap">
                     <div class="top-slot-numero">${posicion}</div>
@@ -728,6 +729,16 @@ function renderTopGrid(topTipo) {
                     </div>
                 </div>` : `
                 <div class="top-slot-numero">${posicion}</div>
+=======
+            <div class="top-slot-numero">${posicion}</div>
+            ${ocupado ? `
+                <img src="${sanitizeURL(fila.item.imagen) || "imagenes/logo.png"}" alt="">
+                <div class="top-slot-nombre">${escapeHTML(fila.item.nombre)}</div>
+                <div class="top-slot-acciones">
+                    <button type="button" class="btn-icono editar" data-top-cambiar="${topTipo}" data-top-posicion="${posicion}" title="Cambiar"><i data-lucide="repeat"></i></button>
+                    <button type="button" class="btn-icono eliminar" data-top-quitar="${topTipo}" data-top-posicion="${posicion}" title="Quitar"><i data-lucide="x"></i></button>
+                </div>` : `
+>>>>>>> 07d55724a0c4a6ccc49f42078f0e7a6accd20fe7
                 <div class="top-slot-vacio-txt">Vacío</div>
                 <button type="button" class="btn-icono editar" data-top-cambiar="${topTipo}" data-top-posicion="${posicion}" title="Agregar"><i data-lucide="plus"></i></button>`
             }
