@@ -171,12 +171,8 @@
             padding: 14px;
             color: var(--card-text-soft);
             font-family: "Poppins", sans-serif;
-<<<<<<< HEAD
             transition: border-color 0.25s ease, transform 0.25s ease;
             position: relative;
-=======
-            transition: border-color 0.25s ease;
->>>>>>> 07d55724a0c4a6ccc49f42078f0e7a6accd20fe7
         }
 
         .top-slot:hover {
@@ -201,7 +197,6 @@
             line-height: 1.4;
         }
 
-<<<<<<< HEAD
         /* Slot con contenido asignado: se convierte en una mini-card con
            la imagen real ocupando todo el ancho arriba (mismo lenguaje
            visual que las cards de mods.html/texturas.html), no un ícono
@@ -248,22 +243,6 @@
 
         .top-slot-info {
             padding: 10px 12px 12px;
-=======
-        .top-slot.top-slot-lleno {
-            border-style: solid;
-            cursor: pointer;
-        }
-
-        .top-slot.top-slot-lleno:hover {
-            transform: translateY(-3px);
-        }
-
-        .top-slot img {
-            width: 56px;
-            height: 56px;
-            border-radius: 10px;
-            object-fit: cover;
->>>>>>> 07d55724a0c4a6ccc49f42078f0e7a6accd20fe7
         }
 
         .top-slot .top-slot-nombre {
@@ -411,7 +390,6 @@
             const img = sanitizeURL(item.imagen) || "imagenes/logo.png";
 
             slot.classList.add("top-slot-lleno");
-<<<<<<< HEAD
             slot.onclick = () => { window.location.href = href; };
             slot.innerHTML = `
                 <div class="top-slot-imagen-wrap">
@@ -421,14 +399,6 @@
                 <div class="top-slot-info">
                     <div class="top-slot-nombre">${escapeHTML(item.nombre)}</div>
                 </div>
-=======
-            slot.innerHTML = "";
-            slot.onclick = () => { window.location.href = href; };
-            slot.innerHTML = `
-                <div class="top-slot-numero">${posicion}</div>
-                <img src="${img}" alt="" loading="lazy">
-                <div class="top-slot-nombre">${escapeHTML(item.nombre)}</div>
->>>>>>> 07d55724a0c4a6ccc49f42078f0e7a6accd20fe7
             `;
         }
 
