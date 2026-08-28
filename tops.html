@@ -132,7 +132,71 @@
             padding: 10px 20px 70px;
             display: flex;
             flex-direction: column;
-            gap: 46px;
+            gap: 28px;
+        }
+
+        /* ---- Pestañas para elegir qué Top ver ---- */
+        .top-tabs {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .top-tab {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1.5px solid var(--card-border);
+            border-radius: 999px;
+            padding: 10px 18px;
+            font-family: "Poppins", sans-serif;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--card-text-soft);
+            cursor: pointer;
+            transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
+        }
+
+        .top-tab:hover {
+            border-color: var(--acento);
+            color: var(--card-text);
+        }
+
+        .top-tab.activo {
+            background-color: var(--acento);
+            border-color: var(--acento);
+            color: #fff;
+        }
+
+        .top-tab .emoji {
+            font-size: 1.05rem;
+        }
+
+        @media (max-width: 600px) {
+            .top-tabs {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                justify-content: flex-start;
+                padding-bottom: 4px;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .top-tab {
+                flex: 0 0 auto;
+                white-space: nowrap;
+            }
+        }
+
+        .top-seccion {
+            display: none;
+        }
+
+        .top-seccion.activo {
+            display: block;
         }
 
         .top-seccion h2 {
@@ -309,7 +373,13 @@
 
     <div class="tops-contenedor">
 
-        <section class="top-seccion" id="top-texturas-pvp" aria-labelledby="top-texturas-pvp-titulo">
+        <div class="top-tabs" role="tablist">
+            <button type="button" class="top-tab activo" data-tab="top-texturas-pvp" role="tab" aria-selected="true"><span class="emoji">🗡️</span> Texturas PVP</button>
+            <button type="button" class="top-tab" data-tab="top-mods-pvp" role="tab" aria-selected="false"><span class="emoji">⚔️</span> Mods PVP</button>
+            <button type="button" class="top-tab" data-tab="top-texturas-survival" role="tab" aria-selected="false"><span class="emoji">⛏️</span> Texturas Survival</button>
+        </div>
+
+        <section class="top-seccion activo" id="top-texturas-pvp" aria-labelledby="top-texturas-pvp-titulo">
             <h2 id="top-texturas-pvp-titulo">🗡️ Top 5 texture packs para PVP</h2>
             <p class="top-subtitulo">Los packs favoritos para combate: hitbox clara y buen rendimiento.</p>
             <div class="top-lista" id="top-texturas-pvp-lista"></div>
@@ -349,6 +419,22 @@
 
         const elAnio = document.getElementById("anio-actual");
         if (elAnio) elAnio.textContent = new Date().getFullYear();
+
+        // ---- Pestañas: solo se muestra la sección elegida ----
+        document.querySelectorAll(".top-tab").forEach((boton) => {
+            boton.addEventListener("click", () => {
+                const idObjetivo = boton.dataset.tab;
+
+                document.querySelectorAll(".top-tab").forEach((b) => {
+                    b.classList.toggle("activo", b === boton);
+                    b.setAttribute("aria-selected", b === boton ? "true" : "false");
+                });
+
+                document.querySelectorAll(".top-seccion").forEach((seccion) => {
+                    seccion.classList.toggle("activo", seccion.id === idObjetivo);
+                });
+            });
+        });
 
         // Cada Top se pinta con 5 slots. Las posiciones que el admin ya
         // asignó (panel admin -> sección "Tops") muestran el mod/textura
