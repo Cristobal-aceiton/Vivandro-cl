@@ -244,6 +244,12 @@
             <div class="panel-bloque" style="margin-bottom:16px;">
                 <h2><i data-lucide="sparkles" class="h2-ico"></i> Buscar y agregar contenido nuevo</h2>
                 <p class="desc">Busca en CurseForge mods o texturas reales que todavía no están en tu sitio (nombre, imagen, link, versión, cargadores y requisitos vienen directo de CurseForge; la descripción la redacta la IA a partir de esos datos reales, nunca inventados). Todo lo que se agrega queda <strong>pendiente de revisión</strong>: no se publica solo.</p>
+
+                <div id="ia-cuota-wrap" class="ia-cuota-wrap">
+                    <span class="ia-cuota-item"><i data-lucide="gauge"></i> CurseForge: <strong id="ia-cuota-cf">— / —</strong></span>
+                    <span class="ia-cuota-item"><i data-lucide="gauge"></i> Groq: <strong id="ia-cuota-groq">— / —</strong></span>
+                </div>
+
                 <form id="form-ia-generar" style="display:flex; gap:10px; align-items:flex-end; flex-wrap:wrap;">
                     <div class="campo" style="margin-bottom:0; min-width:160px;">
                         <label>Tipo de contenido</label>
@@ -252,6 +258,16 @@
                             <option value="texturas">Texturas</option>
                         </select>
                     </div>
+                    <div class="campo" style="margin-bottom:0; min-width:180px;">
+                        <label>Categoría</label>
+                        <select id="ia-categoria">
+                            <option value="">Todas / a tu gusto</option>
+                        </select>
+                    </div>
+                    <div class="campo" style="margin-bottom:0; min-width:180px;">
+                        <label>Palabra clave (opcional)</label>
+                        <input type="text" id="ia-busqueda" placeholder="ej: dragones, shaders realistas…" maxlength="100">
+                    </div>
                     <div class="campo" style="margin-bottom:0; width:120px;">
                         <label>Cuántos agregar</label>
                         <input type="number" id="ia-cantidad" value="5" min="1" max="200">
@@ -259,6 +275,7 @@
                     <button type="submit" class="btn-primario" id="btn-ia-generar"><i data-lucide="wand-2"></i> Generar con IA</button>
                     <button type="button" class="btn-secundario" id="btn-ia-detener" style="display:none;"><i data-lucide="octagon-x"></i> Detener</button>
                 </form>
+                <p class="desc" id="ia-categoria-estado" style="margin-top:8px; display:none;"></p>
 
                 <div id="ia-progreso-wrap" style="display:none; margin-top:18px;">
                     <div class="ia-barra-fondo"><div class="ia-barra-relleno" id="ia-barra-relleno"></div></div>
@@ -271,6 +288,15 @@
             <div class="panel-bloque">
                 <h2><i data-lucide="clipboard-check" class="h2-ico"></i> Pendientes de revisión</h2>
                 <p class="desc">Revisa cada uno antes de publicarlo: puedes editarlo, aprobarlo o rechazarlo. No aparecen en el sitio hasta que los apruebes.</p>
+
+                <div id="ia-pendientes-acciones" class="ia-pendientes-acciones" style="display:none;">
+                    <label class="ia-check-todos">
+                        <input type="checkbox" id="ia-check-todos"> Seleccionar todos
+                    </label>
+                    <button type="button" class="btn-secundario" id="btn-ia-aprobar-seleccion" disabled><i data-lucide="check-check"></i> Aprobar seleccionados (<span id="ia-contador-seleccion">0</span>)</button>
+                    <button type="button" class="btn-primario" id="btn-ia-aprobar-todos"><i data-lucide="check-check"></i> Aprobar todos los pendientes de esta tanda</button>
+                </div>
+
                 <div id="ia-pendientes-lista"></div>
                 <p class="vacio" id="ia-pendientes-vacio" style="display:none;"><span class="vacio-ico"><i data-lucide="inbox"></i></span>No hay nada pendiente de revisión por ahora.</p>
             </div>

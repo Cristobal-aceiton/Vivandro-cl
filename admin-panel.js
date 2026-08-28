@@ -355,6 +355,8 @@ function cambiarSeccion(id) {
         $("vista-ia").style.display = "block";
         $("stats-grid").innerHTML = "";
         cargarPendientesIA();
+        cargarCuotaIA();
+        cargarCategoriasIA($("ia-tipo").value);
         return;
     }
 
@@ -1492,6 +1494,7 @@ async function cargarEstadisticas() {
 
 let iaDetener = false;
 let iaCorriendo = false;
+let iaCategoriasCache = {}; // { mods: [...], texturas: [...] } — evita repetir la consulta mientras la pestaña sigue abierta
 
 function iaAgregarLog(icono_, texto, sub = "", tipoClase = "") {
     const li = document.createElement("li");
@@ -1512,11 +1515,103 @@ async function iaObtenerToken() {
     return data?.session?.access_token || null;
 }
 
+// ---- Cuota diaria (control de cuota: evita gastarla de más o quedarse sin llamadas a mitad de una tanda) ----
+
+function iaActualizarCuotaUI(cuota) {
+    if (!cuota) return;
+    const pintar = (id, datos) => {
+        const el = $(id);
+        if (!el || !datos) return;
+        el.textContent = `${datos.usadas} / ${datos.limite}`;
+        const pct = datos.limite > 0 ? datos.usadas / datos.limite : 0;
+        el.classList.toggle("ia-cuota-alerta", pct >= 0.9 && pct < 1);
+        el.classList.toggle("ia-cuota-agotada", pct >= 1);
+    };
+    pintar("ia-cuota-cf", cuota.curseforge);
+    pintar("ia-cuota-groq", cuota.groq);
+}
+
+async function cargarCuotaIA() {
+    const token = await iaObtenerToken();
+    if (!token) return;
+    try {
+        const resp = await fetch("/api/ia-cuota", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        });
+        const body = await resp.json().catch(() => ({}));
+        if (resp.ok) iaActualizarCuotaUI(body.cuota);
+    } catch (e) {
+        // silencioso: si falla, los contadores simplemente se quedan en "— / —"
+    }
+}
+
+// ---- Categorías (filtro real de CurseForge, según el tipo elegido) ----
+
+async function cargarCategoriasIA(tipo) {
+    const select = $("ia-categoria");
+    const estado = $("ia-categoria-estado");
+
+    if (iaCategoriasCache[tipo]) {
+        pintarCategoriasIA(iaCategoriasCache[tipo]);
+        return;
+    }
+
+    select.disabled = true;
+    estado.style.display = "block";
+    estado.textContent = "Cargando categorías reales de CurseForge…";
+
+    const token = await iaObtenerToken();
+    if (!token) { estado.textContent = "Tu sesión expiró, vuelve a iniciar sesión."; return; }
+
+    try {
+        const resp = await fetch("/api/ia-categorias", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+            body: JSON.stringify({ tipo }),
+        });
+        const body = await resp.json().catch(() => ({}));
+
+        if (!resp.ok) {
+            estado.textContent = body.error || "No se pudieron cargar las categorías.";
+            if (body.cuota) iaActualizarCuotaUI(body.cuota);
+            return;
+        }
+
+        if (body.cuota) iaActualizarCuotaUI(body.cuota);
+        iaCategoriasCache[tipo] = body.categorias || [];
+        pintarCategoriasIA(iaCategoriasCache[tipo]);
+        estado.style.display = "none";
+    } catch (e) {
+        estado.textContent = "Fallo de red cargando categorías.";
+    } finally {
+        select.disabled = false;
+    }
+}
+
+function pintarCategoriasIA(categorias) {
+    const select = $("ia-categoria");
+    const actual = select.value;
+    select.innerHTML = `<option value="">Todas / a tu gusto</option>` +
+        categorias.map((c) => `<option value="${c.id}">${escapeHTML(c.nombre)}</option>`).join("");
+    // conserva la selección si sigue existiendo en la nueva lista
+    if ([...select.options].some((o) => o.value === actual)) select.value = actual;
+}
+
+$("ia-tipo").addEventListener("change", () => {
+    $("ia-categoria").value = "";
+    cargarCategoriasIA($("ia-tipo").value);
+});
+
+// ---- Generar ----
+
 $("form-ia-generar").addEventListener("submit", async (e) => {
     e.preventDefault();
     if (iaCorriendo) return;
 
     const tipo = $("ia-tipo").value;
+    const categoriaId = $("ia-categoria").value ? parseInt($("ia-categoria").value, 10) : null;
+    const busqueda = $("ia-busqueda").value.trim();
     const cantidad = Math.max(1, parseInt($("ia-cantidad").value, 10) || 1);
 
     const token = await iaObtenerToken();
@@ -1535,7 +1630,6 @@ $("form-ia-generar").addEventListener("submit", async (e) => {
     iaActualizarBarra(0, cantidad);
 
     let agregados = 0;
-    let indice = 0;
 
     for (let i = 0; i < cantidad; i++) {
         if (iaDetener) {
@@ -1544,26 +1638,30 @@ $("form-ia-generar").addEventListener("submit", async (e) => {
         }
 
         try {
+            // El backend guarda y continúa el progreso solo (ver
+            // ia_progreso en Supabase): no hace falta que el panel
+            // lleve la cuenta del índice entre llamadas.
             const resp = await fetch("/api/ia-generar", {
                 method: "POST",
                 headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-                body: JSON.stringify({ tipo, indiceInicio: indice }),
+                body: JSON.stringify({ tipo, categoriaId, busqueda }),
             });
             const body = await resp.json().catch(() => ({}));
+
+            if (body.cuota) iaActualizarCuotaUI(body.cuota);
 
             if (!resp.ok) {
                 iaAgregarLog("alert-triangle", "Error buscando candidato.", body.error || `HTTP ${resp.status}`, "error");
                 if (resp.status === 401 || resp.status === 403) break; // sin sesión / sin permiso: no sigue insistiendo
-                if (typeof body.siguienteIndice === "number") indice = body.siguienteIndice;
+                if (body.cuotaAgotada) { toast("Cuota diaria alcanzada. Se detuvo la generación.", "error"); break; }
                 continue;
             }
 
             if (body.agotado) {
-                iaAgregarLog("search-x", "No se encontraron más candidatos nuevos en CurseForge.");
+                iaAgregarLog("search-x", "No se encontraron más candidatos nuevos en CurseForge con estos filtros.");
                 break;
             }
 
-            indice = typeof body.siguienteIndice === "number" ? body.siguienteIndice : indice;
             agregados++;
             iaAgregarLog("sparkles", `"${body.item.nombre}" agregado`, "Pendiente de revisión", "ok");
         } catch (err) {
@@ -1586,16 +1684,22 @@ $("form-ia-generar").addEventListener("submit", async (e) => {
 
 $("btn-ia-detener").addEventListener("click", () => { iaDetener = true; });
 
+// ---- Pendientes de revisión (con selección múltiple para aprobación masiva) ----
+
+let iaPendientesActuales = []; // [{ id, _tabla, ... }] — lo que está pintado ahora mismo
+
 async function cargarPendientesIA() {
     const cont = $("ia-pendientes-lista");
     cont.innerHTML = `<p class="vacio">Cargando…</p>`;
     $("ia-pendientes-vacio").style.display = "none";
+    $("ia-pendientes-acciones").style.display = "none";
 
     const [mods, texturas] = await Promise.all([Datos.listar("mods"), Datos.listar("texturas")]);
     const pendientes = [
         ...mods.filter((m) => m.estado === "pendiente").map((m) => ({ ...m, _tabla: "mods" })),
         ...texturas.filter((t) => t.estado === "pendiente").map((t) => ({ ...t, _tabla: "texturas" })),
     ];
+    iaPendientesActuales = pendientes;
 
     if (pendientes.length === 0) {
         cont.innerHTML = "";
@@ -1603,9 +1707,14 @@ async function cargarPendientesIA() {
         return;
     }
 
+    $("ia-pendientes-acciones").style.display = "flex";
+    $("ia-check-todos").checked = false;
+    iaActualizarContadorSeleccion();
+
     cont.innerHTML = pendientes.map((it) => {
         const img = sanitizeURL(it.imagen) || "imagenes/logo.png";
         return `<div class="ia-candidato" data-tabla="${it._tabla}" data-id="${it.id}">
+            <label class="ia-check-item"><input type="checkbox" class="ia-check"></label>
             <img src="${img}" alt="" onerror="this.src='imagenes/logo.png'">
             <div class="info">
                 <div class="n">${escapeHTML(it.nombre)} <span class="pill neutro">${it._tabla === "mods" ? "Mod" : "Textura"}</span>${it.version_minecraft ? `<span class="pill neutro">${escapeHTML(it.version_minecraft)}</span>` : ""}</div>
@@ -1624,6 +1733,8 @@ async function cargarPendientesIA() {
     cont.querySelectorAll(".ia-candidato").forEach((el) => {
         const tabla = el.dataset.tabla;
         const id = el.dataset.id;
+
+        el.querySelector(".ia-check").addEventListener("change", iaActualizarContadorSeleccion);
 
         el.querySelector(".ia-aprobar").addEventListener("click", async () => {
             try {
@@ -1655,5 +1766,55 @@ async function cargarPendientesIA() {
         });
     });
 }
+
+function iaCandidatosSeleccionados() {
+    return [...document.querySelectorAll(".ia-candidato")].filter((el) => el.querySelector(".ia-check").checked);
+}
+
+function iaActualizarContadorSeleccion() {
+    const seleccionados = iaCandidatosSeleccionados();
+    $("ia-contador-seleccion").textContent = seleccionados.length;
+    $("btn-ia-aprobar-seleccion").disabled = seleccionados.length === 0;
+    const total = document.querySelectorAll(".ia-candidato").length;
+    $("ia-check-todos").indeterminate = seleccionados.length > 0 && seleccionados.length < total;
+    if (total > 0) $("ia-check-todos").checked = seleccionados.length === total;
+}
+
+$("ia-check-todos").addEventListener("change", (e) => {
+    document.querySelectorAll(".ia-candidato .ia-check").forEach((chk) => { chk.checked = e.target.checked; });
+    iaActualizarContadorSeleccion();
+});
+
+// Aprueba una lista de elementos { tabla, id } de una sola vez (una
+// sola sentencia UPDATE por tabla, no una por ítem) y refresca la lista.
+async function iaAprobarLote(elementos, etiquetaConfirmacion) {
+    if (elementos.length === 0) return;
+    if (etiquetaConfirmacion && !confirm(etiquetaConfirmacion)) return;
+
+    const idsPorTabla = { mods: [], texturas: [] };
+    elementos.forEach((el) => idsPorTabla[el.tabla].push(el.id));
+
+    try {
+        await Promise.all(
+            Object.entries(idsPorTabla)
+                .filter(([, ids]) => ids.length > 0)
+                .map(([tabla, ids]) => Datos.actualizarVarios(tabla, ids, { estado: "publicado" }))
+        );
+        toast(`Publicado(s) ${elementos.length} elemento(s). Ya aparecen en el sitio.`);
+        cargarPendientesIA();
+    } catch (err) {
+        toast("No se pudo aprobar el lote: " + (err.message || "error desconocido"), "error");
+    }
+}
+
+$("btn-ia-aprobar-seleccion").addEventListener("click", () => {
+    const elementos = iaCandidatosSeleccionados().map((el) => ({ tabla: el.dataset.tabla, id: el.dataset.id }));
+    iaAprobarLote(elementos);
+});
+
+$("btn-ia-aprobar-todos").addEventListener("click", () => {
+    const elementos = iaPendientesActuales.map((it) => ({ tabla: it._tabla, id: it.id }));
+    iaAprobarLote(elementos, `¿Aprobar los ${elementos.length} elemento(s) pendientes de esta tanda? Quedarán publicados de inmediato.`);
+});
 
 document.addEventListener("DOMContentLoaded", iniciarPanel);

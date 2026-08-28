@@ -177,6 +177,22 @@ const Datos = (function () {
         return data;
     }
 
+    // Igual que actualizar(), pero para varios ids de una sola vez (una
+    // sola sentencia UPDATE ... WHERE id IN (...) en vez de una por
+    // ítem). La usa la aprobación masiva del Generador IA.
+    async function actualizarVarios(tabla, ids, cambios) {
+        chequearTabla(tabla);
+        if (!clienteListo()) throw new Error("Supabase no está configurado (ver supabase-client.js).");
+        if (!ids || ids.length === 0) return [];
+        const { data, error } = await supabaseClient
+            .from(tabla)
+            .update(cambios)
+            .in("id", ids)
+            .select();
+        if (error) throw error;
+        return data || [];
+    }
+
     async function eliminar(tabla, id) {
         chequearTabla(tabla);
         if (!clienteListo()) throw new Error("Supabase no está configurado (ver supabase-client.js).");
@@ -408,7 +424,7 @@ const Datos = (function () {
     }
 
     return {
-        listar, listarPagina, listarModalidades, obtenerPorId, crear, actualizar, eliminar, clienteListo,
+        listar, listarPagina, listarModalidades, obtenerPorId, crear, actualizar, actualizarVarios, eliminar, clienteListo,
         registrarDescarga, listarDescargas,
         listarBitacora, registrarIntentoAcceso, listarIntentosAcceso, limpiarIntentosAcceso,
         obtenerAdmin, listarAdmins, agregarAdmin, eliminarAdmin,

@@ -1,65 +1,30 @@
-Rol: Desarrollador Web Full Stack / Diseñador UX/UI
+1. Filtrar por categoría o "a tu gusto"
 
-Objetivo: Implementar nuevas funcionalidades, correcciones visuales y herramientas de administración en la plataforma web de Vivandro.
+Ahora mismo el sistema trae siempre los mods más populares de CurseForge sin ningún filtro. Agrega un selector de categoría, por ejemplo: Tecnología, Magia, Aventura, Decoración, etc., utilizando el categoryId de CurseForge.
 
-⚠️ INSTRUCCIÓN DE EJECUCIÓN: Procesa ÚNICAMENTE los requerimientos de la FASE 1 en esta respuesta. Al terminar, confirma que la Fase 1 está completada y lista para dar paso a la FASE 2 en la siguiente interacción.
+También agrega un campo de búsqueda por palabra clave para poder generar tandas temáticas según lo que quiera buscar, en lugar de traer contenido aleatorio o simplemente lo más popular.
 
----
+2. Guardar el progreso (índice) entre sesiones
 
-### FASE 1: Frontend y Navegación Pública (EJECUTAR AHORA)
+Actualmente, cada vez que se abre el panel y se pulsa "Generar", el índice comienza nuevamente desde 0.
 
-1. Inicio y Navbar:
-- Mantener las 3 cards iniciales intactas.
-- Añadir sección "Comunidad" en el scroll de Inicio y en la Navbar, con un botón al Discord oficial (Link: [Insertar link]).
-- Añadir botón "Ver Tops" en Inicio que redirija a la pestaña de Tops.
-- Buscador global (Hero): redirigir a la categoría correspondiente con el filtro ya aplicado.
+Guarda el último indiceInicio utilizado para cada tipo de contenido, preferiblemente en Supabase, para que cada nueva tanda continúe desde donde terminó la anterior.
 
-2. Vista de Tops:
-- Crear la pestaña "Tops" estructurada con 3 secciones:
-  * Top 5 texture packs para PVP
-  * Top 5 mods para PVP
-  * Top 5 texture packs para MC survival o técnico
+Esto evitará repetir llamadas innecesarias a la API de CurseForge y permitirá aprovechar mejor la cuota disponible.
 
----
+3. Aprobación masiva
 
-### FASE 2: Panel de Administración y Gestión de Datos (PENDIENTE - NO EJECUTAR AÚN)
+Agrega la posibilidad de seleccionar varios elementos pendientes mediante checkboxes y aprobarlos todos de una vez.
 
-1. Panel Admin y Seguridad:
-- Modo Oscuro: corregir estilos visuales para que ningún texto sea de color negro.
-- Logs: agregar función para limpiar el historial de intentos de acceso al panel admin.
+También agrega un botón como "Aprobar todos los pendientes de esta tanda" para poder aprobar rápidamente 30, 50 o más elementos sin tener que hacerlo uno por uno.
 
-2. Gestión Dinámica de Tops:
-- Crear módulo en el panel admin para modificar el contenido de cada Top.
-- Permitir buscar y seleccionar elementos existentes en la base de datos para asignarlos a cada lista.Rol: Desarrollador Web Full Stack / Diseñador UX/UI
+4. Control de cuota diaria
 
-Objetivo: Implementar nuevas funcionalidades, correcciones visuales y herramientas de administración en la plataforma web de Vivandro.
+Agrega un contador dentro del panel que permita visualizar cuántas llamadas se han utilizado durante el día y cuántas quedan disponibles.
 
-⚠️ INSTRUCCIÓN DE EJECUCIÓN: Procesa ÚNICAMENTE los requerimientos de la FASE 1 en esta respuesta. Al terminar, confirma que la Fase 1 está completada y lista para dar paso a la FASE 2 en la siguiente interacción.
+Por ejemplo:
 
----
+CurseForge: 40 / 100 llamadas
+Groq: 25 / 100 llamadas
 
-### FASE 1: Frontend y Navegación Pública (EJECUTAR AHORA)
-
-1. Inicio y Navbar:
-- Mantener las 3 cards iniciales intactas.
-- Añadir sección "Comunidad" en el scroll de Inicio y en la Navbar, con un botón al Discord oficial (Link: [Insertar link]).
-- Añadir botón "Ver Tops" en Inicio que redirija a la pestaña de Tops.
-- Buscador global (Hero): redirigir a la categoría correspondiente con el filtro ya aplicado.
-
-2. Vista de Tops:
-- Crear la pestaña "Tops" estructurada con 3 secciones:
-  * Top 5 texture packs para PVP
-  * Top 5 mods para PVP
-  * Top 5 texture packs para MC survival o técnico
-
----
-
-### FASE 2: Panel de Administración y Gestión de Datos (PENDIENTE - NO EJECUTAR AÚN)
-
-1. Panel Admin y Seguridad:
-- Modo Oscuro: corregir estilos visuales para que ningún texto sea de color negro.
-- Logs: agregar función para limpiar el historial de intentos de acceso al panel admin.
-
-2. Gestión Dinámica de Tops:
-- Crear módulo en el panel admin para modificar el contenido de cada Top.
-- Permitir buscar y seleccionar elementos existentes en la base de datos para asignarlos a cada lista.
+El sistema debe controlar las llamadas realizadas y advertir o impedir nuevas generaciones cuando se alcance el límite diario, evitando gastar la cuota accidentalmente o quedarse sin llamadas a mitad de una tanda.

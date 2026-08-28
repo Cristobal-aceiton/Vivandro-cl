@@ -3,26 +3,38 @@
   -----------------------------------------------------------
   Función serverless (Vercel). La llama admin-panel.js, UNA vez
   por cada mod/textura que se quiere agregar (el panel hace el
-  loop, no esta función), pasando { tipo, indiceInicio }.
+  loop, no esta función), pasando { tipo, categoriaId, busqueda }.
 
   Qué hace, en orden:
     1) Verifica que quien llama está realmente logueado y es
        administrador (usa el propio JWT de Supabase + la función
        es_admin() ya definida en la base de datos).
-    2) Trae los nombres/links que ya existen en "mods" y
+    2) Revisa la cuota diaria de CurseForge; si ya se alcanzó el
+       límite configurado, responde 429 sin gastar ni una llamada
+       más (ver LEEME_GENERADOR_IA.md, sección "Cuota diaria").
+    3) Trae los nombres/links que ya existen en "mods" y
        "texturas" para no repetir nada.
-    3) Busca en la API oficial de CurseForge (nunca inventa
-       datos) el primer mod/textura de Minecraft, ordenado por
+    4) Recupera de "ia_progreso" el índice donde quedó la última
+       tanda para este mismo tipo + categoría + búsqueda, y busca
+       en la API oficial de CurseForge (nunca inventa datos) desde
+       ahí el primer mod/textura de Minecraft, ordenado por
        popularidad, que todavía no esté en la base de datos.
-    4) Arma el registro con datos 100% reales de CurseForge:
+       Opcionalmente filtra por categoryId de CurseForge y/o por
+       una palabra clave (searchFilter), si el admin las eligió en
+       el panel.
+    5) Arma el registro con datos 100% reales de CurseForge:
        nombre, imagen, link, versión, cargadores y requisitos
        (dependencias obligatorias).
-    5) Si hay GROQ_API_KEY configurada, le pide a la IA (gratis, vía
-       Groq) que reescriba SOLO la descripción en español, a partir
-       de esos datos reales (nunca inventa funciones ni links).
-    6) Inserta el registro en Supabase con estado = "pendiente"
+    6) Si hay GROQ_API_KEY configurada y no se alcanzó su cuota
+       diaria, le pide a la IA (gratis, vía Groq) que reescriba
+       SOLO la descripción en español, a partir de esos datos
+       reales (nunca inventa funciones ni links).
+    7) Inserta el registro en Supabase con estado = "pendiente"
        (no se publica solo; alguien lo tiene que aprobar en el
        panel).
+    8) Guarda en "ia_progreso" el índice donde quedó, para que la
+       siguiente tanda (hoy, mañana, o desde otra pestaña) siga
+       exactamente ahí en vez de repetir desde 0.
 
   VARIABLES DE ENTORNO NECESARIAS (Vercel > Settings > Environment
   Variables del proyecto):
@@ -34,10 +46,13 @@
     - GROQ_API_KEY              (opcional y GRATIS; sin ella se usa el
                                   resumen original de CurseForge, en inglés.
                                   Se consigue en console.groq.com)
+    - CURSEFORGE_LIMITE_DIARIO  (opcional, default 100)
+    - GROQ_LIMITE_DIARIO        (opcional, default 100)
   -----------------------------------------------------------
 */
 
 const { createClient } = require("@supabase/supabase-js");
+const { limpiar, esAdmin, tokenDesdeRequest, limiteDiario, leerUsoHoy, incrementarUso, leerCuota } = require("./_ia-comun");
 
 const GAME_ID_MINECRAFT = 432;
 // classId de CurseForge para cada categoría (ver /v1/categories?gameId=432&classesOnly=true
@@ -48,10 +63,6 @@ const RELATION_TYPE_REQUERIDO = 3; // FileRelationType.RequiredDependency
 
 const TAMANO_PAGINA = 50;
 const MAX_PAGINAS_POR_INTENTO = 20; // hasta 1000 mods revisados antes de rendirse
-
-function limpiar(texto) {
-  return (texto || "").toString().trim();
-}
 
 // Compara dos versiones tipo "1.20.1" numéricamente, parte por parte
 // (así 1.9 < 1.10, a diferencia de una comparación de texto normal).
@@ -86,24 +97,65 @@ function calcularRangoVersiones(candidato) {
   return `${ordenadas[0]} - ${ordenadas[ordenadas.length - 1]}`;
 }
 
-async function esAdmin(supabaseAdmin, token) {
-  const { data: userData, error } = await supabaseAdmin.auth.getUser(token);
-  if (error || !userData?.user?.email) return null;
-  const email = userData.user.email;
-  const { data: esAdminData, error: rpcError } = await supabaseAdmin.rpc("es_admin", { p_email: email });
-  if (rpcError || !esAdminData) return null;
-  return email;
+// Normaliza categoriaId/busqueda para que "sin filtro" siempre quede
+// representado igual (0 / "") y así el progreso guardado (que se
+// busca por esta misma combinación) se encuentre siempre.
+function normalizarFiltros(categoriaId, busqueda) {
+  const catNum = parseInt(categoriaId, 10);
+  return {
+    categoriaId: Number.isInteger(catNum) && catNum > 0 ? catNum : 0,
+    busqueda: limpiar(busqueda).toLowerCase().slice(0, 100),
+  };
 }
 
-async function buscarCandidato({ apiKey, classId, existentesNombres, existentesUrls, indiceInicio }) {
+async function obtenerProgresoGuardado(supabaseAdmin, tipo, categoriaId, busqueda) {
+  const { data, error } = await supabaseAdmin
+    .from("ia_progreso")
+    .select("indice")
+    .eq("tipo", tipo)
+    .eq("categoria_id", categoriaId)
+    .eq("busqueda", busqueda)
+    .maybeSingle();
+  if (error) return 0; // si falla la lectura, mejor empezar de 0 que romper la generación
+  return data?.indice || 0;
+}
+
+async function guardarProgreso(supabaseAdmin, tipo, categoriaId, busqueda, indice) {
+  await supabaseAdmin
+    .from("ia_progreso")
+    .upsert(
+      { tipo, categoria_id: categoriaId, busqueda, indice, actualizado_en: new Date().toISOString() },
+      { onConflict: "tipo,categoria_id,busqueda" }
+    );
+  // Si falla el guardado no interrumpimos la respuesta: en el peor
+  // caso la siguiente tanda revisa de nuevo algunas páginas ya vistas.
+}
+
+async function buscarCandidato({ apiKey, classId, categoriaId, busqueda, existentesNombres, existentesUrls, indiceInicio, supabaseAdmin, limiteCurseforge }) {
   let index = Number.isInteger(indiceInicio) && indiceInicio >= 0 ? indiceInicio : 0;
   let paginas = 0;
 
   while (paginas < MAX_PAGINAS_POR_INTENTO) {
-    const url = `https://api.curseforge.com/v1/mods/search?gameId=${GAME_ID_MINECRAFT}&classId=${classId}&sortField=2&sortOrder=desc&pageSize=${TAMANO_PAGINA}&index=${index}`;
+    // Chequeo de cuota ANTES de cada página: si una tanda larga
+    // (varios mods pedidos de una vez) va gastando la cuota mientras
+    // recorre páginas, se corta apenas se alcanza el límite en vez
+    // de seguir pidiendo de todos modos.
+    const usadasHoy = await leerUsoHoy(supabaseAdmin, "curseforge");
+    if (usadasHoy >= limiteCurseforge) {
+      const err = new Error(`Se alcanzó la cuota diaria de CurseForge (${limiteCurseforge} llamadas). Vuelve a intentar mañana o sube el límite en CURSEFORGE_LIMITE_DIARIO.`);
+      err.cuotaAgotada = true;
+      err.siguienteIndice = index;
+      throw err;
+    }
+
+    let url = `https://api.curseforge.com/v1/mods/search?gameId=${GAME_ID_MINECRAFT}&classId=${classId}&sortField=2&sortOrder=desc&pageSize=${TAMANO_PAGINA}&index=${index}`;
+    if (categoriaId) url += `&categoryId=${categoriaId}`;
+    if (busqueda) url += `&searchFilter=${encodeURIComponent(busqueda)}`;
+
     const cfRes = await fetch(url, {
       headers: { Accept: "application/json", "x-api-key": apiKey },
     });
+    await incrementarUso(supabaseAdmin, "curseforge", 1);
 
     if (!cfRes.ok) {
       const texto = await cfRes.text().catch(() => "");
@@ -135,7 +187,7 @@ async function buscarCandidato({ apiKey, classId, existentesNombres, existentesU
   return { candidato: null, siguienteIndice: index };
 }
 
-async function obtenerRequisitos(apiKey, candidato) {
+async function obtenerRequisitos(apiKey, candidato, supabaseAdmin, limiteCurseforge) {
   try {
     const depsIds = (candidato.latestFiles?.[0]?.dependencies || [])
       .filter((d) => d.relationType === RELATION_TYPE_REQUERIDO)
@@ -143,11 +195,18 @@ async function obtenerRequisitos(apiKey, candidato) {
       .slice(0, 4);
     if (depsIds.length === 0) return [];
 
+    // Enriquecimiento opcional: si ya no queda cuota, seguimos sin
+    // requisitos en vez de gastar la última llamada disponible en
+    // algo secundario.
+    const usadasHoy = await leerUsoHoy(supabaseAdmin, "curseforge");
+    if (usadasHoy >= limiteCurseforge) return [];
+
     const resp = await fetch("https://api.curseforge.com/v1/mods", {
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json", "x-api-key": apiKey },
       body: JSON.stringify({ modIds: depsIds }),
     });
+    await incrementarUso(supabaseAdmin, "curseforge", 1);
     if (!resp.ok) return [];
     const body = await resp.json();
     return (body?.data || [])
@@ -159,9 +218,14 @@ async function obtenerRequisitos(apiKey, candidato) {
   }
 }
 
-async function redactarDescripcion({ apiKey, tipo, candidato, categoria, version }) {
+async function redactarDescripcion({ apiKey, tipo, candidato, categoria, version, supabaseAdmin, limiteGroq }) {
   const original = limpiar(candidato.summary);
   if (!apiKey || !original) return original;
+
+  // Si ya se alcanzó la cuota diaria de Groq, seguimos igual con el
+  // resumen original en inglés en vez de fallar la generación entera.
+  const usadasHoy = await leerUsoHoy(supabaseAdmin, "groq");
+  if (usadasHoy >= limiteGroq) return original;
 
   // Timeout manual: si Groq no responde en 15s, seguimos con el resumen
   // original en vez de dejar la función colgada.
@@ -190,6 +254,7 @@ Versión(es) de Minecraft compatibles: ${version || "no especificada"}`;
       }),
       signal: controller.signal,
     });
+    await incrementarUso(supabaseAdmin, "groq", 1);
 
     if (!iaRes.ok) {
       // No tiramos error: si Groq falla (key inválida, rate limit, etc.)
@@ -223,19 +288,19 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const { tipo, indiceInicio } = req.body || {};
+  const { tipo, categoriaId: categoriaIdCruda, busqueda: busquedaCruda } = req.body || {};
   if (tipo !== "mods" && tipo !== "texturas") {
     res.status(400).json({ error: 'El campo "tipo" debe ser "mods" o "texturas".' });
     return;
   }
+  const { categoriaId, busqueda } = normalizarFiltros(categoriaIdCruda, busquedaCruda);
 
   const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 
   // ---- 1) Autenticación: solo administradores reales ----
-  const authHeader = req.headers.authorization || "";
-  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
+  const token = tokenDesdeRequest(req);
   if (!token) {
     res.status(401).json({ error: "Falta el token de sesión." });
     return;
@@ -247,8 +312,22 @@ module.exports = async (req, res) => {
     return;
   }
 
+  // ---- 2) Cuota diaria: si ya se alcanzó, ni siquiera intentamos ----
+  const limiteCurseforge = limiteDiario("CURSEFORGE_LIMITE_DIARIO");
+  const limiteGroq = limiteDiario("GROQ_LIMITE_DIARIO");
+  const usoCurseforgeHoy = await leerUsoHoy(supabaseAdmin, "curseforge");
+  if (usoCurseforgeHoy >= limiteCurseforge) {
+    const cuota = await leerCuota(supabaseAdmin);
+    res.status(429).json({
+      error: `Se alcanzó la cuota diaria de CurseForge (${limiteCurseforge} llamadas). Vuelve a intentar mañana.`,
+      cuotaAgotada: true,
+      cuota,
+    });
+    return;
+  }
+
   try {
-    // ---- 2) Qué ya existe (para no duplicar) ----
+    // ---- 3) Qué ya existe (para no duplicar) ----
     const [{ data: modsExistentes }, { data: texturasExistentes }] = await Promise.all([
       supabaseAdmin.from("mods").select("nombre, curseforge_url"),
       supabaseAdmin.from("texturas").select("nombre, curseforge_url"),
@@ -257,22 +336,33 @@ module.exports = async (req, res) => {
     const existentesNombres = new Set(todos.map((x) => limpiar(x.nombre).toLowerCase()));
     const existentesUrls = new Set(todos.map((x) => limpiar(x.curseforge_url).toLowerCase()));
 
-    // ---- 3) Buscar candidato nuevo en CurseForge ----
+    // ---- 4) Progreso guardado + buscar candidato nuevo en CurseForge ----
     const classId = CLASS_ID_POR_TIPO[tipo];
+    const indiceGuardado = await obtenerProgresoGuardado(supabaseAdmin, tipo, categoriaId, busqueda);
+
     const { candidato, siguienteIndice } = await buscarCandidato({
       apiKey: CURSEFORGE_API_KEY,
       classId,
+      categoriaId,
+      busqueda,
       existentesNombres,
       existentesUrls,
-      indiceInicio,
+      indiceInicio: indiceGuardado,
+      supabaseAdmin,
+      limiteCurseforge,
     });
 
+    // Guardamos el progreso siempre (haya o no candidato), así la
+    // próxima tanda no vuelve a revisar las páginas ya descartadas.
+    await guardarProgreso(supabaseAdmin, tipo, categoriaId, busqueda, siguienteIndice);
+
     if (!candidato) {
-      res.status(200).json({ agotado: true, siguienteIndice });
+      const cuota = await leerCuota(supabaseAdmin);
+      res.status(200).json({ agotado: true, siguienteIndice, cuota });
       return;
     }
 
-    // ---- 4) Armar el registro con datos reales ----
+    // ---- 5) Armar el registro con datos reales ----
     const versionMinecraft = calcularRangoVersiones(candidato);
     const categoria = limpiar(candidato.categories?.[0]?.name);
 
@@ -285,7 +375,7 @@ module.exports = async (req, res) => {
       cargadores = [...set];
     }
 
-    const requisitos = tipo === "mods" ? await obtenerRequisitos(CURSEFORGE_API_KEY, candidato) : [];
+    const requisitos = tipo === "mods" ? await obtenerRequisitos(CURSEFORGE_API_KEY, candidato, supabaseAdmin, limiteCurseforge) : [];
 
     const descripcion = await redactarDescripcion({
       apiKey: GROQ_API_KEY,
@@ -293,6 +383,8 @@ module.exports = async (req, res) => {
       candidato,
       categoria,
       version: versionMinecraft,
+      supabaseAdmin,
+      limiteGroq,
     });
 
     const registro = {
@@ -310,20 +402,28 @@ module.exports = async (req, res) => {
       registro.requisitos = requisitos;
     }
 
-    // ---- 5) Insertar. Usamos el service role (ya verificamos admin arriba a mano). ----
+    // ---- 6) Insertar. Usamos el service role (ya verificamos admin arriba a mano). ----
     const { data: insertado, error: insertError } = await supabaseAdmin
       .from(tipo)
       .insert(registro)
       .select()
       .single();
 
+    const cuota = await leerCuota(supabaseAdmin);
+
     if (insertError) {
-      res.status(409).json({ error: insertError.message, siguienteIndice });
+      res.status(409).json({ error: insertError.message, siguienteIndice, cuota });
       return;
     }
 
-    res.status(200).json({ item: insertado, siguienteIndice });
+    res.status(200).json({ item: insertado, siguienteIndice, cuota });
   } catch (err) {
-    res.status(502).json({ error: err.message || "Error inesperado buscando en CurseForge.", siguienteIndice: err.siguienteIndice });
+    const cuota = await leerCuota(supabaseAdmin).catch(() => null);
+    res.status(err.cuotaAgotada ? 429 : 502).json({
+      error: err.message || "Error inesperado buscando en CurseForge.",
+      siguienteIndice: err.siguienteIndice,
+      cuotaAgotada: !!err.cuotaAgotada,
+      cuota,
+    });
   }
 };

@@ -12,10 +12,15 @@ la Service Role Key de Supabase, y (opcional pero recomendado) una
 API key de Groq — **100% gratis**. Ninguna de las tres va en el
 código: se configuran como variables de entorno en Vercel.
 
-## 1) Corre la migración SQL
+## 1) Corre las migraciones SQL
 
-Abre Supabase → SQL Editor → pega y ejecuta
-`agregar_ia_generador_mods_texturas.sql` (una sola vez).
+Abre Supabase → SQL Editor → pega y ejecuta, en este orden (una
+sola vez cada una):
+
+1. `agregar_ia_generador_mods_texturas.sql`
+2. `agregar_progreso_y_cuota_generador_ia.sql` — agrega el
+   progreso guardado entre sesiones y el control de cuota diaria
+   (ver secciones 7 y 8 más abajo).
 
 ## 2) Pide tu API key de CurseForge
 
@@ -77,6 +82,8 @@ Vercel → tu proyecto → Settings → Environment Variables → agrega:
 | `SUPABASE_URL` | la misma URL que ya está en `supabase-client.js` |
 | `SUPABASE_SERVICE_ROLE_KEY` | la del paso 3 |
 | `GROQ_API_KEY` | la del paso 4 (opcional, gratis) |
+| `CURSEFORGE_LIMITE_DIARIO` | opcional, número máximo de llamadas a CurseForge por día (por defecto 100) |
+| `GROQ_LIMITE_DIARIO` | opcional, número máximo de llamadas a Groq por día (por defecto 100) |
 
 Después de agregarlas, vuelve a desplegar el proyecto (un simple
 redeploy alcanza, no hace falta tocar código) para que la función

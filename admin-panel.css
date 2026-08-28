@@ -691,11 +691,39 @@ table.admin-tabla tbody tr:hover td { color: var(--admin-text); }
 .ia-candidato .info .n { font-size: .9rem; font-weight: 600; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .ia-candidato .info .d { font-size: .8rem; color: var(--admin-text-soft); margin-top: 2px; max-width: 520px; }
 .ia-candidato .acciones { display: flex; gap: 8px; flex-shrink: 0; }
+.ia-check-item { display: flex; align-items: center; flex-shrink: 0; cursor: pointer; }
+.ia-check-item input, .ia-check { width: 17px; height: 17px; cursor: pointer; accent-color: var(--admin-acento); }
 
 @media (max-width: 640px) {
     .ia-candidato { flex-direction: column; align-items: flex-start; }
     .ia-candidato .acciones { width: 100%; }
     .ia-candidato .acciones .btn-icono { flex: 1; justify-content: center; }
+}
+
+/* ---- Cuota diaria ---- */
+.ia-cuota-wrap { display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 16px; }
+.ia-cuota-item {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: .82rem; color: var(--admin-text-soft);
+    background: var(--admin-bg); border: 1px solid var(--admin-border);
+    border-radius: 20px; padding: 5px 12px;
+}
+.ia-cuota-item svg { width: 14px; height: 14px; }
+.ia-cuota-item strong { color: var(--admin-text); }
+.ia-cuota-item strong.ia-cuota-alerta { color: var(--admin-warn); }
+.ia-cuota-item strong.ia-cuota-agotada { color: var(--admin-error); }
+
+/* ---- Aprobación masiva ---- */
+.ia-pendientes-acciones {
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid var(--admin-border);
+}
+.ia-check-todos { display: inline-flex; align-items: center; gap: 8px; font-size: .85rem; font-weight: 600; cursor: pointer; }
+.ia-check-todos input { width: 16px; height: 16px; cursor: pointer; accent-color: var(--admin-acento); }
+
+@media (max-width: 640px) {
+    .ia-pendientes-acciones { flex-direction: column; align-items: flex-start; }
+    .ia-pendientes-acciones .btn-primario, .ia-pendientes-acciones .btn-secundario { width: 100%; justify-content: center; }
 }
 
 /* ---------- Gestión dinámica de Tops ---------- */
