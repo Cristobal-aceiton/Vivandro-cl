@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <script src="theme.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Texture Packs y Resource Packs para Minecraft | Vivandro</title>
@@ -164,14 +165,23 @@
 
         /* Skeleton (placeholder animado) mientras cargan las texturas */
         @keyframes skeleton-pulso {
-            0% { background-position: -400px 0; }
-            100% { background-position: 400px 0; }
+            100% { transform: translateX(100%); }
         }
 
         .skeleton-shimmer,
         .skeleton-line {
-            background-image: linear-gradient(90deg, var(--skeleton-base) 25%, var(--skeleton-shine) 37%, var(--skeleton-base) 63%);
-            background-size: 400px 100%;
+            position: relative;
+            overflow: hidden;
+            background-color: var(--skeleton-base);
+        }
+
+        .skeleton-shimmer::after,
+        .skeleton-line::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(90deg, transparent, var(--skeleton-shine), transparent);
+            transform: translateX(-100%);
             animation: skeleton-pulso 1.4s ease infinite;
         }
 
@@ -882,7 +892,6 @@
     <script src="supabase-client.js"></script>
     <script src="datos.js"></script>
     <script src="auth-nav.js"></script>
-    <script src="theme.js"></script>
     <script>
 
         const contenedor = document.getElementById("texturas-container");
