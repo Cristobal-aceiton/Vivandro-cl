@@ -63,6 +63,7 @@ const RELATION_TYPE_REQUERIDO = 3; // FileRelationType.RequiredDependency
 
 const TAMANO_PAGINA = 50;
 const MAX_PAGINAS_POR_INTENTO = 20; // hasta 1000 mods revisados antes de rendirse
+const LIMITE_INDICE_CURSEFORGE = 10000; // CurseForge exige (index + pageSize <= 10000)
 
 // Compara dos versiones tipo "1.20.1" numéricamente, parte por parte
 // (así 1.9 < 1.10, a diferencia de una comparación de texto normal).
@@ -136,6 +137,16 @@ async function buscarCandidato({ apiKey, classId, categoriaId, busqueda, existen
   let paginas = 0;
 
   while (paginas < MAX_PAGINAS_POR_INTENTO) {
+    // CurseForge exige que index + pageSize no pase de 10.000 (tope
+    // fijo de su API, no relacionado con la cuota diaria). Si el
+    // progreso guardado ya llegó tan lejos, no queda nada más para
+    // traer con este mismo filtro (tipo + categoría + búsqueda): se
+    // trata igual que "se acabaron los candidatos" en vez de romper
+    // con un error 400.
+    if (index + TAMANO_PAGINA > LIMITE_INDICE_CURSEFORGE) {
+      return { candidato: null, siguienteIndice: index };
+    }
+
     // Chequeo de cuota ANTES de cada página: si una tanda larga
     // (varios mods pedidos de una vez) va gastando la cuota mientras
     // recorre páginas, se corta apenas se alcanza el límite en vez
