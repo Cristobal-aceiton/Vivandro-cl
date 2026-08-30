@@ -8,6 +8,7 @@
     --admin-acento-fuerte: #7a018a;
     --admin-acento-soft: #f4defa;
     --admin-card: rgba(255, 255, 255, 0.7);
+    --admin-card-solid: #fbf9fd;
     --admin-card-border: rgba(124, 31, 176, 0.14);
     --admin-text: #241129;
     --admin-text-soft: #6b6270;
@@ -43,6 +44,7 @@ html.dark-mode {
     --admin-acento-fuerte: #e07bff;
     --admin-acento-soft: #3a1640;
     --admin-card: rgba(255, 255, 255, 0.04);
+    --admin-card-solid: #221230;
     --admin-card-border: rgba(255, 255, 255, 0.09);
     --admin-text: #f2e9f5;
     --admin-text-soft: #b6a6bd;
@@ -432,7 +434,21 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .btn-primario:active { transform: scale(.97); }
 
 /* ---------- Tabla ---------- */
-.tabla-wrap { background-color: var(--admin-card); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid var(--admin-card-border); border-radius: var(--admin-radius); overflow: hidden; overflow-x: auto; box-shadow: var(--admin-shadow); }
+.tabla-wrap {
+    background-color: var(--admin-card-solid);
+    /* Antes tenía backdrop-filter: blur(12px), igual que la navbar.
+       Acá adentro cada fila tiene su propio :hover, y un contenedor con
+       backdrop-filter obliga al navegador a recalcular el blur de TODO
+       el contenedor cada vez que una fila cambia de color al pasar el
+       cursor. Moviendo el mouse rápido por varias filas, eso se
+       encolaba y se sentía como un "dominó" con mucho delay. Un fondo
+       sólido evita ese recálculo por completo. */
+    border: 1px solid var(--admin-card-border);
+    border-radius: var(--admin-radius);
+    overflow: hidden;
+    overflow-x: auto;
+    box-shadow: var(--admin-shadow);
+}
 table.admin-tabla { width: 100%; border-collapse: collapse; min-width: 640px; }
 table.admin-tabla th, table.admin-tabla td { padding: 13px 16px; text-align: left; border-bottom: 1px solid var(--admin-border); font-size: .87rem; }
 table.admin-tabla th { color: var(--admin-text-soft); font-weight: 600; font-size: .74rem; text-transform: uppercase; letter-spacing: .04em; background-color: var(--admin-bg); position: sticky; top: 0; z-index: 1; }
