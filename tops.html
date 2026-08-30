@@ -60,6 +60,8 @@
             --acento-fuerte: #9801ac;
             --glow1: rgba(155, 92, 255, 0.22);
             --glow2: rgba(92, 140, 255, 0.16);
+            --skeleton-base: #e6dcea;
+            --skeleton-shine: #f5f0f7;
         }
 
         html.dark-mode {
@@ -74,6 +76,8 @@
             --acento-fuerte: #c94dff;
             --glow1: rgba(155, 92, 255, 0.25);
             --glow2: rgba(92, 140, 255, 0.2);
+            --skeleton-base: #3a1f42;
+            --skeleton-shine: #4d2a57;
         }
 
         body, html {
@@ -337,9 +341,73 @@
             font-size: 0.85rem;
         }
 
-        .top-slot .top-slot-texto {
+        .top-slot .top-slot-texto,
+        .top-destacado .top-slot-texto {
+            font-family: "Poppins", sans-serif;
+            color: var(--card-text-soft);
             font-size: 0.8rem;
             line-height: 1.4;
+        }
+
+        /* Skeleton (placeholder animado) mientras cargan los tops. Mismo
+           truco que en mods.html/texturas.html: el brillo anima
+           "transform" dentro de un contenedor recortado, así la GPU lo
+           compone sin repintar nada en cada cuadro. */
+        @keyframes skeleton-pulso {
+            100% { transform: translateX(100%); }
+        }
+
+        .skeleton-shimmer,
+        .skeleton-line {
+            position: relative;
+            overflow: hidden;
+            background-color: var(--skeleton-base);
+        }
+
+        .skeleton-shimmer::after,
+        .skeleton-line::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: linear-gradient(90deg, transparent, var(--skeleton-shine), transparent);
+            transform: translateX(-100%);
+            animation: skeleton-pulso 1.4s ease infinite;
+        }
+
+        .skeleton-line {
+            height: 12px;
+            border-radius: 6px;
+        }
+
+        .top-destacado-info .skeleton-line {
+            width: 40%;
+            height: 20px;
+            border-radius: 999px;
+        }
+
+        .top-destacado-info .skeleton-line.skeleton-nombre {
+            width: 75%;
+            height: 24px;
+            border-radius: 6px;
+        }
+
+        .top-slot.skeleton-card {
+            padding: 0;
+            align-items: stretch;
+            justify-content: flex-start;
+            gap: 0;
+            overflow: hidden;
+            border-style: solid;
+        }
+
+        .top-slot.skeleton-card .top-slot-info {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .top-slot.skeleton-card .skeleton-line {
+            width: 70%;
         }
 
         /* Slot con contenido asignado: se convierte en una mini-card con
@@ -575,8 +643,40 @@
             }
         }
 
+        // Tops "esqueleto": se muestran de inmediato mientras se consulta
+        // Supabase, con la misma forma que un Top real (destacado + 4
+        // puestos), pero con bloques animados en vez de "Por definir".
+        // Evita que la página se vea vacía/en blanco esos primeros
+        // instantes.
+        function pintarSkeletons(idLista) {
+            const contenedor = document.getElementById(idLista);
+            if (!contenedor) return;
+            contenedor.innerHTML = `
+                <div class="top-destacado skeleton-card">
+                    <div class="top-slot-imagen-wrap skeleton-shimmer"></div>
+                    <div class="top-destacado-info">
+                        <div class="skeleton-line"></div>
+                        <div class="skeleton-line skeleton-nombre"></div>
+                    </div>
+                </div>
+                <div class="top-resto" id="${idLista}-resto"></div>
+            `;
+            const resto = document.getElementById(`${idLista}-resto`);
+            for (let i = 2; i <= 5; i++) {
+                const slot = document.createElement("div");
+                slot.className = "top-slot skeleton-card";
+                slot.innerHTML = `
+                    <div class="top-slot-imagen-wrap skeleton-shimmer"></div>
+                    <div class="top-slot-info">
+                        <div class="skeleton-line"></div>
+                    </div>
+                `;
+                resto.appendChild(slot);
+            }
+        }
+
         ["texturas_pvp", "mods_pvp", "texturas_survival", "servidores"].forEach((tipo) => {
-            pintarSlotsVacios(`top-${tipo}-lista`);
+            pintarSkeletons(`top-${tipo}-lista`);
         });
 
         const LISTAS_POR_TIPO = {
@@ -642,6 +742,13 @@
             try {
                 const filas = await Datos.listarTopsConItems();
 
+                // Ya llegó la respuesta: se quitan los skeletons y se deja
+                // cada puesto en "Por definir" como base; los que sí tengan
+                // algo asignado se pintan encima justo abajo.
+                ["texturas_pvp", "mods_pvp", "texturas_survival", "servidores"].forEach((tipo) => {
+                    pintarSlotsVacios(`top-${tipo}-lista`);
+                });
+
                 // Un solo lote para el promedio de reseñas de los
                 // servidores que aparecen en el Top (no de todo el
                 // catálogo), igual criterio que en /servidores.
@@ -664,6 +771,11 @@
                 const aviso = document.getElementById("tops-aviso");
                 if (aviso) aviso.style.display = algunoAsignado ? "none" : "block";
             } catch (e) {
+                // Si falla, se quitan los skeletons igual (si no, quedarían
+                // animando para siempre) y se deja el estado "Por definir".
+                ["texturas_pvp", "mods_pvp", "texturas_survival", "servidores"].forEach((tipo) => {
+                    pintarSlotsVacios(`top-${tipo}-lista`);
+                });
                 console.error("[Tops] No se pudieron cargar los tops:", e.message);
             }
         }
