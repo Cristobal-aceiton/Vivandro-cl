@@ -93,13 +93,18 @@ function icono(nombre, clase = "") {
 // Si la librería todavía no cargó (por ejemplo, la CDN tardó más
 // que el resto de la página), reintenta unas cuantas veces en vez
 // de fallar en silencio y dejar los íconos vacíos para siempre.
-function refrescarIconos(intentos = 8) {
+function refrescarIconos(intentos = 8, root = document) {
     if (window.lucide && typeof window.lucide.createIcons === "function") {
-        window.lucide.createIcons();
+        // "root" acota el escaneo de íconos a un solo elemento nuevo en
+        // vez de recorrer document completo. Sin esto, cada llamada
+        // (por ejemplo una por cada mod generado por la IA) reflowea
+        // toda la página, que es lo que provocaba la caída de FPS al
+        // generar tandas grandes.
+        window.lucide.createIcons({ root });
         return;
     }
     if (intentos > 0) {
-        setTimeout(() => refrescarIconos(intentos - 1), 250);
+        setTimeout(() => refrescarIconos(intentos - 1, root), 250);
     }
 }
 
@@ -1511,12 +1516,20 @@ let iaDetener = false;
 let iaCorriendo = false;
 let iaCategoriasCache = {}; // { mods: [...], texturas: [...] } — evita repetir la consulta mientras la pestaña sigue abierta
 
+const IA_LOG_MAX = 50; // evita que el DOM del log crezca sin límite en tandas grandes
+
 function iaAgregarLog(icono_, texto, sub = "", tipoClase = "") {
     const li = document.createElement("li");
     li.className = tipoClase ? `ia-log-${tipoClase}` : "";
     li.innerHTML = `<span class="ia-log-ico">${icono(icono_)}</span><span class="ia-log-texto">${escapeHTML(texto)}${sub ? `<small>${escapeHTML(sub)}</small>` : ""}</span>`;
-    $("ia-log").prepend(li);
-    refrescarIconos();
+    const lista = $("ia-log");
+    lista.prepend(li);
+    // Solo convierte el ícono del <li> recién agregado, no los 50
+    // anteriores ni el resto de la página.
+    refrescarIconos(8, li);
+    while (lista.children.length > IA_LOG_MAX) {
+        lista.removeChild(lista.lastElementChild);
+    }
 }
 
 function iaActualizarBarra(hechos, total) {

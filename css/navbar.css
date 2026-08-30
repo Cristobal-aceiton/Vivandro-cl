@@ -29,6 +29,10 @@
     margin: 0;
     font-family: "Poppins", sans-serif;
     transition: background-color 0.3s ease;
+    /* sticky + backdrop-filter obliga a recomponer el blur en cada
+       frame de scroll si el navegador no lo aísla en su propia capa;
+       will-change se lo indica explícitamente para que lo cachee. */
+    will-change: transform;
 }
 
 .nav-links {

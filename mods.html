@@ -107,6 +107,14 @@
             filter: blur(120px);
             pointer-events: none;
             z-index: 0;
+            /* Promueve el elemento a su propia capa de composición para
+               que el navegador rasterice el blur una sola vez y solo lo
+               traslade durante el scroll, en vez de recalcularlo en cada
+               frame. Sin esto, un blur(120px) fixed es de las combinaciones
+               más caras que existen en CSS y es la causa principal de la
+               caída a ~15fps al hacer scroll. */
+            will-change: transform;
+            transform: translateZ(0);
         }
 
         .glow-1 { top: -180px; left: -140px; background: var(--glow1); }
