@@ -64,7 +64,8 @@
             --navbar-bg: rgba(152, 1, 172, 0.55);
             --titulo-color: #221530;
             --titulo-soft: #6b5c7d;
-            --card-bg: rgba(255, 255, 255, 0.65);
+            --card-bg: rgba(255, 255, 255, 0.88);
+            --card-bg-hover: rgba(255, 255, 255, 0.97);
             --card-border: rgba(124, 31, 176, 0.14);
             --card-border-hover: rgba(124, 31, 176, 0.5);
             --card-text: #241129;
@@ -80,7 +81,8 @@
             --navbar-bg: rgba(37, 10, 44, 0.6);
             --titulo-color: #efe9f5;
             --titulo-soft: #b5adc4;
-            --card-bg: rgba(255, 255, 255, 0.04);
+            --card-bg: rgba(30, 26, 38, 0.92);
+            --card-bg-hover: rgba(42, 36, 52, 0.97);
             --card-border: rgba(255, 255, 255, 0.09);
             --card-border-hover: rgba(155, 92, 255, 0.55);
             --card-text: #efe9f5;
@@ -111,7 +113,7 @@
         }
 
         .glow {
-            position: absolute;
+            position: fixed;
             width: 560px;
             height: 560px;
             border-radius: 50%;
@@ -220,15 +222,11 @@
             background-color: var(--acento);
             color: #fff;
             cursor: pointer;
-            transition: background-color 0.2s ease, transform 0.15s ease;
+            transition: background-color 0.2s ease;
         }
 
         .hero-buscador button:hover {
             background-color: var(--acento-fuerte);
-        }
-
-        .hero-buscador button:active {
-            transform: scale(0.97);
         }
 
         .hero-acciones {
@@ -246,12 +244,12 @@
             border: 1px solid var(--card-border);
             border-radius: 20px;
             padding: 8px 18px;
-            transition: border-color 0.2s ease, transform 0.15s ease;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
         }
 
         .btn-ver-tops:hover {
             border-color: var(--card-border-hover);
-            transform: translateY(-2px);
+            background-color: var(--card-bg);
         }
 
         .opciones {
@@ -274,7 +272,6 @@
             background: var(--card-bg);
             border: 1px solid var(--card-border);
             border-radius: 20px;
-            backdrop-filter: blur(6px);
             padding: 30px;
             text-decoration: none;
             color: var(--card-text);
@@ -282,12 +279,12 @@
             flex-direction: column;
             justify-content: space-between;
             min-height: 190px;
-            transition: transform 0.25s ease, border-color 0.25s ease;
+            transition: border-color 0.2s ease, background-color 0.2s ease;
         }
 
         .card:hover {
-            transform: translateY(-4px);
             border-color: var(--card-border-hover);
+            background-color: var(--card-bg-hover);
         }
 
         .card.big {
@@ -338,7 +335,6 @@
             background: var(--card-bg);
             border: 1px solid var(--card-border);
             border-radius: 20px;
-            backdrop-filter: blur(6px);
             padding: 44px 30px;
             font-family: "Poppins", sans-serif;
         }
@@ -369,12 +365,11 @@
             text-decoration: none;
             padding: 12px 24px;
             border-radius: 12px;
-            transition: transform 0.15s ease, box-shadow 0.2s ease;
+            transition: background-color 0.2s ease;
         }
 
         .btn-discord:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 18px rgba(88, 101, 242, 0.35);
+            background-color: #4752c4;
         }
 
         .btn-discord svg {
