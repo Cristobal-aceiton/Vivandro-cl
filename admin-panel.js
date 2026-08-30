@@ -393,15 +393,23 @@ function tarjetaStat(nombreIcono, num, label) {
 }
 
 async function cargarStats() {
+    // Antes esto traía la tabla ENTERA (select "*", todas las filas y
+    // columnas) de servidores/mods/texturas solo para leer .length y
+    // mostrar un número. Con pocos ítems no se nota, pero a medida que
+    // subes más mods/texturas/servidores cada carga del panel iba
+    // descargando y parseando cada vez más datos innecesarios — eso es
+    // lo que se sentía como "va más lenta y pegada". Datos.contar() le
+    // pide el total a Postgres directamente (head: true = no bajan
+    // filas), así que pesa lo mismo aunque haya 20 o 20.000 ítems.
     const [servidores, mods, texturas] = await Promise.all([
-        Datos.listar("servidores"),
-        Datos.listar("mods"),
-        Datos.listar("texturas"),
+        Datos.contar("servidores"),
+        Datos.contar("mods"),
+        Datos.contar("texturas"),
     ]);
     $("stats-grid").innerHTML =
-        tarjetaStat("server", servidores.length, "Servidores") +
-        tarjetaStat("puzzle", mods.length, "Mods") +
-        tarjetaStat("palette", texturas.length, "Texturas");
+        tarjetaStat("server", servidores, "Servidores") +
+        tarjetaStat("puzzle", mods, "Mods") +
+        tarjetaStat("palette", texturas, "Texturas");
     refrescarIconos();
 }
 
@@ -424,10 +432,17 @@ async function cargarResumen() {
     $("resumen-acciones").innerHTML = "";
     $("resumen-top-lista").innerHTML = "";
 
+    // Acá abajo solo se usan servidores.length (un número) y el id +
+    // nombre de cada mod/textura (para el "top descargados"), nunca la
+    // descripción ni el resto de columnas. Pedir "*" completo de las
+    // tres tablas en cada visita al Resumen es lo que hacía que el
+    // panel se sintiera cada vez más lento a medida que subías más
+    // cosas: contar() no trae filas, y "id, nombre" pesa una fracción
+    // de lo que pesa la fila completa.
     const [servidores, mods, texturas] = await Promise.all([
-        Datos.listar("servidores"),
-        Datos.listar("mods"),
-        Datos.listar("texturas"),
+        Datos.contar("servidores"),
+        Datos.listar("mods", "id, nombre"),
+        Datos.listar("texturas", "id, nombre"),
     ]);
     if (miCarga !== resumenCargaId) return; // se pidió otra carga más nueva mientras esperábamos
 
@@ -438,7 +453,7 @@ async function cargarResumen() {
     if (miCarga !== resumenCargaId) return;
 
     $("resumen-stats").innerHTML =
-        tarjetaStat("server", servidores.length, "Servidores publicados") +
+        tarjetaStat("server", servidores, "Servidores publicados") +
         tarjetaStat("puzzle", mods.length, "Mods disponibles") +
         tarjetaStat("palette", texturas.length, "Texturas disponibles") +
         tarjetaStat("download", descargas30.length, "Descargas (30 días)");
@@ -692,8 +707,8 @@ async function cargarTops() {
 
     const [filas, mods, texturas] = await Promise.all([
         Datos.listarTopsConItems(),
-        Datos.listar("mods"),
-        Datos.listar("texturas"),
+        Datos.listar("mods", "id, nombre, imagen, estado"),
+        Datos.listar("texturas", "id, nombre, imagen, estado"),
     ]);
 
     // Solo se puede elegir para un Top algo que ya esté publicado en el
@@ -1226,8 +1241,8 @@ let statsTablaBusqueda = "";
 async function iniciarEstadisticas() {
     if (!estadisticasListasParaFiltros) {
         const [mods, texturas] = await Promise.all([
-            Datos.listar("mods"),
-            Datos.listar("texturas"),
+            Datos.listar("mods", "id, nombre"),
+            Datos.listar("texturas", "id, nombre"),
         ]);
         itemsPorId = {};
         mods.forEach((m) => (itemsPorId[m.id] = { nombre: m.nombre, tipo: "mods" }));
