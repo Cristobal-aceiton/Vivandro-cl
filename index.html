@@ -544,6 +544,12 @@
 </head>
 <body>
 
+    <div class="site-topbar">
+    <a href="https://www.buymeacoffee.com/Vivandro" target="_blank" rel="noopener noreferrer" class="support-banner">
+        <span class="support-banner-emoji" aria-hidden="true">☕</span>
+        <span class="support-banner-text">¿Vivandro te sirvió? Ayúdanos a mantener el sitio online</span>
+        <span class="support-banner-cta">Buy me a coffee</span>
+    </a>
     <nav class="navbar">
         <div class="nav-links">
             <a href="/">Inicio</a>
@@ -558,6 +564,7 @@
             <button id="theme-toggle" title="Cambiar tema" aria-label="Cambiar tema claro/oscuro"></button>
         </div>
     </nav>
+</div>
 
     <div class="glow glow-1"></div>
     <div class="glow glow-2"></div>
@@ -746,23 +753,5 @@
         cargarTopsDestacadosHome();
     </script>
 
-    <!-- Botón "Buy me a coffee": posicionado en la esquina inferior derecha,
-         y reducido/ajustado en móvil para no tapar el contenido ni salirse
-         de la pantalla (incluye el "notch"/home indicator con safe-area). -->
-    <style>
-        #bmc-wbtn {
-            right: 20px !important;
-            bottom: 20px !important;
-        }
-        @media (max-width: 640px) {
-            #bmc-wbtn {
-                transform: scale(0.8);
-                transform-origin: bottom right;
-                right: 10px !important;
-                bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
-            }
-        }
-    </style>
-    <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js" data-name="bmc-button" data-slug="Vivandro" data-color="#FFDD00" data-emoji="" data-font="Cookie" data-text="Buy me a coffee" data-outline-color="#000000" data-font-color="#000000" data-coffee-color="#ffffff" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
 </body>
 </html>
