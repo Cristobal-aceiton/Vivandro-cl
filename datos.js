@@ -29,12 +29,18 @@ const Datos = (function () {
         }
     }
 
-    async function listar(tabla) {
+    // "columnas" opcional: por defecto trae todas ("*"), pero cuando
+    // solo se necesitan un par de campos (ej. armar un selector con
+    // id/nombre/imagen) conviene pasar algo como "id, nombre, imagen"
+    // para que Supabase no viaje por la red columnas pesadas (como
+    // "descripcion") que no se van a usar. Mientras más filas tenga la
+    // tabla, más se nota esta diferencia.
+    async function listar(tabla, columnas = "*") {
         chequearTabla(tabla);
         if (!clienteListo()) return [];
         const { data, error } = await supabaseClient
             .from(tabla)
-            .select("*")
+            .select(columnas)
             .order("orden", { ascending: true })
             .order("creado_en", { ascending: true });
         if (error) {
@@ -42,6 +48,26 @@ const Datos = (function () {
             return [];
         }
         return data || [];
+    }
+
+    // Cuenta las filas de una tabla SIN traer ninguna fila (head: true
+    // le dice a Supabase "no me mandes datos, solo el total"). Esto es
+    // lo que hay que usar para tarjetas de "cuántos hay" en vez de
+    // listar()+.length: listar() descarga la tabla entera (todas las
+    // columnas, todas las filas) solo para contarlas, así que cada mod
+    // o textura nueva hace esa consulta un poquito más lenta. contar()
+    // siempre pesa lo mismo, tenga la tabla 10 filas o 10.000.
+    async function contar(tabla) {
+        chequearTabla(tabla);
+        if (!clienteListo()) return 0;
+        const { count, error } = await supabaseClient
+            .from(tabla)
+            .select("*", { count: "exact", head: true });
+        if (error) {
+            console.error(`[Datos] Error contando ${tabla}:`, error.message);
+            return 0;
+        }
+        return count || 0;
     }
 
     // Trae una sola página de resultados (no toda la tabla), para no
@@ -424,7 +450,7 @@ const Datos = (function () {
     }
 
     return {
-        listar, listarPagina, listarModalidades, obtenerPorId, crear, actualizar, actualizarVarios, eliminar, clienteListo,
+        listar, listarPagina, listarModalidades, obtenerPorId, crear, actualizar, actualizarVarios, eliminar, clienteListo, contar,
         registrarDescarga, listarDescargas,
         listarBitacora, registrarIntentoAcceso, listarIntentosAcceso, limpiarIntentosAcceso,
         obtenerAdmin, listarAdmins, agregarAdmin, eliminarAdmin,
