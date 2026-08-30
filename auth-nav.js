@@ -48,6 +48,18 @@
             boton.addEventListener("click", async (evento) => {
                 if (boton.classList.contains("nav-btn-google--loading")) return;
 
+                // El botón no tiene un "width" fijo (se ajusta solo al
+                // contenido con flexbox), así que si solo agregamos la
+                // clase --loading, el navegador intenta animar el ancho
+                // desde "auto" y no puede interpolarlo: el botón saltaba
+                // de golpe al círculo en vez de encogerse con la
+                // transición. Por eso primero congelamos el ancho actual
+                // en píxeles y forzamos un reflow, para que el paso a
+                // 34px sí tenga un punto de partida animable.
+                const anchoActual = boton.getBoundingClientRect().width;
+                boton.style.width = `${anchoActual}px`;
+                void boton.offsetWidth; // fuerza el reflow
+
                 // Onda expansiva desde el punto donde se hizo clic
                 const rect = boton.getBoundingClientRect();
                 const onda = document.createElement("span");
@@ -58,6 +70,7 @@
 
                 // El botón se colapsa en un anillo giratorio con los colores de Google
                 boton.classList.add("nav-btn-google--loading");
+                boton.style.width = "34px";
                 boton.disabled = true;
 
                 // Pequeña espera para que la animación se alcance a ver antes
@@ -72,6 +85,7 @@
                 // Si algo falla y no hubo redirección, volvemos al estado normal.
                 if (error) {
                     boton.classList.remove("nav-btn-google--loading");
+                    boton.style.width = "";
                     boton.disabled = false;
                     onda.remove();
                 }

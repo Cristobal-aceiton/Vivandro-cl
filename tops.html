@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <script src="theme.js"></script>
+    <script src="lucide.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tops de Minecraft: Mejores Mods, Texturas y Servidores | Vivandro</title>
@@ -179,8 +180,33 @@
             color: #fff;
         }
 
-        .top-tab .emoji {
-            font-size: 1.05rem;
+        svg.lucide {
+            width: 18px;
+            height: 18px;
+            stroke-width: 2.1;
+            flex-shrink: 0;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .top-tab .top-tab-icono {
+            width: 16px;
+            height: 16px;
+            stroke-width: 2.3;
+        }
+
+        .top-seccion h2 .top-titulo-icono {
+            width: 22px;
+            height: 22px;
+            stroke-width: 2.2;
+            vertical-align: -4px;
+            margin-right: 2px;
+        }
+
+        .top-destacado-badge .top-badge-icono {
+            width: 13px;
+            height: 13px;
+            stroke-width: 2.5;
         }
 
         @media (max-width: 600px) {
@@ -528,32 +554,32 @@
     <div class="tops-contenedor">
 
         <div class="top-tabs" role="tablist">
-            <a href="/tops?cat=texturas_pvp" class="top-tab activo" data-tab="texturas_pvp" role="tab" aria-selected="true"><span class="emoji">🗡️</span> Texturas PVP</a>
-            <a href="/tops?cat=mods_pvp" class="top-tab" data-tab="mods_pvp" role="tab" aria-selected="false"><span class="emoji">⚔️</span> Mods PVP</a>
-            <a href="/tops?cat=texturas_survival" class="top-tab" data-tab="texturas_survival" role="tab" aria-selected="false"><span class="emoji">⛏️</span> Texturas Survival</a>
-            <a href="/tops?cat=servidores" class="top-tab" data-tab="servidores" role="tab" aria-selected="false"><span class="emoji">🖥️</span> Servidores</a>
+            <a href="/tops?cat=texturas_pvp" class="top-tab activo" data-tab="texturas_pvp" role="tab" aria-selected="true"><i data-lucide="sword" class="top-tab-icono"></i> Texturas PVP</a>
+            <a href="/tops?cat=mods_pvp" class="top-tab" data-tab="mods_pvp" role="tab" aria-selected="false"><i data-lucide="swords" class="top-tab-icono"></i> Mods PVP</a>
+            <a href="/tops?cat=texturas_survival" class="top-tab" data-tab="texturas_survival" role="tab" aria-selected="false"><i data-lucide="pickaxe" class="top-tab-icono"></i> Texturas Survival</a>
+            <a href="/tops?cat=servidores" class="top-tab" data-tab="servidores" role="tab" aria-selected="false"><i data-lucide="server" class="top-tab-icono"></i> Servidores</a>
         </div>
 
         <section class="top-seccion activo" id="top-texturas_pvp" aria-labelledby="top-texturas_pvp-titulo">
-            <h2 id="top-texturas_pvp-titulo">🗡️ Top 5 texture packs para PVP</h2>
+            <h2 id="top-texturas_pvp-titulo"><i data-lucide="sword" class="top-titulo-icono"></i> Top 5 texture packs para PVP</h2>
             <p class="top-subtitulo">Los packs favoritos para combate: hitbox clara y buen rendimiento.</p>
             <div class="top-podio" id="top-texturas_pvp-lista"></div>
         </section>
 
         <section class="top-seccion" id="top-mods_pvp" aria-labelledby="top-mods_pvp-titulo">
-            <h2 id="top-mods_pvp-titulo">⚔️ Top 5 mods para PVP</h2>
+            <h2 id="top-mods_pvp-titulo"><i data-lucide="swords" class="top-titulo-icono"></i> Top 5 mods para PVP</h2>
             <p class="top-subtitulo">Mods que mejoran combate, movimiento y ventaja competitiva.</p>
             <div class="top-podio" id="top-mods_pvp-lista"></div>
         </section>
 
         <section class="top-seccion" id="top-texturas_survival" aria-labelledby="top-texturas_survival-titulo">
-            <h2 id="top-texturas_survival-titulo">⛏️ Top 5 texture packs para survival o técnico</h2>
+            <h2 id="top-texturas_survival-titulo"><i data-lucide="pickaxe" class="top-titulo-icono"></i> Top 5 texture packs para survival o técnico</h2>
             <p class="top-subtitulo">Ideal para exploración, construcción y partidas técnicas.</p>
             <div class="top-podio" id="top-texturas_survival-lista"></div>
         </section>
 
         <section class="top-seccion" id="top-servidores" aria-labelledby="top-servidores-titulo">
-            <h2 id="top-servidores-titulo">🖥️ Top 5 servidores</h2>
+            <h2 id="top-servidores-titulo"><i data-lucide="server" class="top-titulo-icono"></i> Top 5 servidores</h2>
             <p class="top-subtitulo">Los mejor puntuados por la comunidad, elegidos por el equipo de Vivandro.</p>
             <div class="top-podio" id="top-servidores-lista"></div>
         </section>
@@ -579,6 +605,22 @@
 
         const elAnio = document.getElementById("anio-actual");
         if (elAnio) elAnio.textContent = new Date().getFullYear();
+
+        // Los íconos se insertan como <i data-lucide="..."> y recién se
+        // convierten en SVG cuando corre lucide.createIcons(). Hay que
+        // llamarla al cargar la página y de nuevo cada vez que se pinta
+        // HTML nuevo con íconos dentro (skeletons, slots "Por definir"
+        // y puestos ya asignados).
+        function refrescarIconos(intentos = 8) {
+            if (window.lucide && typeof window.lucide.createIcons === "function") {
+                window.lucide.createIcons();
+                return;
+            }
+            if (intentos > 0) {
+                setTimeout(() => refrescarIconos(intentos - 1), 250);
+            }
+        }
+        refrescarIconos();
 
         const TIPOS_VALIDOS = ["texturas_pvp", "mods_pvp", "texturas_survival", "servidores"];
 
@@ -633,7 +675,7 @@
                         <span class="top-slot-texto">Por definir</span>
                     </div>
                     <div class="top-destacado-info">
-                        <span class="top-destacado-badge">🏆 Puesto 1</span>
+                        <span class="top-destacado-badge"><i data-lucide="trophy" class="top-badge-icono"></i> Puesto 1</span>
                         <p class="top-destacado-nombre">Por definir</p>
                     </div>
                 </div>
@@ -650,6 +692,7 @@
                 `;
                 resto.appendChild(slot);
             }
+            refrescarIconos();
         }
 
         // Tops "esqueleto": se muestran de inmediato mientras se consulta
@@ -722,11 +765,12 @@
                         <img src="${img}" alt="${escapeHTML(item.nombre)}" loading="lazy">
                     </div>
                     <div class="top-destacado-info">
-                        <span class="top-destacado-badge">🏆 Puesto 1</span>
+                        <span class="top-destacado-badge"><i data-lucide="trophy" class="top-badge-icono"></i> Puesto 1</span>
                         <p class="top-destacado-nombre">${escapeHTML(item.nombre)}</p>
                         ${estrellasHTML}
                     </div>
                 `;
+                refrescarIconos();
                 return;
             }
 
