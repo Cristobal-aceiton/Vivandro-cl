@@ -62,6 +62,16 @@ let cacheActual = [];
 let editandoId = null;
 let idAEliminar = null;
 
+// ---------- Paginación de la tabla admin ----------
+// Antes se traía la tabla completa (todas las filas) en cada carga y
+// cada acción; con catálogos grandes eso es lo que provocaba la
+// lentitud. Ahora se pide solo una página a la vez.
+const FILAS_POR_PAGINA = 20;
+let paginaActual = 1;
+let totalPaginasActual = 1;
+let busquedaActual = "";
+let debounceBusqueda = null;
+
 const SUBTITULOS = {
     resumen: "Un vistazo rápido a todo tu sitio.",
     servidores: "Administra los servidores que se muestran en la web.",
@@ -320,6 +330,13 @@ function cambiarSeccion(id) {
         toggleWrap.style.display = (id === "mods" || id === "texturas") ? "flex" : "none";
         $("toggle-rechazados").checked = false;
     }
+
+    // Página y búsqueda también se resetean al cambiar de sección, para
+    // no arrastrar el filtro/página de mods a texturas o servidores.
+    paginaActual = 1;
+    busquedaActual = "";
+    const buscarInput = $("buscar-input");
+    if (buscarInput) buscarInput.value = "";
 
     if (id === "resumen") {
         $("titulo-seccion").textContent = "Resumen";
@@ -862,13 +879,26 @@ async function cargarSeccion() {
     $("tabla-head").innerHTML = `<tr>${conf.columnas.map((c) => `<th>${c}</th>`).join("")}</tr>`;
 
     try {
-        const todos = await Datos.listar(conf.tabla);
         // Los "rechazados" por el Generador IA se guardan (no se borran)
         // para que el generador no los vuelva a sugerir. Por defecto se
         // ocultan de esta lista; el toggle "Ver rechazados" los muestra
         // para poder revisarlos o borrarlos definitivamente.
-        cacheActual = mostrarRechazados ? todos : todos.filter((item) => item.estado !== "rechazado");
+        const resultado = await Datos.listarPaginaAdmin(conf.tabla, {
+            pagina: paginaActual,
+            porPagina: FILAS_POR_PAGINA,
+            busqueda: busquedaActual,
+            incluirRechazados: mostrarRechazados,
+        });
+        totalPaginasActual = resultado.totalPaginas;
+        // Si la página quedó fuera de rango (por ejemplo, borraste el
+        // único ítem de la última página), retrocede una y vuelve a pedir.
+        if (paginaActual > totalPaginasActual) {
+            paginaActual = totalPaginasActual;
+            return cargarSeccion();
+        }
+        cacheActual = resultado.datos;
         pintarTabla(cacheActual);
+        pintarPaginacion(resultado.total);
     } catch (e) {
         toast("Error cargando datos: " + e.message, "error");
     }
@@ -954,14 +984,48 @@ async function publicarItem(id) {
     }
 }
 
+function pintarPaginacion(total) {
+    const wrap = $("tabla-paginacion");
+    if (total <= FILAS_POR_PAGINA) {
+        wrap.style.display = "none";
+        return;
+    }
+    wrap.style.display = "flex";
+    $("tabla-pagina-texto").textContent = `Página ${paginaActual} de ${totalPaginasActual} (${total} en total)`;
+    $("btn-pagina-anterior").disabled = paginaActual <= 1;
+    $("btn-pagina-siguiente").disabled = paginaActual >= totalPaginasActual;
+}
+
+$("btn-pagina-anterior").addEventListener("click", () => {
+    if (paginaActual <= 1) return;
+    paginaActual--;
+    cargarSeccion();
+});
+
+$("btn-pagina-siguiente").addEventListener("click", () => {
+    if (paginaActual >= totalPaginasActual) return;
+    paginaActual++;
+    cargarSeccion();
+});
+
+// La búsqueda ahora se resuelve en el servidor (vía listarPaginaAdmin)
+// en vez de filtrar un arreglo con la tabla completa ya cargada en
+// memoria — así sigue funcionando igual de rápido aunque el catálogo
+// crezca a cientos de ítems. El debounce evita disparar una consulta
+// por cada tecla mientras se escribe.
 $("buscar-input").addEventListener("input", (e) => {
-    const texto = e.target.value.trim().toLowerCase();
-    const filtrados = cacheActual.filter((it) => (it.nombre || "").toLowerCase().includes(texto));
-    pintarTabla(filtrados);
+    clearTimeout(debounceBusqueda);
+    const texto = e.target.value.trim();
+    debounceBusqueda = setTimeout(() => {
+        busquedaActual = texto;
+        paginaActual = 1;
+        cargarSeccion();
+    }, 300);
 });
 
 $("toggle-rechazados").addEventListener("change", (e) => {
     mostrarRechazados = e.target.checked;
+    paginaActual = 1;
     cargarSeccion();
 });
 
@@ -992,26 +1056,35 @@ function limpiarForm() {
 }
 
 // ---------- Validación de nombres duplicados (mods y texturas) ----------
-// Antes de guardar comprobamos, con lo que ya está cargado en pantalla
-// (cacheActual), si otro registro de la misma sección tiene el mismo
-// nombre sin importar mayúsculas/minúsculas ("OptiFine" === "optifine").
-// Esto da una respuesta instantánea mientras se escribe. La base de
-// datos (ver agregar_validacion_duplicados_mods_texturas.sql) tiene un
-// índice único que hace de última palabra real, por si dos personas
-// guardan al mismo tiempo desde dos pestañas distintas.
+// Antes se comprobaba contra cacheActual, que tenía la tabla completa
+// cargada en memoria. Ahora que la tabla admin pagina (para no volver a
+// traer todo en cada carga), cacheActual solo tiene la página visible,
+// así que este chequeo tiene que consultar el servidor directamente
+// para seguir detectando duplicados aunque estén en otra página. La
+// base de datos igual tiene un índice único como última palabra real
+// (ver agregar_validacion_duplicados_mods_texturas.sql), esto es solo
+// para avisar antes de guardar.
 function mensajeDuplicado(tabla) {
     return tabla === "mods"
         ? "Este mod ya existe en la base de datos."
         : "Esta textura ya existe en la base de datos.";
 }
 
-function nombreDuplicado(tabla, nombre, idActual) {
+async function nombreDuplicado(tabla, nombre, idActual) {
     if (tabla !== "mods" && tabla !== "texturas") return false;
-    const normalizado = (nombre || "").trim().toLowerCase();
+    const normalizado = (nombre || "").trim();
     if (!normalizado) return false;
-    return cacheActual.some(
-        (it) => String(it.id) !== String(idActual) && (it.nombre || "").trim().toLowerCase() === normalizado
-    );
+    let query = supabaseClient
+        .from(tabla)
+        .select("id", { count: "exact", head: true })
+        .ilike("nombre", normalizado.replace(/[%_]/g, (c) => `\\${c}`));
+    if (idActual) query = query.neq("id", idActual);
+    const { count, error } = await query;
+    if (error) {
+        console.error(`[Admin] Error comprobando duplicado en ${tabla}:`, error.message);
+        return false; // ante un error de red no bloquea el guardado; el índice único de la BD sigue de respaldo
+    }
+    return (count || 0) > 0;
 }
 
 function mostrarAvisoDuplicado(tabla) {
@@ -1027,13 +1100,22 @@ function ocultarAvisoDuplicado() {
     $("aviso-nombre-duplicado").style.display = "none";
 }
 
+let debounceNombreDuplicado = null;
 $("campo-nombre").addEventListener("input", () => {
     if (seccionActual !== "mods" && seccionActual !== "texturas") return;
-    if (nombreDuplicado(seccionActual, $("campo-nombre").value, editandoId)) {
-        mostrarAvisoDuplicado(seccionActual);
-    } else {
-        ocultarAvisoDuplicado();
-    }
+    clearTimeout(debounceNombreDuplicado);
+    const seccionAlEscribir = seccionActual;
+    const nombreAlEscribir = $("campo-nombre").value;
+    const idAlEscribir = editandoId;
+    debounceNombreDuplicado = setTimeout(async () => {
+        // Si cambió de sección o de ítem mientras esperaba, descarta el resultado.
+        if (seccionActual !== seccionAlEscribir || $("campo-nombre").value !== nombreAlEscribir) return;
+        if (await nombreDuplicado(seccionAlEscribir, nombreAlEscribir, idAlEscribir)) {
+            mostrarAvisoDuplicado(seccionAlEscribir);
+        } else {
+            ocultarAvisoDuplicado();
+        }
+    }, 350);
 });
 
 function abrirForm(id = null) {
@@ -1108,7 +1190,7 @@ $("form-item").addEventListener("submit", async (e) => {
     // mayúsculas/minúsculas. Se repite acá (además del chequeo mientras
     // se escribe) por si el campo nunca disparó el evento "input", por
     // ejemplo si se pega el nombre justo antes de enviar el formulario.
-    if (nombreDuplicado(seccionActual, registro.nombre, editandoId)) {
+    if (await nombreDuplicado(seccionActual, registro.nombre, editandoId)) {
         mostrarAvisoDuplicado(seccionActual);
         toast(mensajeDuplicado(seccionActual), "error");
         return;

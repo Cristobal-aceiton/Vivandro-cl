@@ -135,6 +135,59 @@ const Datos = (function () {
         };
     }
 
+    // Igual que listarPagina, pero para el panel admin: a diferencia de
+    // la versión pública (que solo muestra "publicado"), esta necesita
+    // ver también los "pendiente" (para poder aprobarlos) y opcionalmente
+    // los "rechazado" (con el toggle "Ver rechazados"). Se separó de
+    // listarPagina en vez de agregarle parámetros para no arriesgar que
+    // un descuido ahí termine mostrando pendientes/rechazados en el sitio
+    // público.
+    async function listarPaginaAdmin(tabla, opciones = {}) {
+        chequearTabla(tabla);
+        const {
+            pagina = 1,
+            porPagina = 20,
+            busqueda = "",
+            incluirRechazados = false,
+        } = opciones;
+
+        if (!clienteListo()) return { datos: [], total: 0, totalPaginas: 1 };
+
+        const paginaSegura = Math.max(1, Math.floor(pagina) || 1);
+        const desde = (paginaSegura - 1) * porPagina;
+        const hasta = desde + porPagina - 1;
+
+        let query = supabaseClient
+            .from(tabla)
+            .select("*", { count: "exact" })
+            .order("orden", { ascending: true })
+            .order("creado_en", { ascending: true })
+            .range(desde, hasta);
+
+        if ((tabla === "mods" || tabla === "texturas") && !incluirRechazados) {
+            query = query.neq("estado", "rechazado");
+        }
+
+        const textoBusqueda = (busqueda || "").trim();
+        if (textoBusqueda) {
+            const escapado = textoBusqueda.replace(/[%_]/g, (c) => `\\${c}`);
+            query = query.ilike("nombre", `%${escapado}%`);
+        }
+
+        const { data, error, count } = await query;
+        if (error) {
+            console.error(`[Datos] Error listando página admin de ${tabla}:`, error.message);
+            return { datos: [], total: 0, totalPaginas: 1 };
+        }
+
+        const total = count || 0;
+        return {
+            datos: data || [],
+            total,
+            totalPaginas: Math.max(1, Math.ceil(total / porPagina)),
+        };
+    }
+
     // Trae un solo registro por id. Se usa para el link "Compartir": si
     // alguien abre mods.html?id=123 y ese mod no está en la página que
     // se cargó por defecto, igual lo podemos traer directo sin tener
@@ -450,7 +503,7 @@ const Datos = (function () {
     }
 
     return {
-        listar, listarPagina, listarModalidades, obtenerPorId, crear, actualizar, actualizarVarios, eliminar, clienteListo, contar,
+        listar, listarPagina, listarPaginaAdmin, listarModalidades, obtenerPorId, crear, actualizar, actualizarVarios, eliminar, clienteListo, contar,
         registrarDescarga, listarDescargas,
         listarBitacora, registrarIntentoAcceso, listarIntentosAcceso, limpiarIntentosAcceso,
         obtenerAdmin, listarAdmins, agregarAdmin, eliminarAdmin,
