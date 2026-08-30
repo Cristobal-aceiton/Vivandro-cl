@@ -53,3 +53,28 @@ function sanitizeURL(url, opciones = {}) {
     }
     return "";
 }
+
+/*
+  conTimeout(promesa, ms)
+  -----------------------------------------------------------
+  Evita pantallas de carga (skeletons) que se quedan girando
+  para siempre cuando una petición a la red (Supabase, APIs
+  externas, etc.) nunca responde ni falla explícitamente -algo
+  bastante común en conexiones móviles inestables-.
+
+  Si "promesa" no se resuelve ni se rechaza dentro de "ms"
+  milisegundos, esta función rechaza con un Error, para que el
+  código que llama pueda mostrar un estado de error/fallback en
+  vez de quedarse esperando indefinidamente.
+
+  Uso:
+    const datos = await conTimeout(Datos.listarPagina(...), 12000);
+  -----------------------------------------------------------
+*/
+function conTimeout(promesa, ms = 12000, mensaje = "La solicitud tardó demasiado en responder") {
+    let idTimeout;
+    const timeoutPromesa = new Promise((_, reject) => {
+        idTimeout = setTimeout(() => reject(new Error(mensaje)), ms);
+    });
+    return Promise.race([promesa, timeoutPromesa]).finally(() => clearTimeout(idTimeout));
+}

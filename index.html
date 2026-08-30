@@ -724,16 +724,33 @@
             `;
         }
 
+        // NOTA IMPORTANTE (bug corregido): antes, si "Datos" no estaba
+        // disponible (datos.js no llegó a cargar), la función cortaba con
+        // "return" ANTES de pintar siquiera los placeholders, dejando la
+        // sección completamente vacía y sin ningún aviso. Ahora los
+        // placeholders se pintan siempre primero (fuera de cualquier
+        // condición), y solo se intenta reemplazarlos por datos reales si
+        // "Datos" está disponible.
         async function cargarTopsDestacadosHome() {
             const grid = document.getElementById("tops-destacados-grid");
-            if (!grid || typeof Datos === "undefined" || !Datos.listarTopsConItems) return;
+            if (!grid) return;
 
             // De entrada se pintan los 4 placeholders, así la sección no
-            // aparece vacía ni salta de tamaño mientras llega la respuesta.
+            // aparece vacía ni salta de tamaño mientras llega la respuesta,
+            // y quedan como fallback funcional (siguen siendo links a
+            // /tops) si algo más abajo falla o "Datos" no está disponible.
             grid.innerHTML = CATEGORIAS_TOPS.map(tarjetaTopPlaceholder).join("");
 
+            if (typeof Datos === "undefined" || !Datos.listarTopsConItems) {
+                console.error("[Home] El módulo de datos (Datos) no está disponible; se mantienen los placeholders.");
+                return;
+            }
+
             try {
-                const filas = await Datos.listarTopsConItems();
+                // conTimeout(): evita que una conexión móvil colgada deje
+                // esta sección esperando para siempre; a los 12s se cae al
+                // catch y se conservan los placeholders ya pintados.
+                const filas = await conTimeout(Datos.listarTopsConItems(), 12000);
                 const primeros = {};
                 filas.forEach((f) => {
                     if (f.posicion === 1 && f.item) primeros[f.top_tipo] = f;

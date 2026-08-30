@@ -746,27 +746,68 @@
             `;
         }
 
+        // Muestra un aviso de error dentro del bloque de tops (en vez de
+        // dejarlos con el aspecto de "Por definir", que es ambiguo: no se
+        // distingue si de verdad no hay nada asignado o si la carga falló).
+        function mostrarErrorTops(mensaje) {
+            const aviso = document.getElementById("tops-aviso");
+            if (!aviso) return;
+            aviso.textContent = mensaje;
+            aviso.style.display = "block";
+        }
+
+        // NOTA IMPORTANTE (bug corregido): antes esta función cortaba con
+        // "return" apenas detectaba que "Datos" no estaba disponible (por
+        // ejemplo si datos.js no llegó a cargar por un bloqueador de
+        // contenido, una conexión inestable o quedó cacheado un archivo
+        // viejo). Los skeletons ya se habían pintado más arriba, así que
+        // ese "return" temprano los dejaba animando PARA SIEMPRE, sin
+        // ningún mensaje de error: la web quedaba pegada en el esqueleto
+        // de carga tal como reportaron. Ahora, sea cual sea el motivo por
+        // el que no se puede cargar, siempre se llega al "finally" de más
+        // abajo, que quita los skeletons y deja un mensaje claro.
+        // Quita los skeletons de las 4 listas y las deja en "Por definir"
+        // como base. Se llama UNA sola vez por carga (éxito o error) desde
+        // cargarTopsPublicos; nunca se llama después de ya haber pintado
+        // los puestos reales, para no borrar lo que sí se cargó bien.
+        function limpiarSkeletonsDeTops() {
+            ["texturas_pvp", "mods_pvp", "texturas_survival", "servidores"].forEach((tipo) => {
+                pintarSlotsVacios(`top-${tipo}-lista`);
+            });
+        }
+
         async function cargarTopsPublicos() {
-            if (typeof Datos === "undefined" || !Datos.listarTopsConItems) return;
             try {
-                const filas = await Datos.listarTopsConItems();
+                if (typeof Datos === "undefined" || !Datos.listarTopsConItems) {
+                    throw new Error("No se pudo cargar el módulo de datos (Datos). Revisa tu conexión y vuelve a intentar.");
+                }
+
+                // conTimeout(): si Supabase no responde ni con éxito ni con
+                // error (conexión móvil colgada), se corta a los 12s en vez
+                // de dejar el skeleton esperando indefinidamente.
+                const filas = await conTimeout(Datos.listarTopsConItems(), 12000);
 
                 // Ya llegó la respuesta: se quitan los skeletons y se deja
                 // cada puesto en "Por definir" como base; los que sí tengan
                 // algo asignado se pintan encima justo abajo.
-                ["texturas_pvp", "mods_pvp", "texturas_survival", "servidores"].forEach((tipo) => {
-                    pintarSlotsVacios(`top-${tipo}-lista`);
-                });
+                limpiarSkeletonsDeTops();
 
                 // Un solo lote para el promedio de reseñas de los
                 // servidores que aparecen en el Top (no de todo el
-                // catálogo), igual criterio que en /servidores.
+                // catálogo), igual criterio que en /servidores. Si esta
+                // parte falla, no se pierde el Top ya cargado: solo se
+                // muestran sin promedio de estrellas.
                 const idsServidoresEnTop = filas
                     .filter((f) => f.item_tabla === "servidores" && f.item)
                     .map((f) => f.item.id);
-                const promedios = idsServidoresEnTop.length
-                    ? await Datos.promedioResenas(idsServidoresEnTop)
-                    : {};
+                let promedios = {};
+                if (idsServidoresEnTop.length) {
+                    try {
+                        promedios = await conTimeout(Datos.promedioResenas(idsServidoresEnTop), 12000);
+                    } catch (e) {
+                        console.error("[Tops] No se pudieron cargar los promedios de reseñas:", e.message);
+                    }
+                }
 
                 let algunoAsignado = false;
                 filas.forEach((f) => {
@@ -778,14 +819,19 @@
                     algunoAsignado = true;
                 });
                 const aviso = document.getElementById("tops-aviso");
-                if (aviso) aviso.style.display = algunoAsignado ? "none" : "block";
+                if (aviso) {
+                    aviso.textContent = "Estos tops los va a ir armando el equipo de Vivandro desde el panel de administración. Vuelve pronto para verlos completos.";
+                    aviso.style.display = algunoAsignado ? "none" : "block";
+                }
             } catch (e) {
-                // Si falla, se quitan los skeletons igual (si no, quedarían
-                // animando para siempre) y se deja el estado "Por definir".
-                ["texturas_pvp", "mods_pvp", "texturas_survival", "servidores"].forEach((tipo) => {
-                    pintarSlotsVacios(`top-${tipo}-lista`);
-                });
+                // Sea cual sea el motivo (Datos no disponible, error de
+                // Supabase o timeout), SIEMPRE se quitan los skeletons acá:
+                // antes, si "Datos" no existía, la función cortaba con
+                // "return" antes de este punto y los skeletons se quedaban
+                // animando para siempre (el bug reportado).
                 console.error("[Tops] No se pudieron cargar los tops:", e.message);
+                limpiarSkeletonsDeTops();
+                mostrarErrorTops("No se pudieron cargar los tops en este momento. Revisa tu conexión e inténtalo de nuevo más tarde.");
             }
         }
 

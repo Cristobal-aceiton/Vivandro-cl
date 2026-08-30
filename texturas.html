@@ -1168,7 +1168,12 @@
 
             let resultado;
             try {
-                resultado = await Datos.listarPagina("texturas", { pagina, porPagina: POR_PAGINA, busqueda: textoBusqueda });
+                // conTimeout(): si Supabase no responde (conexión móvil
+                // colgada), no se deja el skeleton esperando para siempre.
+                resultado = await conTimeout(
+                    Datos.listarPagina("texturas", { pagina, porPagina: POR_PAGINA, busqueda: textoBusqueda }),
+                    12000
+                );
             } catch (e) {
                 contenedor.querySelectorAll(".skeleton-card").forEach((c) => c.remove());
                 cargandoAviso.innerHTML = 'No se pudieron cargar las texturas. Revisa tu conexión e intenta de nuevo.<br><button type="button" class="btn-reintentar" id="btn-reintentar-texturas">Reintentar</button>';

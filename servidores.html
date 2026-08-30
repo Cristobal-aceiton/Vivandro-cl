@@ -667,8 +667,12 @@
         async function iniciar() {
             let modalidades = [];
             try {
-                modalidades = await Datos.listarModalidades();
+                // conTimeout(): si Supabase no responde (conexión móvil
+                // colgada), no se bloquea esta carga inicial para siempre;
+                // a los 12s se sigue con la lista de modalidades vacía.
+                modalidades = await conTimeout(Datos.listarModalidades(), 12000);
             } catch (e) {
+                console.error("[Servidores] No se pudieron cargar las modalidades:", e.message);
                 modalidades = [];
             }
             construirFiltros(modalidades);
@@ -787,14 +791,37 @@
             intervalosEstado = [];
 
             let resultado;
+            let promedios = {};
             try {
-                resultado = await Datos.listarPagina("servidores", {
-                    pagina,
-                    porPagina: POR_PAGINA,
-                    busqueda: textoBusqueda,
-                    modalidad: filtroActivo,
-                });
+                // conTimeout(): antes, si la petición a Supabase se quedaba
+                // colgada (sin resolver ni rechazar, algo que puede pasar
+                // en redes móviles inestables), el "await" nunca terminaba
+                // y el skeleton quedaba animando para siempre. A los 12s
+                // sin respuesta se corta y se cae al "catch" con el mensaje
+                // de error + botón de reintentar.
+                resultado = await conTimeout(
+                    Datos.listarPagina("servidores", {
+                        pagina,
+                        porPagina: POR_PAGINA,
+                        busqueda: textoBusqueda,
+                        modalidad: filtroActivo,
+                    }),
+                    12000
+                );
+
+                // El promedio de reseñas se trae dentro del mismo try: si
+                // esta consulta puntual fallara, no queremos perder toda la
+                // página de servidores ya cargada, así que un fallo acá
+                // solo deja los promedios en 0 (ver catch interno) en vez
+                // de tirar toda la carga de la página.
+                try {
+                    promedios = await conTimeout(Datos.promedioResenas(resultado.datos.map((s) => s.id)), 12000);
+                } catch (e) {
+                    console.error("[Servidores] No se pudieron cargar los promedios de reseñas:", e.message);
+                    promedios = {};
+                }
             } catch (e) {
+                console.error("[Servidores] No se pudieron cargar los servidores:", e.message);
                 contenedor.innerHTML = '<p class="sin-resultados">No se pudieron cargar los servidores. Revisa tu conexión e intenta de nuevo.<br><button type="button" class="btn-reintentar" id="btn-reintentar-servidores">Reintentar</button></p>';
                 const btnReintentar = document.getElementById("btn-reintentar-servidores");
                 if (btnReintentar) btnReintentar.addEventListener("click", () => cargarPagina(pagina));
@@ -809,10 +836,6 @@
                 contenedor.innerHTML = '<p class="sin-resultados">No encontramos servidores con ese criterio.</p>';
                 return;
             }
-
-            // Una sola consulta para el promedio de reseñas de los
-            // servidores de esta página (no de todo el catálogo).
-            const promedios = await Datos.promedioResenas(datos.map((s) => s.id));
 
             datos.map(mapearServidor).forEach((server, indice) => {
                 const card = document.createElement("div");
@@ -948,8 +971,13 @@
                 // para cada uno. Sin esto, un servidor Bedrock consultado
                 // como si fuera Java siempre aparecía offline.
                 const endpoint = server.tipoEdicion === "bedrock" ? "bedrock" : "java";
+                // La IP se codifica antes de insertarla en la URL: sin esto,
+                // una IP con caracteres como "/" podría alterar la ruta de
+                // la petición (por ejemplo, apuntar a otro endpoint distinto
+                // del esperado en la API de mcstatus.io).
+                const ipSegura = encodeURIComponent(server.ip);
 
-                fetch(`https://api.mcstatus.io/v2/status/${endpoint}/${server.ip}`, { signal: controlador.signal })
+                fetch(`https://api.mcstatus.io/v2/status/${endpoint}/${ipSegura}`, { signal: controlador.signal })
                     .then((res) => {
                         if (!res.ok) throw new Error("Respuesta no válida");
                         return res.json();
