@@ -322,6 +322,133 @@
             color: var(--acento-fuerte);
         }
 
+        /* Sección Tops destacados: adelanto del puesto #1 de cada
+           categoría, con link a /tops (o a /tops?cat=... para entrar
+           directo a esa categoría). Es la vitrina de la curaduría
+           editorial de Vivandro en el home, sin duplicar el contenido
+           completo de la página de Tops. */
+        .tops-destacados {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 10px 20px 20px;
+        }
+
+        .tops-destacados-cabecera {
+            text-align: center;
+            margin-bottom: 22px;
+        }
+
+        .tops-destacados-cabecera h2 {
+            font-family: "Pixelify Sans", sans-serif;
+            color: var(--titulo-color);
+            font-size: 1.9rem;
+            margin: 0 0 6px;
+        }
+
+        .tops-destacados-cabecera p {
+            font-family: "Poppins", sans-serif;
+            color: var(--card-text-soft);
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .tops-destacados-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .top-destacado-mini {
+            display: flex;
+            flex-direction: column;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            overflow: hidden;
+            text-decoration: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .top-destacado-mini:hover {
+            border-color: var(--acento);
+        }
+
+        .top-destacado-mini-imagen {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 850 / 457;
+            background-color: var(--card-bg);
+            overflow: hidden;
+        }
+
+        .top-destacado-mini-imagen img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center;
+            display: block;
+        }
+
+        .top-destacado-mini-badge {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background-color: var(--acento);
+            color: #fff;
+            font-family: "Poppins", sans-serif;
+            font-weight: 700;
+            font-size: 0.7rem;
+            padding: 3px 9px;
+            border-radius: 999px;
+        }
+
+        .top-destacado-mini-info {
+            padding: 10px 12px 12px;
+        }
+
+        .top-destacado-mini-categoria {
+            font-family: "Poppins", sans-serif;
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            color: var(--acento-fuerte);
+            margin: 0 0 3px;
+        }
+
+        .top-destacado-mini-nombre {
+            font-family: "Poppins", sans-serif;
+            font-weight: 600;
+            font-size: 0.88rem;
+            color: var(--card-text);
+            margin: 0;
+            line-height: 1.3;
+        }
+
+        .tops-destacados-cta {
+            text-align: center;
+            margin-top: 22px;
+        }
+
+        .tops-destacados-cta a {
+            display: inline-block;
+            font-family: "Poppins", sans-serif;
+            font-weight: 600;
+            font-size: 0.92rem;
+            color: var(--acento-fuerte);
+            text-decoration: none;
+            border-bottom: 1.5px solid var(--acento-fuerte);
+            padding-bottom: 2px;
+        }
+
+        @media (max-width: 900px) {
+            .tops-destacados-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
         /* Sección Comunidad: bloque final del scroll de Inicio con
            enlace al Discord oficial. */
         .comunidad {
@@ -487,6 +614,19 @@
         </div>
     </div>
 
+    <section class="tops-destacados" id="tops-destacados">
+        <div class="tops-destacados-cabecera">
+            <h2>Lo mejor de Vivandro</h2>
+            <p>Elegido a mano por el equipo. El puesto #1 de cada categoría.</p>
+        </div>
+        <div class="tops-destacados-grid" id="tops-destacados-grid">
+            <!-- Se rellena por JS con Datos.listarTopsConItems() -->
+        </div>
+        <div class="tops-destacados-cta">
+            <a href="/tops">Ver todos los tops →</a>
+        </div>
+    </section>
+
     <section class="comunidad" id="comunidad">
         <div class="comunidad-tarjeta">
             <h2>Únete a la comunidad</h2>
@@ -509,6 +649,7 @@
     <script src="seguridad.js"></script>
     <script src="https://unpkg.com/@supabase/supabase-js@2.112.3"></script>
     <script src="supabase-client.js"></script>
+    <script src="datos.js"></script>
     <script src="auth-nav.js"></script>
     <script>
         const elAnio = document.getElementById("anio-actual");
@@ -528,6 +669,81 @@
                 window.location.href = destino.pathname + destino.search;
             });
         }
+
+        // ---- Tops destacados: adelanto del puesto #1 de cada categoría ----
+        const CATEGORIAS_TOPS = [
+            { tipo: "texturas_pvp", etiqueta: "Texturas PVP" },
+            { tipo: "mods_pvp", etiqueta: "Mods PVP" },
+            { tipo: "texturas_survival", etiqueta: "Texturas Survival" },
+            { tipo: "servidores", etiqueta: "Servidores" },
+        ];
+
+        function hrefDeItemTop(itemTabla, item) {
+            if (itemTabla === "servidores") return `/servidor-detalle?id=${item.id}`;
+            return itemTabla === "mods" ? `/mods?id=${item.id}` : `/texturas?id=${item.id}`;
+        }
+
+        function tarjetaTopPlaceholder(categoria) {
+            // Si el equipo todavía no asignó el puesto 1 de esta
+            // categoría, se muestra igual una tarjeta (no se oculta la
+            // categoría entera) que invita a ver la página completa,
+            // así el bloque nunca se ve incompleto o roto.
+            return `
+                <a class="top-destacado-mini" href="/tops?cat=${categoria.tipo}">
+                    <div class="top-destacado-mini-imagen" style="display:flex; align-items:center; justify-content:center; color:var(--card-text-soft); font-family:'Poppins', sans-serif; font-size:0.8rem;">
+                        Próximamente
+                    </div>
+                    <div class="top-destacado-mini-info">
+                        <p class="top-destacado-mini-categoria">${escapeHTML(categoria.etiqueta)}</p>
+                        <p class="top-destacado-mini-nombre">Aún se está armando</p>
+                    </div>
+                </a>
+            `;
+        }
+
+        function tarjetaTop(categoria, item, itemTabla) {
+            const img = sanitizeURL(item.imagen) || "imagenes/logo.png";
+            return `
+                <a class="top-destacado-mini" href="${hrefDeItemTop(itemTabla, item)}">
+                    <div class="top-destacado-mini-imagen">
+                        <span class="top-destacado-mini-badge">🏆 #1</span>
+                        <img src="${img}" alt="${escapeHTML(item.nombre)}" loading="lazy">
+                    </div>
+                    <div class="top-destacado-mini-info">
+                        <p class="top-destacado-mini-categoria">${escapeHTML(categoria.etiqueta)}</p>
+                        <p class="top-destacado-mini-nombre">${escapeHTML(item.nombre)}</p>
+                    </div>
+                </a>
+            `;
+        }
+
+        async function cargarTopsDestacadosHome() {
+            const grid = document.getElementById("tops-destacados-grid");
+            if (!grid || typeof Datos === "undefined" || !Datos.listarTopsConItems) return;
+
+            // De entrada se pintan los 4 placeholders, así la sección no
+            // aparece vacía ni salta de tamaño mientras llega la respuesta.
+            grid.innerHTML = CATEGORIAS_TOPS.map(tarjetaTopPlaceholder).join("");
+
+            try {
+                const filas = await Datos.listarTopsConItems();
+                const primeros = {};
+                filas.forEach((f) => {
+                    if (f.posicion === 1 && f.item) primeros[f.top_tipo] = f;
+                });
+
+                grid.innerHTML = CATEGORIAS_TOPS.map((categoria) => {
+                    const fila = primeros[categoria.tipo];
+                    return fila ? tarjetaTop(categoria, fila.item, fila.item_tabla) : tarjetaTopPlaceholder(categoria);
+                }).join("");
+            } catch (e) {
+                console.error("[Home] No se pudieron cargar los tops destacados:", e.message);
+                // Se dejan los placeholders ya pintados: siguen siendo
+                // links válidos a /tops aunque falle la consulta.
+            }
+        }
+
+        cargarTopsDestacadosHome();
     </script>
 
 </body>

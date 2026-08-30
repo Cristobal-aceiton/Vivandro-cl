@@ -4,24 +4,24 @@
     <script src="theme.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tops de Minecraft: Mejores Mods y Texture Packs | Vivandro</title>
-    <meta name="description" content="Los tops de Vivandro: los mejores texture packs para PVP, los mejores mods para PVP y los mejores texture packs para survival o técnico.">
+    <title>Tops de Minecraft: Mejores Mods, Texturas y Servidores | Vivandro</title>
+    <meta name="description" content="Los tops de Vivandro: los mejores texture packs para PVP, los mejores mods para PVP, los mejores texture packs para survival o técnico, y los mejores servidores.">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="https://vivandro-cl-i1x2.vercel.app/tops">
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Vivandro">
-    <meta property="og:title" content="Tops de Minecraft: Mejores Mods y Texture Packs | Vivandro">
-    <meta property="og:description" content="Los mejores texture packs para PVP, los mejores mods para PVP y los mejores texture packs para survival o técnico.">
+    <meta property="og:title" content="Tops de Minecraft: Mejores Mods, Texturas y Servidores | Vivandro">
+    <meta property="og:description" content="Los mejores texture packs para PVP, los mejores mods para PVP, los mejores texture packs para survival o técnico, y los mejores servidores.">
     <meta property="og:url" content="https://vivandro-cl-i1x2.vercel.app/tops">
     <meta property="og:image" content="https://vivandro-cl-i1x2.vercel.app/imagenes/logo.png">
     <meta property="og:locale" content="es_CL">
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Tops de Minecraft: Mejores Mods y Texture Packs | Vivandro">
-    <meta name="twitter:description" content="Los mejores texture packs para PVP, los mejores mods para PVP y los mejores texture packs para survival o técnico.">
+    <meta name="twitter:title" content="Tops de Minecraft: Mejores Mods, Texturas y Servidores | Vivandro">
+    <meta name="twitter:description" content="Los mejores texture packs para PVP, los mejores mods para PVP, los mejores texture packs para survival o técnico, y los mejores servidores.">
     <meta name="twitter:image" content="https://vivandro-cl-i1x2.vercel.app/imagenes/logo.png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -138,7 +138,6 @@
             gap: 28px;
         }
 
-        /* ---- Pestañas para elegir qué Top ver ---- */
         .top-tabs {
             display: flex;
             gap: 10px;
@@ -161,6 +160,7 @@
             font-size: 0.9rem;
             color: var(--card-text-soft);
             cursor: pointer;
+            text-decoration: none;
             transition: border-color 0.2s ease, color 0.2s ease, background-color 0.2s ease;
         }
 
@@ -213,12 +213,90 @@
             font-family: "Poppins", sans-serif;
             color: var(--card-text-soft);
             font-size: 0.9rem;
-            margin: 0 0 18px;
+            margin: 0 0 20px;
         }
 
-        .top-lista {
+        /* ---- El puesto #1 se muestra aparte, más grande, con jerarquía
+           visual clara respecto al resto (2° a 5°). Antes las 5
+           posiciones se veían todas del mismo tamaño en una grilla
+           pareja, y no se notaba a simple vista cuál era realmente "el
+           mejor". ---- */
+        .top-podio {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        .top-destacado {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+            gap: 0;
+            background-color: var(--card-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 2px solid var(--acento);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 28px -12px rgba(167, 8, 182, 0.35);
+        }
+
+        .top-destacado .top-slot-imagen-wrap {
+            aspect-ratio: 850 / 457;
+        }
+
+        .top-destacado-info {
+            padding: 22px 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .top-destacado-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            align-self: flex-start;
+            background-color: var(--acento);
+            color: #fff;
+            font-family: "Poppins", sans-serif;
+            font-weight: 700;
+            font-size: 0.78rem;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            padding: 5px 12px;
+            border-radius: 999px;
+        }
+
+        .top-destacado-nombre {
+            font-family: "Pixelify Sans", sans-serif;
+            font-size: 1.7rem;
+            color: var(--titulo-color);
+            margin: 0;
+            line-height: 1.15;
+        }
+
+        .top-destacado-extra {
+            font-family: "Poppins", sans-serif;
+            font-size: 0.9rem;
+            color: var(--card-text-soft);
+        }
+
+        .top-destacado-estrellas {
+            color: #ffb400;
+            font-size: 1.05rem;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 700px) {
+            .top-destacado {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .top-resto {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
             gap: 16px;
         }
 
@@ -238,7 +316,7 @@
             padding: 14px;
             color: var(--card-text-soft);
             font-family: "Poppins", sans-serif;
-            transition: border-color 0.25s ease, transform 0.25s ease;
+            transition: border-color 0.25s ease;
             position: relative;
         }
 
@@ -299,7 +377,8 @@
             display: block;
         }
 
-        .top-slot-lleno .top-slot-numero {
+        .top-slot-lleno .top-slot-numero,
+        .top-destacado .top-slot-numero {
             position: absolute;
             top: 8px;
             left: 8px;
@@ -331,18 +410,14 @@
         }
 
         @media (max-width: 900px) {
-            .top-lista {
-                grid-template-columns: repeat(3, 1fr);
+            .top-resto {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
 
         @media (max-width: 600px) {
             .titulo-seccion h1 {
                 font-size: 2.2rem;
-            }
-
-            .top-lista {
-                grid-template-columns: repeat(2, 1fr);
             }
         }
 
@@ -376,27 +451,34 @@
     <div class="tops-contenedor">
 
         <div class="top-tabs" role="tablist">
-            <button type="button" class="top-tab activo" data-tab="top-texturas-pvp" role="tab" aria-selected="true"><span class="emoji">🗡️</span> Texturas PVP</button>
-            <button type="button" class="top-tab" data-tab="top-mods-pvp" role="tab" aria-selected="false"><span class="emoji">⚔️</span> Mods PVP</button>
-            <button type="button" class="top-tab" data-tab="top-texturas-survival" role="tab" aria-selected="false"><span class="emoji">⛏️</span> Texturas Survival</button>
+            <a href="/tops?cat=texturas_pvp" class="top-tab activo" data-tab="texturas_pvp" role="tab" aria-selected="true"><span class="emoji">🗡️</span> Texturas PVP</a>
+            <a href="/tops?cat=mods_pvp" class="top-tab" data-tab="mods_pvp" role="tab" aria-selected="false"><span class="emoji">⚔️</span> Mods PVP</a>
+            <a href="/tops?cat=texturas_survival" class="top-tab" data-tab="texturas_survival" role="tab" aria-selected="false"><span class="emoji">⛏️</span> Texturas Survival</a>
+            <a href="/tops?cat=servidores" class="top-tab" data-tab="servidores" role="tab" aria-selected="false"><span class="emoji">🖥️</span> Servidores</a>
         </div>
 
-        <section class="top-seccion activo" id="top-texturas-pvp" aria-labelledby="top-texturas-pvp-titulo">
-            <h2 id="top-texturas-pvp-titulo">🗡️ Top 5 texture packs para PVP</h2>
+        <section class="top-seccion activo" id="top-texturas_pvp" aria-labelledby="top-texturas_pvp-titulo">
+            <h2 id="top-texturas_pvp-titulo">🗡️ Top 5 texture packs para PVP</h2>
             <p class="top-subtitulo">Los packs favoritos para combate: hitbox clara y buen rendimiento.</p>
-            <div class="top-lista" id="top-texturas-pvp-lista"></div>
+            <div class="top-podio" id="top-texturas_pvp-lista"></div>
         </section>
 
-        <section class="top-seccion" id="top-mods-pvp" aria-labelledby="top-mods-pvp-titulo">
-            <h2 id="top-mods-pvp-titulo">⚔️ Top 5 mods para PVP</h2>
+        <section class="top-seccion" id="top-mods_pvp" aria-labelledby="top-mods_pvp-titulo">
+            <h2 id="top-mods_pvp-titulo">⚔️ Top 5 mods para PVP</h2>
             <p class="top-subtitulo">Mods que mejoran combate, movimiento y ventaja competitiva.</p>
-            <div class="top-lista" id="top-mods-pvp-lista"></div>
+            <div class="top-podio" id="top-mods_pvp-lista"></div>
         </section>
 
-        <section class="top-seccion" id="top-texturas-survival" aria-labelledby="top-texturas-survival-titulo">
-            <h2 id="top-texturas-survival-titulo">⛏️ Top 5 texture packs para survival o técnico</h2>
+        <section class="top-seccion" id="top-texturas_survival" aria-labelledby="top-texturas_survival-titulo">
+            <h2 id="top-texturas_survival-titulo">⛏️ Top 5 texture packs para survival o técnico</h2>
             <p class="top-subtitulo">Ideal para exploración, construcción y partidas técnicas.</p>
-            <div class="top-lista" id="top-texturas-survival-lista"></div>
+            <div class="top-podio" id="top-texturas_survival-lista"></div>
+        </section>
+
+        <section class="top-seccion" id="top-servidores" aria-labelledby="top-servidores-titulo">
+            <h2 id="top-servidores-titulo">🖥️ Top 5 servidores</h2>
+            <p class="top-subtitulo">Los mejor puntuados por la comunidad, elegidos por el equipo de Vivandro.</p>
+            <div class="top-podio" id="top-servidores-lista"></div>
         </section>
 
     </div>
@@ -421,61 +503,126 @@
         const elAnio = document.getElementById("anio-actual");
         if (elAnio) elAnio.textContent = new Date().getFullYear();
 
-        // ---- Pestañas: solo se muestra la sección elegida ----
-        document.querySelectorAll(".top-tab").forEach((boton) => {
-            boton.addEventListener("click", () => {
-                const idObjetivo = boton.dataset.tab;
+        const TIPOS_VALIDOS = ["texturas_pvp", "mods_pvp", "texturas_survival", "servidores"];
 
-                document.querySelectorAll(".top-tab").forEach((b) => {
-                    b.classList.toggle("activo", b === boton);
-                    b.setAttribute("aria-selected", b === boton ? "true" : "false");
-                });
+        // ---- Pestañas: son links reales (?cat=...) para que cada Top
+        // tenga su propia URL compartible/indexable. El cambio entre
+        // ellas no recarga la página (se intercepta el click), pero si
+        // alguien entra directo a /tops?cat=servidores, esa sección ya
+        // sale activa desde el primer render. ----
+        function activarTab(tipo, { actualizarUrl }) {
+            if (!TIPOS_VALIDOS.includes(tipo)) tipo = TIPOS_VALIDOS[0];
 
-                document.querySelectorAll(".top-seccion").forEach((seccion) => {
-                    seccion.classList.toggle("activo", seccion.id === idObjetivo);
-                });
+            document.querySelectorAll(".top-tab").forEach((a) => {
+                const esEste = a.dataset.tab === tipo;
+                a.classList.toggle("activo", esEste);
+                a.setAttribute("aria-selected", esEste ? "true" : "false");
+            });
+
+            document.querySelectorAll(".top-seccion").forEach((seccion) => {
+                seccion.classList.toggle("activo", seccion.id === `top-${tipo}`);
+            });
+
+            if (actualizarUrl) {
+                history.pushState(null, "", `/tops?cat=${tipo}`);
+            }
+        }
+
+        document.querySelectorAll(".top-tab").forEach((enlace) => {
+            enlace.addEventListener("click", (e) => {
+                e.preventDefault();
+                activarTab(enlace.dataset.tab, { actualizarUrl: true });
             });
         });
 
-        // Cada Top se pinta con 5 slots. Las posiciones que el admin ya
-        // asignó (panel admin -> sección "Tops") muestran el mod/textura
-        // real con link a su ficha; las que todavía no tienen nada
-        // asignado se muestran como "Por definir".
+        window.addEventListener("popstate", () => {
+            activarTab(new URLSearchParams(location.search).get("cat"), { actualizarUrl: false });
+        });
+
+        activarTab(new URLSearchParams(location.search).get("cat"), { actualizarUrl: false });
+
+        // Cada Top se pinta con un puesto #1 destacado (más grande) y una
+        // fila con los puestos 2 a 5. Las posiciones que el admin ya
+        // asignó (panel admin -> sección "Tops") muestran el mod/textura/
+        // servidor real con link a su ficha; las que todavía no tienen
+        // nada asignado se muestran como "Por definir".
         function pintarSlotsVacios(idLista) {
             const contenedor = document.getElementById(idLista);
             if (!contenedor) return;
-            contenedor.innerHTML = "";
-            for (let i = 1; i <= 5; i++) {
+            contenedor.innerHTML = `
+                <div class="top-destacado" id="${idLista}-1">
+                    <div class="top-slot-imagen-wrap" style="display:flex; align-items:center; justify-content:center;">
+                        <div class="top-slot-numero">1</div>
+                        <span class="top-slot-texto">Por definir</span>
+                    </div>
+                    <div class="top-destacado-info">
+                        <span class="top-destacado-badge">🏆 Puesto 1</span>
+                        <p class="top-destacado-nombre">Por definir</p>
+                    </div>
+                </div>
+                <div class="top-resto" id="${idLista}-resto"></div>
+            `;
+            const resto = document.getElementById(`${idLista}-resto`);
+            for (let i = 2; i <= 5; i++) {
                 const slot = document.createElement("div");
                 slot.className = "top-slot";
+                slot.id = `${idLista}-${i}`;
                 slot.innerHTML = `
                     <div class="top-slot-numero">${i}</div>
                     <div class="top-slot-texto">Por definir</div>
                 `;
-                contenedor.appendChild(slot);
+                resto.appendChild(slot);
             }
         }
 
-        pintarSlotsVacios("top-texturas-pvp-lista");
-        pintarSlotsVacios("top-mods-pvp-lista");
-        pintarSlotsVacios("top-texturas-survival-lista");
+        ["texturas_pvp", "mods_pvp", "texturas_survival", "servidores"].forEach((tipo) => {
+            pintarSlotsVacios(`top-${tipo}-lista`);
+        });
 
         const LISTAS_POR_TIPO = {
-            texturas_pvp: "top-texturas-pvp-lista",
-            mods_pvp: "top-mods-pvp-lista",
-            texturas_survival: "top-texturas-survival-lista",
+            texturas_pvp: "top-texturas_pvp-lista",
+            mods_pvp: "top-mods_pvp-lista",
+            texturas_survival: "top-texturas_survival-lista",
+            servidores: "top-servidores-lista",
         };
 
-        function pintarSlotLleno(idLista, posicion, item, itemTabla) {
-            const contenedor = document.getElementById(idLista);
-            if (!contenedor) return;
-            const slots = contenedor.querySelectorAll(".top-slot");
-            const slot = slots[posicion - 1];
-            if (!slot) return;
+        function hrefDeItem(itemTabla, item) {
+            if (itemTabla === "servidores") return `/servidor-detalle?id=${item.id}`;
+            return itemTabla === "mods" ? `/mods?id=${item.id}` : `/texturas?id=${item.id}`;
+        }
 
-            const href = itemTabla === "mods" ? `/mods?id=${item.id}` : `/texturas?id=${item.id}`;
+        function pintarSlotLleno(idLista, posicion, item, itemTabla, infoResenas) {
+            const href = hrefDeItem(itemTabla, item);
             const img = sanitizeURL(item.imagen) || "imagenes/logo.png";
+            // Los servidores muestran además su promedio de reseñas (dato
+            // que ya se calcula para las cards de /servidores), así el
+            // Top también sirve como una forma más de validar "por qué
+            // este servidor está acá".
+            const estrellasHTML = infoResenas
+                ? `<div class="${posicion === 1 ? "top-destacado-estrellas" : "top-slot-texto"}">${"★".repeat(Math.round(infoResenas.promedio))}${"☆".repeat(5 - Math.round(infoResenas.promedio))} <span style="opacity:.8;">(${infoResenas.total})</span></div>`
+                : "";
 
+            if (posicion === 1) {
+                const destacado = document.getElementById(`${idLista}-1`);
+                if (!destacado) return;
+                destacado.onclick = () => { window.location.href = href; };
+                destacado.style.cursor = "pointer";
+                destacado.innerHTML = `
+                    <div class="top-slot-imagen-wrap">
+                        <div class="top-slot-numero">1</div>
+                        <img src="${img}" alt="${escapeHTML(item.nombre)}" loading="lazy">
+                    </div>
+                    <div class="top-destacado-info">
+                        <span class="top-destacado-badge">🏆 Puesto 1</span>
+                        <p class="top-destacado-nombre">${escapeHTML(item.nombre)}</p>
+                        ${estrellasHTML}
+                    </div>
+                `;
+                return;
+            }
+
+            const slot = document.getElementById(`${idLista}-${posicion}`);
+            if (!slot) return;
             slot.classList.add("top-slot-lleno");
             slot.onclick = () => { window.location.href = href; };
             slot.innerHTML = `
@@ -485,6 +632,7 @@
                 </div>
                 <div class="top-slot-info">
                     <div class="top-slot-nombre">${escapeHTML(item.nombre)}</div>
+                    ${estrellasHTML}
                 </div>
             `;
         }
@@ -493,12 +641,24 @@
             if (typeof Datos === "undefined" || !Datos.listarTopsConItems) return;
             try {
                 const filas = await Datos.listarTopsConItems();
+
+                // Un solo lote para el promedio de reseñas de los
+                // servidores que aparecen en el Top (no de todo el
+                // catálogo), igual criterio que en /servidores.
+                const idsServidoresEnTop = filas
+                    .filter((f) => f.item_tabla === "servidores" && f.item)
+                    .map((f) => f.item.id);
+                const promedios = idsServidoresEnTop.length
+                    ? await Datos.promedioResenas(idsServidoresEnTop)
+                    : {};
+
                 let algunoAsignado = false;
                 filas.forEach((f) => {
                     if (!f.item) return; // ítem eliminado o ya no publicado: se deja el slot como "Por definir"
                     const idLista = LISTAS_POR_TIPO[f.top_tipo];
                     if (!idLista) return;
-                    pintarSlotLleno(idLista, f.posicion, f.item, f.item_tabla);
+                    const infoResenas = f.item_tabla === "servidores" ? (promedios[f.item.id] || { promedio: 0, total: 0 }) : null;
+                    pintarSlotLleno(idLista, f.posicion, f.item, f.item_tabla, infoResenas);
                     algunoAsignado = true;
                 });
                 const aviso = document.getElementById("tops-aviso");

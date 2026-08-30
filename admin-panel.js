@@ -708,10 +708,11 @@ const TOP_CONFIG = {
     texturas_pvp: { itemTabla: "texturas", etiqueta: "textura" },
     mods_pvp: { itemTabla: "mods", etiqueta: "mod" },
     texturas_survival: { itemTabla: "texturas", etiqueta: "textura" },
+    servidores: { itemTabla: "servidores", etiqueta: "servidor" },
 };
 
 let topsCache = {}; // "top_tipo|posicion" -> fila con { ...fila, item }
-let topsItemsDisponibles = { mods: [], texturas: [] }; // solo publicados, para el buscador
+let topsItemsDisponibles = { mods: [], texturas: [], servidores: [] }; // solo publicados, para el buscador
 let topsModalListo = false;
 let modalTopContexto = null; // { topTipo, posicion } mientras el modal está abierto
 
@@ -727,18 +728,22 @@ async function cargarTops() {
         $(`top-grid-${tipo}`).innerHTML = `<div class="vacio">Cargando…</div>`;
     });
 
-    const [filas, mods, texturas] = await Promise.all([
+    const [filas, mods, texturas, servidores] = await Promise.all([
         Datos.listarTopsConItems(),
         Datos.listar("mods", "id, nombre, imagen, estado"),
         Datos.listar("texturas", "id, nombre, imagen, estado"),
+        Datos.listar("servidores", "id, nombre, logo"),
     ]);
 
     // Solo se puede elegir para un Top algo que ya esté publicado en el
     // sitio; si algo deja de estar publicado, el propio trigger de la
-    // base de datos ya lo saca del Top (ver fase2_tops_y_logs.sql).
+    // base de datos ya lo saca del Top (ver fase2_tops_y_logs.sql). Los
+    // servidores no tienen estado "pendiente/publicado" (no pasan por
+    // moderación), así que todos están siempre disponibles.
     topsItemsDisponibles = {
         mods: mods.filter((m) => m.estado === "publicado" || m.estado === undefined),
         texturas: texturas.filter((t) => t.estado === "publicado" || t.estado === undefined),
+        servidores: servidores.map((s) => ({ id: s.id, nombre: s.nombre, imagen: s.logo })),
     };
 
     topsCache = {};
@@ -827,7 +832,7 @@ function renderListaModalTop(textoBusqueda) {
 
     lista.innerHTML = opciones.map((it) => `
         <li class="combo-opcion" data-id="${it.id}" role="option">
-            <i data-lucide="${itemTabla === "mods" ? "puzzle" : "palette"}" class="combo-opcion-ico"></i>
+            <i data-lucide="${itemTabla === "mods" ? "puzzle" : itemTabla === "servidores" ? "server" : "palette"}" class="combo-opcion-ico"></i>
             <span>${escapeHTML(it.nombre)}</span>
         </li>`).join("");
     refrescarIconos();

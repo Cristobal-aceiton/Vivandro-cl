@@ -471,7 +471,7 @@ const Datos = (function () {
     // ---------- Tops (Top 5 de cada categoría, sección "Tops" del panel) ----------
     // Cada fila de "tops" es un slot: qué mod/textura ocupa la posición N
     // (1 a 5) de un top_tipo determinado. Ver fase2_tops_y_logs.sql.
-    const TOP_TIPOS = ["texturas_pvp", "mods_pvp", "texturas_survival"];
+    const TOP_TIPOS = ["texturas_pvp", "mods_pvp", "texturas_survival", "servidores"];
 
     // Trae las 3 x 5 filas de "tops" que existan (cualquiera puede leerlas,
     // están protegidas solo para escritura), sin los datos del mod/textura
@@ -498,18 +498,28 @@ const Datos = (function () {
 
         const idsMods = [...new Set(filas.filter((f) => f.item_tabla === "mods").map((f) => f.item_id))];
         const idsTexturas = [...new Set(filas.filter((f) => f.item_tabla === "texturas").map((f) => f.item_id))];
+        const idsServidores = [...new Set(filas.filter((f) => f.item_tabla === "servidores").map((f) => f.item_id))];
 
-        const [resMods, resTexturas] = await Promise.all([
+        const [resMods, resTexturas, resServidores] = await Promise.all([
             idsMods.length ? supabaseClient.from("mods").select("id, nombre, imagen").in("id", idsMods) : Promise.resolve({ data: [] }),
             idsTexturas.length ? supabaseClient.from("texturas").select("id, nombre, imagen").in("id", idsTexturas) : Promise.resolve({ data: [] }),
+            idsServidores.length ? supabaseClient.from("servidores").select("id, nombre, logo").in("id", idsServidores) : Promise.resolve({ data: [] }),
         ]);
 
         const mapaMods = Object.fromEntries((resMods.data || []).map((m) => [m.id, m]));
         const mapaTexturas = Object.fromEntries((resTexturas.data || []).map((t) => [t.id, t]));
+        // Los servidores guardan la imagen en "logo", no en "imagen"; se
+        // normaliza acá para que el resto del código (panel admin y
+        // tops.html) no tenga que distinguir de qué tabla vino cada ítem.
+        const mapaServidores = Object.fromEntries(
+            (resServidores.data || []).map((s) => [s.id, { id: s.id, nombre: s.nombre, imagen: s.logo }])
+        );
+
+        const mapasPorTabla = { mods: mapaMods, texturas: mapaTexturas, servidores: mapaServidores };
 
         return filas.map((f) => ({
             ...f,
-            item: (f.item_tabla === "mods" ? mapaMods : mapaTexturas)[f.item_id] || null,
+            item: (mapasPorTabla[f.item_tabla] || {})[f.item_id] || null,
         }));
     }
 
