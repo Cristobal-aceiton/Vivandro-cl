@@ -18,10 +18,10 @@
        tanda para este mismo tipo + categoría + búsqueda, y busca
        en la API oficial de CurseForge (nunca inventa datos) desde
        ahí el primer mod/textura de Minecraft, ordenado por
-       popularidad, que todavía no esté en la base de datos.
-       Opcionalmente filtra por categoryId de CurseForge y/o por
-       una palabra clave (searchFilter), si el admin las eligió en
-       el panel.
+       DESCARGAS TOTALES de mayor a menor, que todavía no esté en
+       la base de datos. Opcionalmente filtra por categoryId de
+       CurseForge y/o por una palabra clave (searchFilter), si el
+       admin las eligió en el panel.
     5) Arma el registro con datos 100% reales de CurseForge:
        nombre, imagen, link, versión, cargadores y requisitos
        (dependencias obligatorias).
@@ -148,7 +148,7 @@ async function buscarCandidato({ apiKey, classId, categoriaId, busqueda, existen
       throw err;
     }
 
-    let url = `https://api.curseforge.com/v1/mods/search?gameId=${GAME_ID_MINECRAFT}&classId=${classId}&sortField=2&sortOrder=desc&pageSize=${TAMANO_PAGINA}&index=${index}`;
+    let url = `https://api.curseforge.com/v1/mods/search?gameId=${GAME_ID_MINECRAFT}&classId=${classId}&sortField=6&sortOrder=desc&pageSize=${TAMANO_PAGINA}&index=${index}`;
     if (categoriaId) url += `&categoryId=${categoriaId}`;
     if (busqueda) url += `&searchFilter=${encodeURIComponent(busqueda)}`;
 
