@@ -188,6 +188,45 @@ const Datos = (function () {
         };
     }
 
+    // Trae el promedio de estrellas y la cantidad de reseñas de un lote
+    // de servidores (los que están visibles en la página actual, por
+    // ejemplo), en una sola consulta. Igual que la paginación: nunca se
+    // trae la tabla "resenas" completa, solo las filas de los servidores
+    // pedidos. El promedio se calcula acá en JS porque son pocas filas
+    // (reseñas de 6-20 servidores a la vez), no vale la pena una función
+    // agregada en la base de datos para esto.
+    async function promedioResenas(idsServidores) {
+        const resultado = {};
+        const ids = [...new Set((idsServidores || []).filter(Boolean).map(String))];
+        if (!ids.length || !clienteListo()) return resultado;
+
+        const { data, error } = await supabaseClient
+            .from("resenas")
+            .select("servidor_id, estrellas")
+            .in("servidor_id", ids);
+
+        if (error) {
+            console.error("[Datos] Error trayendo promedios de reseñas:", error.message);
+            return resultado;
+        }
+
+        const sumas = {};
+        const conteos = {};
+        (data || []).forEach((fila) => {
+            sumas[fila.servidor_id] = (sumas[fila.servidor_id] || 0) + fila.estrellas;
+            conteos[fila.servidor_id] = (conteos[fila.servidor_id] || 0) + 1;
+        });
+
+        ids.forEach((id) => {
+            const total = conteos[id] || 0;
+            resultado[id] = {
+                promedio: total > 0 ? sumas[id] / total : 0,
+                total,
+            };
+        });
+        return resultado;
+    }
+
     // Trae un solo registro por id. Se usa para el link "Compartir": si
     // alguien abre mods.html?id=123 y ese mod no está en la página que
     // se cargó por defecto, igual lo podemos traer directo sin tener
@@ -503,7 +542,7 @@ const Datos = (function () {
     }
 
     return {
-        listar, listarPagina, listarPaginaAdmin, listarModalidades, obtenerPorId, crear, actualizar, actualizarVarios, eliminar, clienteListo, contar,
+        listar, listarPagina, listarPaginaAdmin, promedioResenas, listarModalidades, obtenerPorId, crear, actualizar, actualizarVarios, eliminar, clienteListo, contar,
         registrarDescarga, listarDescargas,
         listarBitacora, registrarIntentoAcceso, listarIntentosAcceso, limpiarIntentosAcceso,
         obtenerAdmin, listarAdmins, agregarAdmin, eliminarAdmin,

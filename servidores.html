@@ -422,6 +422,29 @@
             color: var(--acento);
         }
 
+        .server-resenas-resumen {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            font-size: 0.85rem;
+        }
+
+        .server-resenas-estrellas {
+            color: #ffb400;
+            letter-spacing: 1px;
+            font-size: 0.95rem;
+        }
+
+        .server-resenas-promedio {
+            font-weight: 700;
+            color: var(--card-text);
+        }
+
+        .server-resenas-total {
+            color: var(--card-text-soft);
+        }
+
         .server-info > p {
             margin: 0;
             font-size: 0.9rem;
@@ -780,6 +803,10 @@
                 return;
             }
 
+            // Una sola consulta para el promedio de reseñas de los
+            // servidores de esta página (no de todo el catálogo).
+            const promedios = await Datos.promedioResenas(datos.map((s) => s.id));
+
             datos.map(mapearServidor).forEach((server, indice) => {
                 const card = document.createElement("div");
                 card.className = "server-card";
@@ -789,6 +816,15 @@
                 const idSeguro = encodeURIComponent(server.id);
                 const logoSeguro = sanitizeURL(server.logo) || LOGO_FALLBACK;
                 const numero = (pagina - 1) * POR_PAGINA + indice + 1;
+                // Si el servidor todavía no tiene reseñas, se muestra en
+                // 0 (sin estrellas rellenas) en vez de ocultar el bloque,
+                // así la card siempre tiene el mismo layout.
+                const infoResenas = promedios[server.id] || { promedio: 0, total: 0 };
+                const promedioRedondeado = Math.round(infoResenas.promedio);
+                const estrellasHTML = "★".repeat(promedioRedondeado) + "☆".repeat(5 - promedioRedondeado);
+                const textoResenas = infoResenas.total === 0
+                    ? "Sin reseñas todavía"
+                    : `${infoResenas.total} reseña${infoResenas.total === 1 ? "" : "s"}`;
                 card.innerHTML = `
                     <div class="server-logo-box">
                         <div class="server-numero">${numero}</div>
@@ -805,6 +841,11 @@
                     </div>
                     <div class="server-info">
                         <h2>${escapeHTML(server.nombre)}</h2>
+                        <div class="server-resenas-resumen">
+                            <span class="server-resenas-estrellas">${estrellasHTML}</span>
+                            <span class="server-resenas-promedio">${infoResenas.promedio.toFixed(1)}</span>
+                            <span class="server-resenas-total">(${textoResenas})</span>
+                        </div>
                         <p>${escapeHTML(server.descripcion)}</p>
                         <div class="server-stats">
                             <div class="stat-item">
