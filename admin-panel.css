@@ -104,18 +104,23 @@ body {
 
 body::before,
 body::after {
+    /* Antes esto era un círculo sólido con filter: blur(120px). Ese
+       blur, fijo en pantalla, es de las combinaciones más caras que
+       existen en CSS: sin aceleración de hardware el navegador tiene
+       que recalcularlo por software en cada frame, tirando los fps.
+       Un radial-gradient logra el mismo brillo difuminado pero es
+       prácticamente gratis de renderizar, con o sin GPU. */
     content: "";
     position: fixed;
-    width: 560px;
-    height: 560px;
+    width: 900px;
+    height: 900px;
     border-radius: 50%;
-    filter: blur(120px);
     pointer-events: none;
     z-index: 0;
 }
 
-body::before { top: -180px; left: -140px; background: var(--admin-glow1); }
-body::after { bottom: -220px; right: -140px; background: var(--admin-glow2); }
+body::before { top: -350px; left: -310px; background: radial-gradient(circle, var(--admin-glow1) 0%, transparent 70%); }
+body::after { bottom: -390px; right: -310px; background: radial-gradient(circle, var(--admin-glow2) 0%, transparent 70%); }
 
 .admin-shell, #pantalla-cargando, #pantalla-denegado {
     position: relative;

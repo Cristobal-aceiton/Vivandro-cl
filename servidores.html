@@ -107,19 +107,24 @@
         }
 
         .glow {
+            /* Antes esto era un círculo sólido con filter: blur(120px).
+               Ese blur, fijo en pantalla, es de las combinaciones más
+               caras que existen en CSS: sin aceleración de hardware el
+               navegador tiene que recalcularlo por software en cada
+               frame (sobre todo al scrollear), lo que tiraba los fps a
+               ~15. Un radial-gradient logra el mismo efecto de brillo
+               difuminado pero es prácticamente gratis de renderizar,
+               con o sin GPU. */
             position: fixed;
-            width: 560px;
-            height: 560px;
+            width: 900px;
+            height: 900px;
             border-radius: 50%;
-            filter: blur(120px);
             pointer-events: none;
             z-index: 0;
-            will-change: transform;
-            transform: translateZ(0);
         }
 
-        .glow-1 { top: -180px; left: -140px; background: var(--glow1); }
-        .glow-2 { bottom: -220px; right: -140px; background: var(--glow2); }
+        .glow-1 { top: -350px; left: -310px; background: radial-gradient(circle, var(--glow1) 0%, transparent 70%); }
+        .glow-2 { bottom: -390px; right: -310px; background: radial-gradient(circle, var(--glow2) 0%, transparent 70%); }
 
         .titulo-seccion, .controles, .servidores-container, .paginacion {
             position: relative;
