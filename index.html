@@ -254,6 +254,60 @@
             background-color: var(--card-bg);
         }
 
+        /* Indicador de scroll: aparece pegado abajo mientras el usuario
+           está arriba del todo, invitando a bajar. Se desvanece apenas
+           empieza a scrollear y reaparece si vuelve al inicio. */
+        .scroll-indicador {
+            position: fixed;
+            left: 50%;
+            bottom: 22px;
+            transform: translateX(-50%);
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--titulo-soft);
+            font-family: "Poppins", sans-serif;
+            opacity: 1;
+            pointer-events: auto;
+            transition: opacity 0.35s ease;
+        }
+
+        .scroll-indicador.oculto {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .scroll-indicador-texto {
+            font-size: 0.75rem;
+            letter-spacing: 0.02em;
+        }
+
+        .scroll-indicador-icono {
+            animation: scroll-indicador-rebote 1.6s ease-in-out infinite;
+        }
+
+        @keyframes scroll-indicador-rebote {
+            0%, 100% { transform: translateY(0); opacity: 0.55; }
+            50% { transform: translateY(6px); opacity: 1; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .scroll-indicador-icono {
+                animation: none;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .scroll-indicador-texto {
+                display: none;
+            }
+        }
+
         .opciones {
             text-align: center;
             font-family: "Poppins", sans-serif;
@@ -588,6 +642,13 @@
         </div>
     </div>
 
+    <button type="button" class="scroll-indicador" id="scroll-indicador" aria-label="Bajar para ver más contenido">
+        <span class="scroll-indicador-texto">Descubre más</span>
+        <svg class="scroll-indicador-icono" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+    </button>
+
     <div class="opciones">
         <div class="bento">
 
@@ -661,6 +722,30 @@
     <script>
         const elAnio = document.getElementById("anio-actual");
         if (elAnio) elAnio.textContent = new Date().getFullYear();
+
+        // Indicador de scroll del Hero: visible solo mientras estamos
+        // arriba del todo, se desvanece apenas el usuario empieza a
+        // bajar y al clickearlo lleva suavemente a la sección de abajo.
+        const scrollIndicador = document.getElementById("scroll-indicador");
+        if (scrollIndicador) {
+            const opciones = document.querySelector(".opciones");
+
+            let actualizando = false;
+            function actualizarVisibilidadIndicador() {
+                actualizando = false;
+                scrollIndicador.classList.toggle("oculto", window.scrollY > 80);
+            }
+            window.addEventListener("scroll", () => {
+                if (actualizando) return;
+                actualizando = true;
+                requestAnimationFrame(actualizarVisibilidadIndicador);
+            }, { passive: true });
+            actualizarVisibilidadIndicador();
+
+            scrollIndicador.addEventListener("click", () => {
+                (opciones || document.body).scrollIntoView({ behavior: "smooth", block: "start" });
+            });
+        }
 
         // Buscador global del Hero: redirige a la categoría elegida con
         // el texto ya aplicado como filtro (?buscar=...), que cada
