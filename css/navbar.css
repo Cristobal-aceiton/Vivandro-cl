@@ -89,8 +89,15 @@
 
 .navbar {
     background-color: var(--navbar-bg);
-    backdrop-filter: blur(14px) saturate(140%);
-    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    /* El blur+saturate original (14px, saturate 140%) se ve bien, pero
+       backdrop-filter en un elemento sticky obliga al navegador a
+       recomponer TODO lo que hay detrás en cada frame de scroll -y
+       eso es aún más caro sin aceleración de hardware. Bajar el radio
+       a 8px y sacar el saturate corta buena parte de ese costo (el
+       costo de un blur crece con el cuadrado del radio) sin perder
+       demasiado el efecto de vidrio esmerilado. */
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.09);
     position: sticky;
     top: 0;

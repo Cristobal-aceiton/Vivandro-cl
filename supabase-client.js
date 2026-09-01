@@ -47,7 +47,4 @@ function supabaseListo() {
 
 if (supabaseListo()) {
     supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    console.log("[Supabase] Conectado.");
-} else {
-    console.log("[Supabase] Sin conectar todavía. Las reseñas usan localStorage como demo. Edita supabase-client.js para conectar.");
 }

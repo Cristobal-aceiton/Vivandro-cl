@@ -1,0 +1,47 @@
+/*
+  comun.css
+  -----------------------------------------------------------
+  Estilos que son 100% idénticos en todas las páginas del sitio
+  (resets de html/body y el "glow" de fondo). Antes estaban
+  copiados y pegados dentro del <style> de cada página, así que
+  cualquier cambio -como el que hicimos para arreglar el bug de
+  fps del blur- había que repetirlo manualmente en 7-8 archivos.
+  Ahora se edita una sola vez acá y se refleja en todo el sitio.
+
+  Los colores del glow (--glow1, --glow2) y el color de fondo
+  (--bg) siguen definidos en el :root de cada página, así que
+  cada una puede seguir teniendo su propia paleta sin problema.
+  -----------------------------------------------------------
+*/
+
+html {
+    height: 100%;
+}
+
+body,
+html {
+    margin: 0;
+    min-height: 100%;
+    background-color: var(--bg);
+    transition: background-color 0.3s ease;
+}
+
+.glow {
+    /* Antes esto era un círculo sólido con filter: blur(120px).
+       Ese blur, fijo en pantalla, es de las combinaciones más
+       caras que existen en CSS: sin aceleración de hardware el
+       navegador tiene que recalcularlo por software en cada
+       frame (sobre todo al scrollear), lo que tiraba los fps a
+       ~15. Un radial-gradient logra el mismo efecto de brillo
+       difuminado pero es prácticamente gratis de renderizar,
+       con o sin GPU. */
+    position: fixed;
+    width: 900px;
+    height: 900px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.glow-1 { top: -350px; left: -310px; background: radial-gradient(circle, var(--glow1) 0%, transparent 70%); }
+.glow-2 { bottom: -390px; right: -310px; background: radial-gradient(circle, var(--glow2) 0%, transparent 70%); }

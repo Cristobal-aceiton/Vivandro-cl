@@ -36,6 +36,7 @@
 <link rel="manifest" href="/site.webmanifest">
 <meta name="theme-color" content="#a708b6">
     <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/comun.css">
 
     <script type="application/ld+json">
     {
@@ -91,40 +92,11 @@
             --glow2: rgba(92, 140, 255, 0.2);
         }
 
-        body, html {
-            margin: 0;
-            min-height: 100%;
-            background-color: var(--bg);
-            transition: background-color 0.3s ease;
-        }
-
-        html { height: 100%; }
-
         body {
             min-height: 100vh;
             position: relative;
             overflow-x: hidden;
         }
-
-        .glow {
-            /* Antes esto era un círculo sólido con filter: blur(120px).
-               Ese blur, fijo en pantalla, es de las combinaciones más
-               caras que existen en CSS: sin aceleración de hardware el
-               navegador tiene que recalcularlo por software en cada
-               frame (sobre todo al scrollear), lo que tiraba los fps a
-               ~15. Un radial-gradient logra el mismo efecto de brillo
-               difuminado pero es prácticamente gratis de renderizar,
-               con o sin GPU. */
-            position: fixed;
-            width: 900px;
-            height: 900px;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .glow-1 { top: -350px; left: -310px; background: radial-gradient(circle, var(--glow1) 0%, transparent 70%); }
-        .glow-2 { bottom: -390px; right: -310px; background: radial-gradient(circle, var(--glow2) 0%, transparent 70%); }
 
         .titulo-seccion, .controles, .servidores-container, .paginacion {
             position: relative;
@@ -629,7 +601,7 @@
     <div class="paginacion" id="paginacion"></div>
 
     <script src="seguridad.js"></script>
-    <script src="https://unpkg.com/@supabase/supabase-js@2.112.3"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2.112.3" integrity="sha384-qafw21c/iciq0VXsi9FzkfoQv5I/V0iqE4lSNcKXPnW9/UTJLnv5CcN4FHxVLnKg" crossorigin="anonymous"></script>
     <script src="supabase-client.js"></script>
     <script src="datos.js"></script>
     <script src="auth-nav.js"></script>
