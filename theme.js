@@ -1,6 +1,29 @@
 /*
   theme.js
   -----------------------------------------------------------
+  ¡IMPORTANTE! Este archivo ya NO se carga como <script src="theme.js">
+  en ninguna página. Antes se cargaba así, bloqueando el parseo del
+  HTML mientras el navegador iba a buscarlo por red (una petición
+  extra, crítica en móvil con conexión lenta) — necesario porque el
+  cambio de tema debe aplicarse ANTES del primer pintado para evitar
+  el parpadeo (FOUC) entre modo claro/oscuro.
+
+  La solución fue insertar este mismo código como <script> INLINE
+  dentro del <head> de cada página (404.html, index.html, mods.html,
+  politica-privacidad.html, servidor-detalle.html, servidores.html,
+  terminos-condiciones.html, texturas.html, tops.html), justo al
+  inicio del <head>. Así se aplica el tema sin esperar una petición
+  de red, sin bloquear nada extra.
+
+  Este archivo se conserva como la ÚNICA fuente de verdad del código:
+  si necesitas cambiar la lógica de tema, edita SOLO acá y después
+  copia el contenido actualizado dentro de cada <head> mencionado
+  arriba (ideal: un pequeño script de build/generación si el sitio
+  suma más páginas, para no mantener 9 copias a mano).
+  -----------------------------------------------------------
+*/
+
+/*
   Modo oscuro/claro compartido. Requiere:
     - Un botón con id="theme-toggle" en la navbar de cada página
     - Reglas CSS ".dark-mode ..." definidas en cada página

@@ -18,6 +18,46 @@ html {
     height: 100%;
 }
 
+/*
+  Foco de teclado visible en todo el sitio público.
+  -----------------------------------------------------------
+  Antes solo admin-panel.css tenía una regla global de
+  :focus-visible; las páginas públicas (index, servidores, mods,
+  texturas, servidor-detalle, tops) dependían del outline por
+  defecto del navegador, que muchas veces queda tapado por el
+  fondo oscuro/degradado del sitio. Con :focus-visible el outline
+  solo aparece al navegar con teclado (Tab), no al hacer clic con
+  el mouse, así que no afecta el diseño visual para el resto de
+  los usuarios.
+*/
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+    outline: 2px solid var(--acento, #8c1fc4);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/*
+  Texto visible solo para lectores de pantalla (labels de campos
+  que ya se explican con un ícono/placeholder visualmente, pero
+  necesitan un nombre accesible real para tecnología asistiva).
+*/
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
 body,
 html {
     margin: 0;

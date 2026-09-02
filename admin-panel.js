@@ -28,7 +28,29 @@
 // en el mismo lugar dentro de agregar_tabla_admins.sql (funciones
 // es_admin/es_superadmin), así que también sigue funcionando del
 // lado del servidor (RLS), no solo acá.
-const SUPERADMIN_EMERGENCIA = "cristobalaceiton4@gmail.com";
+//
+// El correo real NO se guarda en texto plano acá: este archivo es
+// público (cualquiera puede verlo con "Ver código fuente"), y dejar
+// el email del administrador a la vista es un dato regalado para
+// phishing/ingeniería social dirigida contra esa persona. En su
+// lugar guardamos el hash SHA-256 y comparamos hasheando el correo
+// que entrega Supabase Auth en cada sesión. Esto NO reemplaza la
+// seguridad real (eso lo sigue haciendo RLS en el servidor contra la
+// tabla "admins"/SUPERADMIN_EMERGENCIA real, ver agregar_tabla_admins.sql);
+// es solo para no exponer el correo en el bundle del cliente.
+const SUPERADMIN_EMERGENCIA_HASH = "512fe21189248b9ccaaaa5835825f5a21d79ccac282814b02ceef304d90b9111";
+
+async function sha256Hex(texto) {
+    const datos = new TextEncoder().encode(texto.trim().toLowerCase());
+    const hashBuffer = await crypto.subtle.digest("SHA-256", datos);
+    return [...new Uint8Array(hashBuffer)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+async function esCorreoEmergencia(email) {
+    if (!email) return false;
+    const hash = await sha256Hex(email);
+    return hash === SUPERADMIN_EMERGENCIA_HASH;
+}
 
 let sesionAdmin = null; // { email, esSuperadmin } una vez autorizado, si no null
 
@@ -198,8 +220,9 @@ async function manejarSesion(sesion) {
     }
 
     const admin = await Datos.obtenerAdmin(email);
+    const esEmergencia = await esCorreoEmergencia(email);
 
-    if (!admin && email !== SUPERADMIN_EMERGENCIA) {
+    if (!admin && !esEmergencia) {
         sesionAdmin = null;
         $("admin-shell").classList.remove("mostrar");
         $("denegado-titulo").textContent = "No tienes acceso";
@@ -217,7 +240,7 @@ async function manejarSesion(sesion) {
     // (o contra SUPERADMIN_EMERGENCIA, ver agregar_tabla_admins.sql)
     // en cada operación de escritura, así que no hay forma de
     // saltarse esto por acá.
-    sesionAdmin = { email, esSuperadmin: email === SUPERADMIN_EMERGENCIA || !!admin?.es_superadmin };
+    sesionAdmin = { email, esSuperadmin: esEmergencia || !!admin?.es_superadmin };
     $("pantalla-denegado").style.display = "none";
     $("admin-shell").classList.add("mostrar");
 

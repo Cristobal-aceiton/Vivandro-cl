@@ -1,7 +1,51 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <script src="theme.js"></script>
+    <script>
+    /*
+      theme.js
+      -----------------------------------------------------------
+      Modo oscuro/claro compartido. Requiere:
+        - Un botón con id="theme-toggle" en la navbar de cada página
+        - Reglas CSS ".dark-mode ..." definidas en cada página
+          (ya agregadas en index.html, mods.html, servidores.html,
+          texturas.html, servidor-detalle.html y 404.html)
+    
+      El icono del botón es un SVG inline (sol/luna) en vez de un
+      emoji: así se ve igual en todos los sistemas operativos y
+      navegadores, en vez de depender de la fuente de emojis de
+      cada plataforma.
+      -----------------------------------------------------------
+    */
+    
+    (function () {
+        const KEY = "vivandro-theme";
+        const saved = localStorage.getItem(KEY) || "dark";
+    
+        const ICONO_LUNA = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M20.742 13.045a8.088 8.088 0 0 1-2.077.273c-4.508 0-8.16-3.653-8.16-8.16 0-1.174.25-2.353.732-3.404a.75.75 0 0 0-.926-1.02A10.5 10.5 0 1 0 22.47 13.727a.75.75 0 0 0-.99-.847 8.06 8.06 0 0 1-.738.165z"/></svg>';
+        const ICONO_SOL = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M12 4.5a1 1 0 0 1-1-1v-2a1 1 0 1 1 2 0v2a1 1 0 0 1-1 1zm0 19a1 1 0 0 1-1-1v-2a1 1 0 1 1 2 0v2a1 1 0 0 1-1 1zM4.22 5.64a1 1 0 0 1-1.42 0l-1.4-1.42a1 1 0 1 1 1.4-1.42l1.42 1.42a1 1 0 0 1 0 1.42zm16.98 16.98a1 1 0 0 1-1.42 0l-1.4-1.42a1 1 0 1 1 1.4-1.42l1.42 1.42a1 1 0 0 1 0 1.42zM2.5 13h-2a1 1 0 1 1 0-2h2a1 1 0 1 1 0 2zm21 0h-2a1 1 0 1 1 0-2h2a1 1 0 1 1 0 2zM4.22 20.36a1 1 0 0 1 0-1.42l1.42-1.4a1 1 0 1 1 1.42 1.4l-1.42 1.42a1 1 0 0 1-1.42 0zM18.36 5.64a1 1 0 0 1 0-1.42l1.42-1.4a1 1 0 1 1 1.42 1.4l-1.42 1.42a1 1 0 0 1-1.42 0zM12 6.5a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11z"/></svg>';
+    
+        function aplicarTema(tema) {
+            document.documentElement.classList.toggle("dark-mode", tema === "dark");
+        }
+    
+        // Aplicar antes de pintar para evitar parpadeo
+        aplicarTema(saved);
+    
+        document.addEventListener("DOMContentLoaded", () => {
+            const boton = document.getElementById("theme-toggle");
+            if (!boton) return;
+    
+            boton.innerHTML = saved === "dark" ? ICONO_SOL : ICONO_LUNA;
+    
+            boton.addEventListener("click", () => {
+                const esOscuro = document.documentElement.classList.toggle("dark-mode");
+                localStorage.setItem(KEY, esOscuro ? "dark" : "light");
+                boton.innerHTML = esOscuro ? ICONO_SOL : ICONO_LUNA;
+            });
+        });
+    })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalle del Servidor de Minecraft | Vivandro</title>
@@ -172,6 +216,7 @@
             align-items: center;
             justify-content: space-between;
             gap: 10px;
+            flex-wrap: wrap;
             background-color: var(--ip-row-bg);
             border-radius: 8px;
             padding: 10px 14px;
@@ -255,12 +300,19 @@
             cursor: pointer;
         }
 
-        .estrellas-input span {
+        .estrellas-input button {
             color: #ccc;
             transition: color 0.15s ease;
+            background: none;
+            border: none;
+            padding: 2px;
+            font-size: inherit;
+            font-family: inherit;
+            cursor: pointer;
+            line-height: 1;
         }
 
-        .estrellas-input span.activa {
+        .estrellas-input button.activa {
             color: #ffb400;
         }
 
@@ -454,6 +506,45 @@
             color: #fff;
         }
 
+        /*
+          Esta era la única página principal del sitio sin ningún
+          @media query (el resto usa 768px como quiebre estándar).
+          El layout ya era fluido (max-width + flex), así que no se
+          "rompía", pero en pantallas chicas se veía con demasiado
+          aire/tamaño heredado de desktop. Ajustes puntuales acá.
+        */
+        @media (max-width: 768px) {
+            .logo-header {
+                height: 140px;
+            }
+
+            .info-box,
+            .form-resena {
+                padding: 18px;
+            }
+
+            .info-box h1 {
+                font-size: 1.4rem;
+            }
+
+            .server-stats {
+                gap: 14px;
+            }
+
+            .ip-row {
+                justify-content: flex-start;
+            }
+
+            .btn-copiar-ip {
+                width: 100%;
+            }
+
+            .auth-box {
+                justify-content: center;
+                text-align: center;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -509,15 +600,16 @@
         <!-- Logueado, sin reseña todavía: muestra el formulario -->
         <form class="form-resena" id="form-resena" style="display:none;">
             <div class="usuario-actual" id="usuario-actual"></div>
-            <div class="estrellas-input" id="estrellas-input">
-                <span data-valor="1">★</span>
-                <span data-valor="2">★</span>
-                <span data-valor="3">★</span>
-                <span data-valor="4">★</span>
-                <span data-valor="5">★</span>
+            <div class="estrellas-input" id="estrellas-input" role="radiogroup" aria-label="Calificación de 1 a 5 estrellas">
+                <button type="button" data-valor="1" role="radio" aria-checked="false" aria-label="1 estrella">★</button>
+                <button type="button" data-valor="2" role="radio" aria-checked="false" aria-label="2 estrellas">★</button>
+                <button type="button" data-valor="3" role="radio" aria-checked="false" aria-label="3 estrellas">★</button>
+                <button type="button" data-valor="4" role="radio" aria-checked="false" aria-label="4 estrellas">★</button>
+                <button type="button" data-valor="5" role="radio" aria-checked="false" aria-label="5 estrellas">★</button>
             </div>
-            <textarea id="resena-comentario" rows="3" placeholder="¿Qué te pareció el servidor?" maxlength="300"></textarea>
-            <span class="contador-caracteres" id="contador-caracteres">0 / 300</span>
+            <label for="resena-comentario" class="sr-only">Comentario de la reseña</label>
+            <textarea id="resena-comentario" rows="3" placeholder="¿Qué te pareció el servidor?" maxlength="300" aria-label="¿Qué te pareció el servidor?"></textarea>
+            <span class="contador-caracteres" id="contador-caracteres" aria-live="polite">0 / 300</span>
             <button type="submit" class="btn-enviar-resena" id="btn-enviar-resena">Publicar reseña</button>
         </form>
 
@@ -526,7 +618,7 @@
             Ya dejaste tu reseña para este servidor. Solo se permite una por usuario.
         </div>
 
-        <div class="lista-resenas" id="lista-resenas">
+        <div class="lista-resenas" id="lista-resenas" aria-live="polite">
             <!-- Se rellena con JS -->
         </div>
     </div>
@@ -705,7 +797,7 @@
         let resenasCompletas = [];
         let mostrandoTodas = false;
 
-        estrellasInput.querySelectorAll("span").forEach((estrella) => {
+        estrellasInput.querySelectorAll("button").forEach((estrella) => {
             estrella.addEventListener("click", () => {
                 estrellasSeleccionadas = Number(estrella.dataset.valor);
                 pintarEstrellas();
@@ -713,8 +805,13 @@
         });
 
         function pintarEstrellas() {
-            estrellasInput.querySelectorAll("span").forEach((estrella) => {
-                estrella.classList.toggle("activa", Number(estrella.dataset.valor) <= estrellasSeleccionadas);
+            estrellasInput.querySelectorAll("button").forEach((estrella) => {
+                const activa = Number(estrella.dataset.valor) <= estrellasSeleccionadas;
+                estrella.classList.toggle("activa", activa);
+                // Solo la estrella que representa el valor elegido queda
+                // marcada como "seleccionada" (patrón radiogroup): las demás
+                // solo se pintan visualmente por estar a la izquierda de esa.
+                estrella.setAttribute("aria-checked", Number(estrella.dataset.valor) === estrellasSeleccionadas ? "true" : "false");
             });
         }
 
